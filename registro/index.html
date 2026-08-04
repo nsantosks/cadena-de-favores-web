@@ -304,30 +304,5 @@
   <script src="js/formulario-inscripcion.js"></script>
   <script src="js/app.js"></script>
 
-  <!-- Script inteligente para alternar vistas de Login vs Dashboard y mostrar elementos del Navbar -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const sesion = sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile');
-      const authView = document.getElementById('contenedorAuthView');
-      const appDashboard = document.getElementById('contenedorAppDashboard');
-      const navItemsSesion = document.querySelectorAll('.nav-item-sesion');
-      const navItemVolverWeb = document.getElementById('navItemVolverWeb');
-
-      if (sesion) {
-        // Si hay sesión: Ocultamos login, mostramos dashboard y opciones del menú de usuario
-        if (authView) authView.classList.add('d-none');
-        if (appDashboard) appDashboard.classList.remove('d-none');
-        navItemsSesion.forEach(el => el.classList.remove('d-none'));
-        if (navItemVolverWeb) navItemVolverWeb.classList.add('d-none');
-      } else {
-        // Si no hay sesión: Mostramos login y ocultamos dashboard y botones internos
-        if (authView) authView.classList.remove('d-none');
-        if (appDashboard) appDashboard.classList.add('d-none');
-        navItemsSesion.forEach(el => el.classList.add('d-none'));
-        if (navItemVolverWeb) navItemVolverWeb.classList.remove('d-none');
-      }
-    });
-  </script>
-
 </body>
 </html>
