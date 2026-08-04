@@ -142,8 +142,18 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
-    if (typeof inicializarApp === 'function') {
-      inicializarApp();
+    // Forzar la visualización inmediata del dashboard y carga de perfil
+    const authView = document.getElementById('contenedorAuthView');
+    const appDashboard = document.getElementById('contenedorAppDashboard');
+    if (authView) authView.classList.add('d-none');
+    if (appDashboard) {
+      appDashboard.classList.remove('d-none');
+      appDashboard.classList.add('d-flex');
+    }
+
+    if (typeof verificarPermisosRol === 'function') verificarPermisosRol();
+    if (typeof cargarVista === 'function') {
+      cargarVista('perfil');
     } else {
       window.location.reload();
     }

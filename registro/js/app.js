@@ -76,8 +76,12 @@ async function cargarVista(nombreVista) {
     if (template) {
       container.innerHTML = '';
       container.appendChild(template.content.cloneNode(true));
-      // Ejecutar inicializadores de perfil si los hay
-      if (typeof inicializarDatosPerfil === 'function') inicializarDatosPerfil();
+      // Ejecutar el inicializador real de perfil.js
+      if (typeof window.inicializarPerfilModulo === 'function') {
+        window.inicializarPerfilModulo();
+      } else if (typeof inicializarPerfilModulo === 'function') {
+        inicializarPerfilModulo();
+      }
     }
   }
 }
