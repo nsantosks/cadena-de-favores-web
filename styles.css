@@ -49,7 +49,7 @@ body {
 }
 
 .hero-section {
-  background: linear-gradient(rgba(30, 58, 138, 0.85), rgba(30, 58, 138, 0.85)), url('assets/logo.jpg') center/cover no-repeat;
+  background: linear-gradient(rgba(30, 58, 138, 0.85), rgba(30, 58, 138, 0.85)), url('assets/banner01.jpeg') center/cover no-repeat;
   min-height: 80vh;
 }
 
