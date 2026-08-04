@@ -19,28 +19,23 @@ async function inicializarApp() {
   const appDashboard = document.getElementById('contenedorAppDashboard');
   const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || 'null');
 
-  // GUARDIA DE ENRUTAMIENTO: Si no hay sesión válida, mostramos solo la tarjeta de login
+  // Asegurar estado inicial limpio para evitar parpadeos
+  if (authView) authView.classList.add('d-none');
+  if (appDashboard) appDashboard.classList.add('d-none');
+
+  // GUARDIA DE ENRUTAMIENTO: Si no hay sesión válida, mostramos el login
   if (!cuentaActiva || !cuentaActiva.email || cuentaActiva.email.trim() === "") {
     if (authView) authView.classList.remove('d-none');
-    if (appDashboard) {
-      appDashboard.classList.add('d-none');
-      appDashboard.classList.remove('d-flex');
-    }
-    // Detenemos la ejecución aquí para NO intentar cargar ninguna vista interna ni activar perfil.js
     return;
   }
 
-  // SI HAY SESIÓN ACTIVA: Ocultamos la tarjeta de login y mostramos el dashboard interno
-  if (authView) authView.classList.add('d-none');
+  // SI HAY SESIÓN ACTIVA: Mostramos el dashboard de inmediato
   if (appDashboard) {
     appDashboard.classList.remove('d-none');
     appDashboard.classList.add('d-flex');
   }
 
-  // Ajustar la visibilidad de elementos por rol (Coordinador vs Eslabón)
   verificarPermisosRol();
-
-  // Cargar la vista inicial (Perfil por defecto)
   await cargarVista('perfil');
 }
 

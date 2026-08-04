@@ -25,16 +25,23 @@ window.inicializarPerfilModulo = async function() {
         return;
     }
 
-    // 3. Consultar datos actualizados del servidor
-    try {
-        const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
-        if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
-            cuentaActiva = { ...cuentaActiva, ...resPerfil.perfil };
-            window.sesionUsuario = cuentaActiva;
-            sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+    // 3. CACHÉ INTELIGENTE: Validar si los datos clave ya están cargados en memoria/sesión.
+    // Si ya poseemos el nombre o la cédula guardados, evitamos la llamada repetitiva al backend 
+    // al hacer clic en "Mi Perfil", logrando una transición instantánea.
+    const perfilYaCargado = Boolean(cuentaActiva.nombre || cuentaActiva.Nombre_Completo || cuentaActiva.cedula || cuentaActiva.ID_Voluntario);
+    
+    if (!perfilYaCargado) {
+        // Solo si es la primera vez que entra y faltan datos principales, consultamos al servidor
+        try {
+            const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
+            if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
+                cuentaActiva = { ...cuentaActiva, ...resPerfil.perfil };
+                window.sesionUsuario = cuentaActiva;
+                sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+            }
+        } catch (e) {
+            console.warn("No se pudo sincronizar el perfil con el servidor, usando datos locales.", e);
         }
-    } catch (e) {
-        console.warn("No se pudo sincronizar el perfil con el servidor, usando datos locales.", e);
     }
 
     // 4. Inyección atómica en campos del formulario
@@ -68,7 +75,6 @@ window.inicializarPerfilModulo = async function() {
         avatarImg.style.objectFit = "cover";
         avatarImg.className = "rounded-circle border border-3 border-primary shadow-sm";
 
-        // Establecer un avatar inicial con las iniciales del nombre por defecto
         const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
         avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
 
@@ -76,7 +82,6 @@ window.inicializarPerfilModulo = async function() {
             if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
                 avatarImg.src = urlFotoDrive;
             } else {
-                // Consultar al API el Base64 mediante la función oficial del backend
                 callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive }).then(base64Res => {
                     if (base64Res && base64Res.base64) {
                         avatarImg.src = base64Res.base64;
@@ -195,7 +200,7 @@ window.inicializarPerfilModulo = async function() {
         if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
         if (seccionCalendario) seccionCalendario.classList.add('d-none');
     }
-}; // <--- LLAVE DE CIERRE RESTAURADA AQUÍ
+};
 
 // Autoejecución tras la inyección en el DOM
 setTimeout(function() {
