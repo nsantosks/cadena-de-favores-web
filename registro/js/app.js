@@ -85,12 +85,20 @@ async function cargarVista(nombreVista) {
   else if (nombreVista === 'calendario') {
     container.innerHTML = obtenerTemplateCalendarioHTML();
     
-    // Ejecutar el motor lógico del calendario de forma inmediata
-    if (typeof inicializarCalendarioModulo === 'function') {
-      inicializarCalendarioModulo();
-    } else if (typeof renderizarCalendario === 'function') {
-      renderizarCalendario();
-    }
+    // Forzar la ejecución de la lógica del calendario
+    setTimeout(() => {
+      if (typeof inicializarCalendarioModulo === 'function') {
+        inicializarCalendarioModulo();
+      } else if (typeof renderizarCalendario === 'function') {
+        renderizarCalendario();
+      } else {
+        // Fallback directo si la función tiene otro nombre en calendario.js
+        const grid = document.getElementById('calendarGrid');
+        if (grid) {
+          grid.innerHTML = '<div class="p-4 text-center text-muted col-12">Módulo de calendario cargado. Verifique la función de renderizado en calendario.js</div>';
+        }
+      }
+    }, 100);
   }
 
   // --- RENDERIZAR VISTA DE GESTIÓN DE VOLUNTARIOS ---

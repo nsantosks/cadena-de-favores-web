@@ -58,7 +58,7 @@ window.inicializarPerfilModulo = async function() {
         txtNombreHeader.innerText = cuentaActiva.nombre || cuentaActiva.Nombre_Completo;
     }
 
-    // 5. RESOLUCIÓN DE LA SELFIE MEDIANTE GOOGLE, BASE64 O FALLBACK
+    // 5. RESOLUCIÓN DE LA SELFIE BLINDADA
     const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto || "";
     const avatarImg = document.getElementById('avatarPrevisualizacion');
     
@@ -68,21 +68,23 @@ window.inicializarPerfilModulo = async function() {
         avatarImg.style.objectFit = "cover";
         avatarImg.className = "rounded-circle border border-3 border-primary shadow-sm";
 
-        if (urlFotoDrive && urlFotoDrive.startsWith("http")) {
-            avatarImg.src = urlFotoDrive;
-        } else if (urlFotoDrive && urlFotoDrive.trim() !== "") {
-            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Eslabón") + "&background=e2e8f0&color=94a3b8&size=130";
-            try {
-                const base64Res = await callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive });
-                if (base64Res && base64Res.base64) {
-                    avatarImg.src = base64Res.base64;
-                }
-            } catch(e) {
-                console.warn("No se pudo cargar la imagen en Base64, manteniendo fallback.");
+        // Establecer un avatar inicial con las iniciales del nombre por defecto
+        const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
+        avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
+
+        if (urlFotoDrive && urlFotoDrive.trim() !== "") {
+            if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
+                avatarImg.src = urlFotoDrive;
+            } else {
+                // Consultar al API el Base64 mediante la función oficial del backend
+                callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive }).then(base64Res => {
+                    if (base64Res && base64Res.base64) {
+                        avatarImg.src = base64Res.base64;
+                    }
+                }).catch(err => {
+                    console.warn("No se pudo obtener la imagen en Base64 de la API:", err);
+                });
             }
-        } else {
-            const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
-            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
         }
     }
 
