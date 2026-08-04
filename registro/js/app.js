@@ -85,20 +85,13 @@ async function cargarVista(nombreVista) {
   else if (nombreVista === 'calendario') {
     container.innerHTML = obtenerTemplateCalendarioHTML();
     
-    // Forzar la ejecución de la lógica del calendario
-    setTimeout(() => {
-      if (typeof inicializarCalendarioModulo === 'function') {
-        inicializarCalendarioModulo();
-      } else if (typeof renderizarCalendario === 'function') {
-        renderizarCalendario();
-      } else {
-        // Fallback directo si la función tiene otro nombre en calendario.js
-        const grid = document.getElementById('calendarGrid');
-        if (grid) {
-          grid.innerHTML = '<div class="p-4 text-center text-muted col-12">Módulo de calendario cargado. Verifique la función de renderizado en calendario.js</div>';
-        }
-      }
-    }, 100);
+    // Invocación correcta expuesta en calendario.js
+    if (typeof window.inicializarCalendarioView === 'function') {
+      window.inicializarCalendarioView();
+    } else if (typeof initCalendar === 'function') {
+      initCalendar();
+      cargarDatos();
+    }
   }
 
   // --- RENDERIZAR VISTA DE GESTIÓN DE VOLUNTARIOS ---
