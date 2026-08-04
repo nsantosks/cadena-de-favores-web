@@ -20,9 +20,6 @@ window.inicializarPerfilModulo = async function() {
     // 2. Verificar credenciales de sesión reales
     let cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || 'null');
     
-    // CORREGIDO: En lugar de expulsar al index principal de forma agresiva,
-    // si no hay sesión activa, detenemos la ejecución de manera silenciosa 
-    // para dejar el control absoluto a la tarjeta de login (contenedorAuthView).
     if (!cuentaActiva || !cuentaActiva.email || cuentaActiva.email.trim() === "") {
         console.warn("No hay sesión activa en perfil.js. Omitiendo carga del perfil.");
         return;
@@ -61,25 +58,31 @@ window.inicializarPerfilModulo = async function() {
         txtNombreHeader.innerText = cuentaActiva.nombre || cuentaActiva.Nombre_Completo;
     }
 
-    // 5. RESOLUCIÓN DE LA SELFIE MEDIANTE BASE64 O FALLBACK
-    const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile;
+    // 5. RESOLUCIÓN DE LA SELFIE MEDIANTE GOOGLE, BASE64 O FALLBACK
+    const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto || "";
     const avatarImg = document.getElementById('avatarPrevisualizacion');
     
     if (avatarImg) {
-        if (urlFotoDrive && urlFotoDrive.trim() !== "") {
-            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(cuentaActiva.nombre || "Eslabón") + "&background=e2e8f0&color=94a3b8&size=130";
+        avatarImg.style.width = "90px";
+        avatarImg.style.height = "90px";
+        avatarImg.style.objectFit = "cover";
+        avatarImg.className = "rounded-circle border border-3 border-primary shadow-sm";
+
+        if (urlFotoDrive && urlFotoDrive.startsWith("http")) {
+            avatarImg.src = urlFotoDrive;
+        } else if (urlFotoDrive && urlFotoDrive.trim() !== "") {
+            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Eslabón") + "&background=e2e8f0&color=94a3b8&size=130";
             try {
                 const base64Res = await callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive });
                 if (base64Res && base64Res.base64) {
                     avatarImg.src = base64Res.base64;
-                } else {
-                    avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
                 }
             } catch(e) {
-                avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
+                console.warn("No se pudo cargar la imagen en Base64, manteniendo fallback.");
             }
         } else {
-            avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
+            const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
+            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
         }
     }
 
@@ -132,13 +135,22 @@ window.inicializarPerfilModulo = async function() {
         }
     }
 
-    // 9. Control de permisos, roles y estatus
+    // 9. Control de permisos, roles y estatus (Blindado para múltiples variantes de propiedades)
     const lblEstatus = document.getElementById('lblEstatusVerificacion');
     const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
     const contenedorBloqueo = document.getElementById('contenedorBloqueo');
     const msgBloqueo = contenedorBloqueo ? contenedorBloqueo.querySelector('span.small') : null;
 
-    if (cuentaActiva.esCoordinador || cuentaActiva.coordinador === true || cuentaActiva.rolActivo === "coordinador") {
+    const esRolCoordinador = Boolean(
+        cuentaActiva.esCoordinador || 
+        cuentaActiva.coordinador === true || 
+        cuentaActiva.isCoordinador === true ||
+        cuentaActiva.rolActivo === "coordinador" || 
+        cuentaActiva.rolActive === "coordinador" ||
+        cuentaActiva.role === "coordinador"
+    );
+
+    if (esRolCoordinador) {
         if (lblEstatus) {
             lblEstatus.className = "badge bg-danger";
             lblEstatus.innerHTML = '<i class="fa-solid fa-user-shield me-1"></i> Autoridad / Coordinador';
@@ -152,8 +164,8 @@ window.inicializarPerfilModulo = async function() {
         const panelMon = document.getElementById('panelMonitoreoCuota');
         if (panelMon) panelMon.classList.remove('d-none');
         
-        sincronizarCuotaDeEnvios();
-        cargarPoolVoluntariosAsincrono(); 
+        if (typeof sincronizarCuotaDeEnvios === 'function') sincronizarCuotaDeEnvios();
+        if (typeof cargarPoolVoluntariosAsincrono === 'function') cargarPoolVoluntariosAsincrono();  
     } 
     else if (cuentaActiva.banned === true) {
         if (lblEstatus) {
@@ -181,7 +193,7 @@ window.inicializarPerfilModulo = async function() {
         if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
         if (seccionCalendario) seccionCalendario.classList.add('d-none');
     }
-};
+}; // <--- LLAVE DE CIERRE RESTAURADA AQUÍ
 
 // Autoejecución tras la inyección en el DOM
 setTimeout(function() {
@@ -260,7 +272,6 @@ async function actualizarPerfil(event) {
         Documentacion_nombre: cacheDocumentacionB64.nombre
     };
 
-    // Feedback visual en el botón de guardar
     const btnSubmit = formElement.querySelector('button[type="submit"]');
     let htmlOriginalBtn = "";
     if (btnSubmit) {
@@ -393,5 +404,39 @@ async function eliminarCredencialFicha(fileId, idVol) {
         cargarHistorialDocumentosFicha();
     } else {
         alert("Error al eliminar documento: " + (res ? res.message : "Error de comunicación"));
+    }
+}
+
+/**
+ * Función para generar el Reporte de Convocados del Día
+ */
+async function abrirInformeConvocadosHoy(btn) {
+    let originalText = "";
+    if (btn) {
+        btn.disabled = true;
+        originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generando...';
+    }
+
+    try {
+        const res = await callBackend('obtenerConvocadosHoy', {});
+        
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        if (res && res.status === "SUCCESS") {
+            alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
+        } else {
+            alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
+        }
+    } catch (e) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+        console.error("Error al obtener reporte de convocados:", e);
+        alert("No se pudo conectar con el servidor para generar el reporte.");
     }
 }

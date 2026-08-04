@@ -1051,3 +1051,36 @@ async function ejecutarDespachoMasivoFinal(idGuardia) {
            </div>`;
    }
 }
+
+async function abrirInformeConvocadosHoy(btn) {
+    let originalText = "";
+    if (btn) {
+        btn.disabled = true;
+        originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generando...';
+    }
+
+    try {
+        // Llamada al backend para obtener los convocados del día
+        const res = await callBackend('obtenerConvocadosHoy', {});
+        
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        if (res && res.status === "SUCCESS") {
+            // Aquí puedes inyectar los datos en el modal de guardia o mostrar una alerta/tabla
+            alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
+        } else {
+            alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
+        }
+    } catch (e) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+        console.error("Error al obtener reporte de convocados:", e);
+        alert("No se pudo conectar con el servidor para generar el reporte.");
+    }
+}

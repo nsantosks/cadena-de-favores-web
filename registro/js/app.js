@@ -69,19 +69,34 @@ async function cargarVista(nombreVista) {
   if (!container) return;
   container.style.display = 'block';
 
-  // Aquí continúa el código que ya tengas para inyectar las plantillas (perfil, calendario, etc.)
-  // Ejemplo:
+  // --- RENDERIZAR VISTA DE PERFIL ---
   if (nombreVista === 'perfil') {
     const template = document.getElementById('template-perfil-view');
     if (template) {
       container.innerHTML = '';
       container.appendChild(template.content.cloneNode(true));
-      // Ejecutar el inicializador real de perfil.js
       if (typeof window.inicializarPerfilModulo === 'function') {
         window.inicializarPerfilModulo();
-      } else if (typeof inicializarPerfilModulo === 'function') {
-        inicializarPerfilModulo();
       }
+    }
+  } 
+  
+  // --- RENDERIZAR VISTA DE CALENDARIO (AÑADIR ESTE BLOQUE) ---
+  else if (nombreVista === 'calendario') {
+    container.innerHTML = obtenerTemplateCalendarioHTML();
+    // Ejecutar el inicializador del calendario si existe en calendario.js
+    if (typeof inicializarCalendarioModulo === 'function') {
+      inicializarCalendarioModulo();
+    } else if (typeof renderizarCalendario === 'function') {
+      renderizarCalendario();
+    }
+  }
+
+  // --- RENDERIZAR VISTA DE GESTIÓN DE VOLUNTARIOS ---
+  else if (nombreVista === 'voluntarios') {
+    container.innerHTML = obtenerTemplateVoluntariosHTML();
+    if (typeof cargarAgendaVoluntarios === 'function') {
+      cargarAgendaVoluntarios();
     }
   }
 }
