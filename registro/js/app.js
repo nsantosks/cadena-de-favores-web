@@ -49,73 +49,36 @@ async function inicializarApp() {
  * @param {string} nombreVista - 'perfil', 'calendario' o 'voluntarios'
  */
 async function cargarVista(nombreVista) {
-  vistaActual = nombreVista;
-  const container = document.getElementById('vistaDinamicaContainer');
+  // 1. Asegurar la visibilidad de los contenedores institucionales
+  const authView = document.getElementById('contenedorAuthView');
+  const appDashboard = document.getElementById('contenedorAppDashboard');
+  const navItemsSesion = document.querySelectorAll('.nav-item-sesion');
+  const navItemVolverWeb = document.getElementById('navItemVolverWeb');
+
+  if (authView) authView.classList.add('d-none');
+  if (appDashboard) appDashboard.classList.remove('d-none');
+  navItemsSesion.forEach(el => el.classList.remove('d-none'));
+  if (navItemVolverWeb) navItemVolverWeb.classList.add('d-none');
+
+  // 2. Ocultar el spinner global de carga si estuviera activo
   const spinner = document.getElementById('appGlobalSpinner');
+  if (spinner) spinner.classList.add('d-none');
 
+  // 3. Lógica para renderizar la vista solicitada dentro del contenedor dinámico
+  const container = document.getElementById('vistaDinamicaContainer');
   if (!container) return;
+  container.style.display = 'block';
 
-  // Mostrar el spinner de carga global
-  if (spinner) spinner.style.display = 'block';
-  container.style.display = 'none';
-
-  try {
-    switch (nombreVista) {
-      case 'perfil':
-        container.innerHTML = obtenerTemplatePerfilHTML();
-        if (typeof window.inicializarPerfilModulo === "function") {
-          await window.inicializarPerfilModulo();
-        }
-        break;
-
-      case 'calendario':
-        container.innerHTML = obtenerTemplateCalendarioHTML();
-        if (typeof window.inicializarCalendarioView === "function") {
-          window.inicializarCalendarioView();
-        } else if (typeof cargarDatos === "function") {
-          await cargarDatos();
-        }
-        break;
-
-      case 'voluntarios':
-        // Protección de Ruta por Rol
-        if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
-        const rol = window.sesionUsuario ? (window.sesionUsuario.rolActivo || window.sesionUsuario.rolActive || "eslabon") : "eslabon";
-        
-        if (rol !== "coordinador") {
-          alert("Acceso Restringido: Esta sección requiere credenciales de Coordinador.");
-          cargarVista('perfil');
-          return;
-        }
-
-        container.innerHTML = obtenerTemplateVoluntariosHTML();
-        if (typeof window.inicializarVoluntariosModulo === "function") {
-          await window.inicializarVoluntariosModulo();
-        }
-        break;
-
-      default:
-        console.warn(`Vista no reconocida: ${nombreVista}. Cargando perfil...`);
-        container.innerHTML = obtenerTemplatePerfilHTML();
-        if (typeof window.inicializarPerfilModulo === "function") {
-          await window.inicializarPerfilModulo();
-        }
-        break;
+  // Aquí continúa el código que ya tengas para inyectar las plantillas (perfil, calendario, etc.)
+  // Ejemplo:
+  if (nombreVista === 'perfil') {
+    const template = document.getElementById('template-perfil-view');
+    if (template) {
+      container.innerHTML = '';
+      container.appendChild(template.content.cloneNode(true));
+      // Ejecutar inicializadores de perfil si los hay
+      if (typeof inicializarDatosPerfil === 'function') inicializarDatosPerfil();
     }
-  } catch (error) {
-    console.error(`Error al renderizar la vista '${nombreVista}':`, error);
-    container.innerHTML = `
-      <div class="col-12 text-center text-danger p-5">
-        <i class="fa-solid fa-triangle-exclamation fa-3x mb-3"></i>
-        <h5>Fallo al cargar la sección</h5>
-        <p class="small text-muted">No se pudo inicializar la interfaz requerida.</p>
-        <button class="btn btn-outline-primary btn-sm mt-2" onclick="cargarVista('perfil')">Regresar a Mi Perfil</button>
-      </div>`;
-  } finally {
-    // Oculta el spinner superior y muestra el contenedor dinámico de la vista
-    if (spinner) spinner.style.display = 'none';
-    if (container) container.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
