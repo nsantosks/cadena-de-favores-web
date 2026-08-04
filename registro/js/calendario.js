@@ -2,7 +2,7 @@
 // MÓDULO JS: LOGÍSTICA, CALENDARIO Y DESPACHO OPERATIVO
 // ==========================================================================
 
-let currentDate = new Date(2026, 6, 1); // Inicializado en Julio 2026
+let currentDate = new Date(); // Inicia automáticamente en el mes y año real (Agosto 2026)
 let guardiasData = [];                  // Almacén en memoria
 let catalogoChoferes = null;           // Cache de choferes
 let catalogoPuntos = null;             // Cache de puntos

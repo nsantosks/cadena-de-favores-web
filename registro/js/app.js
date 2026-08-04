@@ -138,18 +138,20 @@ function obtenerTemplatePerfilHTML() {
 
 function obtenerTemplateCalendarioHTML() {
   return `
-    <div class="card shadow-sm border-0 mt-2 animate__animated animate__fadeIn">
-      <div class="card-body p-0">
-        <div class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
-          <button class="btn btn-outline-secondary btn-sm" id="btnPrevMonth">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <h4 id="monthYearDisplay" class="m-0 fw-bold text-dark">Julio 2026</h4>
-          <button class="btn btn-outline-secondary btn-sm" id="btnNextMonth">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
+    <div class="container-fluid px-4 py-2 animate__animated animate__fadeIn">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+          <div class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
+            <button class="btn btn-outline-secondary btn-sm" id="btnPrevMonth">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h4 id="monthYearDisplay" class="m-0 fw-bold text-dark">Agosto 2026</h4>
+            <button class="btn btn-outline-secondary btn-sm" id="btnNextMonth">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
         </div>
-        <div id="calendarGrid" class="calendar-grid"></div>
       </div>
     </div>`;
 }
