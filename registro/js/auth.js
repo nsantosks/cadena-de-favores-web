@@ -142,19 +142,11 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
-    // Transición visual directa al dashboard
-    const authView = document.getElementById('contenedorAuthView');
-    const appDashboard = document.getElementById('contenedorAppDashboard');
-    const navItemsSesion = document.querySelectorAll('.nav-item-sesion');
-    const navItemVolverWeb = document.getElementById('navItemVolverWeb');
-
-    if (authView) authView.classList.add('d-none');
-    if (appDashboard) appDashboard.classList.remove('d-none');
-    navItemsSesion.forEach(el => el.classList.remove('d-none'));
-    if (navItemVolverWeb) navItemVolverWeb.classList.add('d-none');
-
-    if (typeof verificarPermisosRol === 'function') verificarPermisosRol();
-    if (typeof cargarVista === 'function') cargarVista('perfil');
+    if (typeof inicializarApp === 'function') {
+      inicializarApp();
+    } else {
+      window.location.reload();
+    }
   } else {
     mostrarErrorAuth(res ? res.message : "Fallo al verificar identidad.");
   }
@@ -214,38 +206,22 @@ async function validarYAccederOTP() {
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
-    // Transición visual directa al dashboard
-    const authView = document.getElementById('contenedorAuthView');
-    const appDashboard = document.getElementById('contenedorAppDashboard');
-    const navItemsSesion = document.querySelectorAll('.nav-item-sesion');
-    const navItemVolverWeb = document.getElementById('navItemVolverWeb');
-
-    if (authView) authView.classList.add('d-none');
-    if (appDashboard) appDashboard.classList.remove('d-none');
-    navItemsSesion.forEach(el => el.classList.remove('d-none'));
-    if (navItemVolverWeb) navItemVolverWeb.classList.add('d-none');
-
-    if (typeof verificarPermisosRol === 'function') verificarPermisosRol();
-    if (typeof cargarVista === 'function') cargarVista('perfil');
+    if (typeof inicializarApp === 'function') {
+      inicializarApp();
+    } else {
+      window.location.reload();
+    }
 
   } else if (res && res.status === "REQUIRES_REGISTRATION") {
     const perfilProvisional = { email: res.email || email, rolActivo: rol, nuevoRegistro: true };
     window.sesionUsuario = perfilProvisional;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
 
-    // Transición visual directa al dashboard
-    const authView = document.getElementById('contenedorAuthView');
-    const appDashboard = document.getElementById('contenedorAppDashboard');
-    const navItemsSesion = document.querySelectorAll('.nav-item-sesion');
-    const navItemVolverWeb = document.getElementById('navItemVolverWeb');
-
-    if (authView) authView.classList.add('d-none');
-    if (appDashboard) appDashboard.classList.remove('d-none');
-    navItemsSesion.forEach(el => el.classList.remove('d-none'));
-    if (navItemVolverWeb) navItemVolverWeb.classList.add('d-none');
-
-    if (typeof verificarPermisosRol === 'function') verificarPermisosRol();
-    if (typeof cargarVista === 'function') cargarVista('perfil'); 
+    if (typeof inicializarApp === 'function') {
+      inicializarApp();
+    } else {
+      window.location.reload();
+    }
     
     setTimeout(() => {
       const modalElem = document.getElementById('modalGuardia');
