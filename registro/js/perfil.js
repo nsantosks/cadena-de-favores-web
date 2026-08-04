@@ -115,27 +115,35 @@ window.inicializarPerfilModulo = async function() {
         console.warn("No se pudieron pre-cargar especialidades maestro.");
     }
 
-    // 8. Selector dinámico de puntos de recogida
+    // 8. Selector dinámico de puntos de recogida (Corregido para mantener la selección)
     const selectRecogida = document.getElementById('perfilRecogida');
     if (selectRecogida) {
+        const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || "";
         try {
             const resPuntos = await callBackend('obtenerPuntosRecogida', {});
             if (resPuntos && resPuntos.puntos) {
-                selectRecogida.innerHTML = ''; 
-                const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || "";
+                selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
                 
                 resPuntos.puntos.forEach((lugar, indice) => {
                     const option = document.createElement('option');
                     option.value = lugar.id || lugar.nombre;     
                     option.innerText = lugar.nombre; 
                     
+                    // Comprobación exacta con el valor guardado
                     if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
-                        option.selected = true;
-                    } else if (indice === 0 && puntoDefinido === "") {
                         option.selected = true;
                     }
                     selectRecogida.appendChild(option);
                 });
+
+                // Si ninguna opción coincidió pero hay un valor definido, lo agregamos temporalmente
+                if (puntoDefinido && !selectRecogida.value) {
+                    const optExtra = document.createElement('option');
+                    optExtra.value = puntoDefinido;
+                    optExtra.innerText = puntoDefinido;
+                    optExtra.selected = true;
+                    selectRecogida.appendChild(optExtra);
+                }
             }
         } catch(err) {
             selectRecogida.innerHTML = `<option value="Estación">Estación / Base de Salida</option>`;
