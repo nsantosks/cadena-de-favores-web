@@ -1,0 +1,397 @@
+// ==========================================================================
+// MÓDULO JS: PERFIL OPERATIVO Y CONSOLA DE COORDINACIÓN (NETLIFY / API REST)
+// Cadena de Favores Venezuela — Resiliente y Desacoplado
+// ==========================================================================
+
+var cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
+var cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
+var poolVoluntarios = poolVoluntarios || []; 
+
+/**
+ * Inicializador modular expuesto de forma global.
+ */
+window.inicializarPerfilModulo = async function() {
+    if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
+
+    // 1. Ocultar inmediatamente el loader spinner global de la app
+    const spinnerGlobal = document.getElementById('appGlobalSpinner');
+    if (spinnerGlobal) spinnerGlobal.style.display = 'none';
+
+    // 2. Verificar credenciales de sesión reales
+    let cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || 'null');
+    
+    // CORREGIDO: En lugar de expulsar al index principal de forma agresiva,
+    // si no hay sesión activa, detenemos la ejecución de manera silenciosa 
+    // para dejar el control absoluto a la tarjeta de login (contenedorAuthView).
+    if (!cuentaActiva || !cuentaActiva.email || cuentaActiva.email.trim() === "") {
+        console.warn("No hay sesión activa en perfil.js. Omitiendo carga del perfil.");
+        return;
+    }
+
+    // 3. Consultar datos actualizados del servidor
+    try {
+        const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
+        if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
+            cuentaActiva = { ...cuentaActiva, ...resPerfil.perfil };
+            window.sesionUsuario = cuentaActiva;
+            sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+        }
+    } catch (e) {
+        console.warn("No se pudo sincronizar el perfil con el servidor, usando datos locales.", e);
+    }
+
+    // 4. Inyección atómica en campos del formulario
+    const setFieldValue = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || "";
+    };
+
+    setFieldValue('perfilNombre', cuentaActiva.nombre || cuentaActiva.Nombre_Completo);
+    setFieldValue('perfilVoluntariado', cuentaActiva.voluntariado || cuentaActiva.Voluntariado);
+    setFieldValue('perfilEspecialidad', cuentaActiva.especialidad || cuentaActiva.Especialidad);
+    setFieldValue('perfilTelefono', cuentaActiva.telefono || cuentaActiva.Telefono);
+    setFieldValue('perfilCedula', cuentaActiva.cedula || cuentaActiva.ID_Voluntario);
+    setFieldValue('perfilUrlFotoActual', cuentaActiva.imagen_profile || cuentaActiva.imagenProfile);
+    setFieldValue('perfilUrlDocActual', cuentaActiva.Documentacion_URL || cuentaActiva.docUrl);
+    setFieldValue('perfilDireccion', cuentaActiva.direccion);
+
+    // Actualizar nombre en encabezado si existe el elemento
+    const txtNombreHeader = document.getElementById('txtPerfilNombreHeader');
+    if (txtNombreHeader && (cuentaActiva.nombre || cuentaActiva.Nombre_Completo)) {
+        txtNombreHeader.innerText = cuentaActiva.nombre || cuentaActiva.Nombre_Completo;
+    }
+
+    // 5. RESOLUCIÓN DE LA SELFIE MEDIANTE BASE64 O FALLBACK
+    const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile;
+    const avatarImg = document.getElementById('avatarPrevisualizacion');
+    
+    if (avatarImg) {
+        if (urlFotoDrive && urlFotoDrive.trim() !== "") {
+            avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(cuentaActiva.nombre || "Eslabón") + "&background=e2e8f0&color=94a3b8&size=130";
+            try {
+                const base64Res = await callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive });
+                if (base64Res && base64Res.base64) {
+                    avatarImg.src = base64Res.base64;
+                } else {
+                    avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
+                }
+            } catch(e) {
+                avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
+            }
+        } else {
+            avatarImg.src = "https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE";
+        }
+    }
+
+    // 6. Despliegue del historial de credenciales documentales
+    const urlDocExistente = cuentaActiva.Documentacion_URL || cuentaActiva.docUrl;
+    if (urlDocExistente && urlDocExistente.trim() !== "") {
+        cargarHistorialDocumentosFicha();
+    }
+
+    // 7. Catálogo maestro de especialidades
+    try {
+        const resEsp = await callBackend('obtenerEspecialidades', {});
+        const datalist = document.getElementById('listaEspecialidades');
+        if (datalist && resEsp && resEsp.especialidades) {
+            datalist.innerHTML = '';
+            resEsp.especialidades.forEach(esp => {
+                const option = document.createElement('option');
+                option.value = esp;
+                datalist.appendChild(option);
+            });
+        }
+    } catch(err) {
+        console.warn("No se pudieron pre-cargar especialidades maestro.");
+    }
+
+    // 8. Selector dinámico de puntos de recogida
+    const selectRecogida = document.getElementById('perfilRecogida');
+    if (selectRecogida) {
+        try {
+            const resPuntos = await callBackend('obtenerPuntosRecogida', {});
+            if (resPuntos && resPuntos.puntos) {
+                selectRecogida.innerHTML = ''; 
+                const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || "";
+                
+                resPuntos.puntos.forEach((lugar, indice) => {
+                    const option = document.createElement('option');
+                    option.value = lugar.id || lugar.nombre;     
+                    option.innerText = lugar.nombre; 
+                    
+                    if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
+                        option.selected = true;
+                    } else if (indice === 0 && puntoDefinido === "") {
+                        option.selected = true;
+                    }
+                    selectRecogida.appendChild(option);
+                });
+            }
+        } catch(err) {
+            selectRecogida.innerHTML = `<option value="Estación">Estación / Base de Salida</option>`;
+        }
+    }
+
+    // 9. Control de permisos, roles y estatus
+    const lblEstatus = document.getElementById('lblEstatusVerificacion');
+    const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
+    const contenedorBloqueo = document.getElementById('contenedorBloqueo');
+    const msgBloqueo = contenedorBloqueo ? contenedorBloqueo.querySelector('span.small') : null;
+
+    if (cuentaActiva.esCoordinador || cuentaActiva.coordinador === true || cuentaActiva.rolActivo === "coordinador") {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-danger";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-user-shield me-1"></i> Autoridad / Coordinador';
+        }
+        if (seccionCalendario) seccionCalendario.classList.remove('d-none');
+        if (contenedorBloqueo) contenedorBloqueo.classList.add('d-none');
+        
+        const panelAcc = document.getElementById('panelAccionesCoordinador');
+        if (panelAcc) panelAcc.classList.remove('d-none');
+
+        const panelMon = document.getElementById('panelMonitoreoCuota');
+        if (panelMon) panelMon.classList.remove('d-none');
+        
+        sincronizarCuotaDeEnvios();
+        cargarPoolVoluntariosAsincrono(); 
+    } 
+    else if (cuentaActiva.banned === true) {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-dark";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Perfil Restringido';
+        }
+        if (msgBloqueo) msgBloqueo.innerText = "Su perfil está siendo verificado por la coordinación central. El acceso se restaurará al finalizar el proceso.";
+        if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
+        if (seccionCalendario) seccionCalendario.classList.add('d-none');
+    } 
+    else if (cuentaActiva.verificado) {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-success";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Verificado';
+        }
+        if (seccionCalendario) seccionCalendario.classList.remove('d-none');
+        if (contenedorBloqueo) contenedorBloqueo.classList.add('d-none');
+    } 
+    else {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-warning text-dark";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-clock me-1"></i> En Revisión';
+        }
+        if (msgBloqueo) msgBloqueo.innerText = "El acceso al calendario se activará automáticamente cuando complete su perfil y la coordinación valide sus credenciales.";
+        if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
+        if (seccionCalendario) seccionCalendario.classList.add('d-none');
+    }
+};
+
+// Autoejecución tras la inyección en el DOM
+setTimeout(function() {
+    if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo();
+}, 50);
+
+function procesarPrevisualizacionFoto(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        cacheFotoPerfilB64.cargando = true;
+        reader.onload = function(e) {
+            const imgEl = document.getElementById('avatarPrevisualizacion');
+            if (imgEl) imgEl.src = e.target.result;
+            cacheFotoPerfilB64.base64 = e.target.result;
+            cacheFotoPerfilB64.nombre = file.name;
+            cacheFotoPerfilB64.cargando = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function procesarDocumentoLocal(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        cacheDocumentacionB64.cargando = true;
+        reader.onload = function(e) {
+            cacheDocumentacionB64.base64 = e.target.result;
+            cacheDocumentacionB64.nombre = file.name;
+            cacheDocumentacionB64.cargando = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function actualizarPerfil(event) {
+    event.preventDefault();
+    const formElement = document.getElementById('formPerfil');
+    
+    if (!formElement) return;
+
+    if (cacheFotoPerfilB64.cargando || cacheDocumentacionB64.cargando) {
+        alert("Los archivos adjuntos aún se están procesando localmente. Espere un momento.");
+        return;
+    }
+    
+    formElement.classList.add('was-validated');
+    if (!formElement.checkValidity()) {
+        return;
+    }
+
+    const urlFotoActual = document.getElementById('perfilUrlFotoActual')?.value || "";
+    if (!cacheFotoPerfilB64.base64 && (!urlFotoActual || urlFotoActual.trim() === "")) {
+        alert("La Selfie/Fotografía de perfil es obligatoria para la acreditación en la Red.");
+        return;
+    }
+
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+
+    const datos = {
+        ID_Voluntario: cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim(),
+        cedula: document.getElementById('perfilCedula').value.trim(),
+        Nombre_Completo: document.getElementById('perfilNombre').value.trim(),
+        Voluntariado: document.getElementById('perfilVoluntariado').value,
+        Especialidad: document.getElementById('perfilEspecialidad').value.trim(), 
+        Punto_Recogida_Preferido: document.getElementById('perfilRecogida')?.value || "",
+        Telefono: document.getElementById('perfilTelefono').value.trim(),
+        direccion: document.getElementById('perfilDireccion').value.trim(),
+        Correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
+        imagen_profile_actual: urlFotoActual,
+        Documentacion_URL_actual: document.getElementById('perfilUrlDocActual')?.value || "",
+        imagen_profile_base64: cacheFotoPerfilB64.base64,
+        imagen_profile_nombre: cacheFotoPerfilB64.nombre,
+        Documentacion_base64: cacheDocumentacionB64.base64,
+        Documentacion_nombre: cacheDocumentacionB64.nombre
+    };
+
+    // Feedback visual en el botón de guardar
+    const btnSubmit = formElement.querySelector('button[type="submit"]');
+    let htmlOriginalBtn = "";
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        htmlOriginalBtn = btnSubmit.innerHTML;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Guardando en la Red...';
+    }
+
+    const res = await callBackend('registrarVoluntario', datos);
+
+    if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = htmlOriginalBtn;
+    }
+
+    if (res && res.status === "SUCCESS") {
+        const perfilActualizado = res.perfil || datos;
+        sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
+        window.sesionUsuario = perfilActualizado;
+        if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
+        
+        cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
+        cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
+
+        alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
+        if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo();
+
+    } else {
+        alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor. Reintente más tarde."));
+    }
+}
+
+async function cargarPoolVoluntariosAsincrono() {
+    const res = await callBackend('obtenerVoluntarios', {});
+    if (res && res.voluntarios) {
+        poolVoluntarios = res.voluntarios;
+        if (typeof renderizarTarjetasAgendaLocal === "function") {
+            renderizarTarjetasAgendaLocal(poolVoluntarios);
+        }
+        actualizarContadorAptosLocal();
+    }
+}
+
+function actualizarContadorAptosLocal() {
+    const lblAptos = document.getElementById('lblVoluntariosDisponibles');
+    if (lblAptos) {
+        let aptosCount = 0;
+        const ahora = Date.now();
+        
+        if (poolVoluntarios && poolVoluntarios.length > 0) {
+            poolVoluntarios.forEach(vol => {
+                const lastAdviseTime = vol.lastAdvise ? parseInt(vol.lastAdvise) : 0;
+                const horasDiff = lastAdviseTime > 0 ? (ahora - lastAdviseTime) / (1000 * 60 * 60) : 999;
+                if (vol.verificado && !vol.banned && vol.masiveAdvise !== "FALSE" && !vol.esCoordinador && horasDiff > 48) {
+                    aptosCount++;
+                }
+            });
+        }
+        
+        lblAptos.innerText = aptosCount;
+        lblAptos.className = aptosCount > 0 ? "badge bg-purple font-monospace fs-6 text-white" : "badge bg-secondary font-monospace fs-6 text-white";
+    }
+}
+
+async function sincronizarCuotaDeEnvios(btn) {
+    let originalText = "";
+    if (btn) {
+        btn.disabled = true;
+        originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Sincronizando...';
+    }
+    
+    const lbl = document.getElementById('lblCuotaDisponible');
+    if (lbl) lbl.innerText = "Consultando...";
+
+    const res = await callBackend('obtenerCuotaDisponible', {});
+
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+    if (lbl && res && res.status === "SUCCESS") {
+        lbl.innerText = res.cuota;
+        lbl.className = res.cuota > 150 ? "badge bg-success font-monospace fs-6 text-white" : "badge bg-warning font-monospace fs-6 text-dark";
+    } else if (lbl) {
+        lbl.innerText = "N/D";
+    }
+}
+
+async function cargarHistorialDocumentosFicha() {
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || "";
+    const tbody = document.getElementById('tablaDocsVoluntarioBody');
+    const divContenedor = document.getElementById('contenedorDocsVoluntario');
+    
+    if (!tbody || !divContenedor || !idVol) return;
+    
+    const res = await callBackend('obtenerDocumentosVoluntario', { idVoluntario: idVol });
+
+    if (res && res.status === "SUCCESS" && res.documentos && res.documentos.length > 0) {
+        divContenedor.classList.remove('d-none');
+        tbody.innerHTML = "";
+        
+        res.documentos.forEach(doc => {
+            tbody.innerHTML += `
+              <tr>
+                <td class="text-truncate" style="max-width: 250px;" title="${doc.nombre}">
+                   <i class="fa-solid fa-file-pdf text-danger me-2"></i><strong>${doc.nombre}</strong>
+                </td>
+                <td class="text-muted" style="font-size:0.75rem;">${doc.fecha}</td>
+                <td class="text-center">
+                   <a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-primary p-0 px-2 border-0" title="Ver archivo"><i class="fa-solid fa-eye fs-6"></i></a>
+                   <button type="button" class="btn btn-sm btn-outline-danger p-0 px-2 border-0 ms-1" title="Eliminar de Drive" onclick="eliminarCredencialFicha('${doc.id}', '${idVol}')"><i class="fa-solid fa-trash fs-6"></i></button>
+                </td>
+              </tr>
+            `;
+        });
+    } else {
+        divContenedor.classList.add('d-none');
+    }
+}
+
+async function eliminarCredencialFicha(fileId, idVol) {
+    if (!confirm("ADVERTENCIA:\n¿Está seguro de eliminar esta credencial de su expediente en Google Drive?")) return;
+    
+    const res = await callBackend('eliminarDocumentoDrive', { fileId: fileId, idVoluntario: idVol });
+
+    if (res && res.status === "SUCCESS") {
+        alert("Documento removido exitosamente.");
+        cargarHistorialDocumentosFicha();
+    } else {
+        alert("Error al eliminar documento: " + (res ? res.message : "Error de comunicación"));
+    }
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANIFIESTO OPERATIVO - CADENA DE FAVORES VZLA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    @page { 
+      size: letter portrait; 
+      margin: 8mm 10mm 8mm 10mm; 
+    }
+    
+    body { 
+      font-family: 'Inter', Arial, sans-serif; 
+      padding: 0; 
+      color: #1e293b; 
+      background: #fff; 
+      line-height: 1.25; 
+      margin: 0; 
+    }
+    
+    /* Membrete Institucional Compacto */
+    .header-container { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-bottom: 2px solid #1e3a8a; 
+      padding-bottom: 6px; 
+      margin-bottom: 10px; 
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .logo-area img { 
+      width: 50px; 
+      height: 50px; 
+      object-fit: contain; 
+    }
+    .header-text-area { 
+      text-align: right; 
+    }
+    .institution-title { 
+      font-size: 1.1rem; 
+      font-weight: 700; 
+      color: #1e3a8a; 
+      letter-spacing: -0.2px; 
+      margin: 0; 
+    }
+    .document-type { 
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      color: #0f172a; 
+      text-transform: uppercase; 
+      margin-top: 1px; 
+      letter-spacing: 0.5px; 
+    }
+
+    /* Bloque Metadatos Logísticos Reducido */
+    .meta-grid { 
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 10px; 
+      margin-bottom: 12px; 
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .meta-card { 
+      background: #f8fafc; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 5px; 
+      padding: 8px 12px; 
+      border-left: 4px solid #1e3a8a; 
+    }
+    .meta-card-title { 
+      font-size: 0.65rem; 
+      font-weight: 700; 
+      color: #64748b; 
+      text-transform: uppercase; 
+      margin-bottom: 2px; 
+    }
+    .meta-card-value { 
+      font-size: 0.8rem; 
+      font-weight: 600; 
+      color: #0f172a; 
+    }
+    .meta-card-value span { 
+      font-weight: 400; 
+      color: #475569; 
+    }
+
+    /* Sección de la Tabla Compacta */
+    .section-title { 
+      color: #0f172a; 
+      font-size: 0.88rem; 
+      font-weight: 700; 
+      margin-bottom: 8px; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      border-bottom: 1px solid #e2e8f0; 
+      padding-bottom: 4px; 
+    }
+    .manifest-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 2px; 
+    }
+    .manifest-table th { 
+      background: #1e3a8a; 
+      color: white; 
+      padding: 6px 8px; 
+      text-align: left; 
+      font-size: 0.68rem; 
+      font-weight: 600; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px; 
+    }
+    .manifest-table td { 
+      padding: 4px 8px; 
+      border-bottom: 1px solid #e2e8f0; 
+      font-size: 0.75rem; 
+      color: #334155; 
+      vertical-align: middle; 
+    }
+    .manifest-table tr:nth-child(even) { 
+      background-color: #f8fafc; 
+    }
+
+    /* Prevención de corte de filas entre páginas */
+    .manifest-table tr, 
+    .stop-header-row {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    
+    .stop-header-row {
+      background-color: #f1f5f9 !important;
+      font-weight: 700;
+      color: #1e3a8a;
+      font-size: 0.72rem;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+    .stop-header-row td {
+      padding: 5px 8px !important;
+      border-bottom: 1.5px solid #cbd5e1 !important;
+      border-top: 1.5px solid #cbd5e1 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .identity-container { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    }
+    .identity-badge { 
+      font-family: monospace; 
+      font-size: 0.68rem; 
+      color: #1e3a8a; 
+      font-weight: 700; 
+      background: #e0f2fe; 
+      padding: 1px 4px; 
+      border-radius: 3px; 
+      border: 1px solid #bae6fd;
+      white-space: nowrap;
+    }
+    .identity-name { 
+      font-size: 0.78rem;
+      font-weight: 600; 
+      color: #0f172a; 
+      white-space: nowrap;
+    }
+
+    /* Nota de Control Vial Compacta */
+    .footer-note { 
+      margin-top: 10px; 
+      font-size: 0.58rem; 
+      text-align: justify; 
+      color: #64748b; 
+      border: 1px dashed #cbd5e1; 
+      background: #fafafa; 
+      padding: 6px 10px; 
+      border-radius: 4px; 
+      line-height: 1.25; 
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    
+    /* Botón Flotante */
+    .btn-print-floating { 
+      position: fixed; 
+      bottom: 25px; 
+      right: 25px; 
+      background: #10b981; 
+      color: white; 
+      border: none; 
+      padding: 12px 22px; 
+      border-radius: 50px; 
+      font-size: 0.9rem; 
+      font-weight: 600; 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      transition: all 0.2s ease-in-out; 
+      z-index: 9999; 
+    }
+    .btn-print-floating:hover { 
+      background: #059669; 
+      transform: translateY(-2px); 
+    }
+    
+    #loader { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      height: 85vh; 
+      font-weight: 600; 
+      color: #475569; 
+    }
+    .spinner { 
+      border: 3px solid rgba(0,0,0,0.08); 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 50%; 
+      border-left-color: #1e3a8a; 
+      animation: spin 0.8s linear infinite; 
+      margin-bottom: 18px; 
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    #contenidoManifiesto {
+      background: white !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    @media print {
+      body { padding: 0; margin: 0; color: #000; background: #fff; }
+      .btn-print-floating { display: none !important; }
+    }
+  </style>
+
+  <!-- Librería Oficial html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Conector Unificado a la API REST -->
+  <script src="js/config.js"></script>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Compilando datos del manifiesto desde la Red Operativa...</p>
+  </div>
+
+  <div id="contenidoManifiesto" style="display: none;">
+    
+    <div class="header-container">
+      <div class="logo-area">
+        <img id="mLogo" src="" alt="Logo Cadena de Favores Vzla">
+      </div>
+      <div class="header-text-area">
+        <div class="institution-title">CADENA DE FAVORES VENEZUELA</div>
+        <div class="document-type">Manifiesto Oficial de Comisión</div>
+      </div>
+    </div>
+    
+    <div class="meta-grid">
+      <div class="meta-card">
+        <div class="meta-card-title">Información del Rol de Guardia</div>
+        <div class="meta-card-value" style="margin-bottom: 2px;">ID Control: <span id="mIdGuardia" style="font-family: monospace; font-weight:700; color:#1e3a8a;"></span></div>
+        <div class="meta-card-value">Fecha de Turno: <span id="mFecha"></span></div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-card-title">Logística y Destino</div>
+        <div class="meta-card-value" style="margin-bottom: 2px;">Destino Autorizado: <span id="mDestino"></span></div>
+        <div class="meta-card-value">Unidad / Chofer: <span id="mChofer"></span> <span id="mTelefono" style="font-size:0.75rem; margin-left:4px;"></span></div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <i class="fa-solid fa-users-viewfinder text-primary"></i> Personal y Especialistas Autorizados
+    </div>
+    
+    <table class="manifest-table">
+      <thead>
+        <tr>
+          <th style="width: 6%; text-align: center;">Nro</th>
+          <th style="width: 48%;">Cédula | Nombre y Apellido</th>
+          <th style="width: 31%;">Especialidad Técnica</th>
+          <th style="width: 15%; text-align: center;">Teléfono</th>
+        </tr>
+      </thead>
+      <tbody id="tablaPasajerosBody">
+      </tbody>
+    </table>
+    
+    <div class="footer-note">
+      <strong>NOTA DE CONTROL VIAL:</strong> Este documento constituye un manifiesto formal de personal voluntario civil en funciones de apoyo humanitario y asistencia social coordinada bajo el marco de la Red Operativa de Cadena de Favores Venezuela. Se emite a efectos de dejar constancia de los especialistas y tripulantes legítimamente autorizados que viajan a bordo de la unidad de transporte indexada. Se agradece respetuosamente a las autoridades competentes, cuerpos de seguridad ciudadana y personal vial de guardia (alcabalas) prestar la colaboración necesaria para garantizar el libre, expedito y seguro tránsito de esta comisión hacia su destino establecido.
+    </div>
+    
+    <button id="btnDescargar" class="btn-print-floating" onclick="generarPDFDescargable()">
+      <i class="fa-solid fa-file-arrow-down"></i> Guardar Manifiesto (PDF)
+    </button>
+  </div>
+
+  <script>
+    window.onload = function() {
+      ejecutarCargaManifiesto();
+    };
+
+    async function ejecutarCargaManifiesto() {
+      // Obtención dinámica del idGuardia desde los parámetros de la URL (?idGuardia=XXXX)
+      const urlParams = new URLSearchParams(window.location.search);
+      const idGuardia = urlParams.get('idGuardia');
+      
+      if (!idGuardia || idGuardia.trim() === "") {
+        document.getElementById('loader').innerHTML = '<p style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Error: ID de guardia ausente o no especificado en la URL.</p>';
+        return;
+      }
+
+      try {
+        const res = await callBackend('generarDataManifiestoGuardia', { idGuardia: idGuardia });
+
+        if (res && res.status === "SUCCESS") {
+          const m = res.manifiesto;
+          
+          if (m.logoBase64) {
+            document.getElementById('mLogo').src = m.logoBase64;
+          } else {
+            document.getElementById('mLogo').style.display = 'none';
+          }
+          
+          document.getElementById('mIdGuardia').innerText = escapeHTML(m.idGuardia);
+          document.getElementById('mFecha').innerText = escapeHTML(m.fecha);
+          document.getElementById('mDestino').innerText = escapeHTML(m.destino);
+          document.getElementById('mChofer').innerText = escapeHTML(m.transporte?.nombre || "NO ASIGNADO");
+          
+          const telf = m.transporte?.telefono;
+          document.getElementById('mTelefono').innerText = (telf && telf !== "N/D") ? `(Telf: ${escapeHTML(telf)})` : "";
+          
+          const tbody = document.getElementById('tablaPasajerosBody');
+          tbody.innerHTML = "";
+          
+          if (m.pasajeros && m.pasajeros.length > 0) {
+            let ultimoPunto = null;
+            let contadorPasajero = 1;
+            let contadorParada = 1;
+
+            m.pasajeros.forEach((p) => {
+              const cedulaStr = p.cedula && p.cedula !== "N/D" ? p.cedula : "S/C";
+              
+              if (p.puntoNombre !== ultimoPunto) {
+                ultimoPunto = p.puntoNombre;
+                
+                const headerRow = `<tr class="stop-header-row">
+                  <td colspan="4">
+                    <i class="fa-solid fa-map-pin" style="color: #1e3a8a; margin-right: 6px;"></i>
+                    <strong>PARADA #${contadorParada++}: ${escapeHTML(p.puntoNombre)}</strong>
+                  </td>
+                </tr>`;
+                tbody.innerHTML += headerRow;
+              }
+
+              const row = `<tr>
+                <td style="text-align: center; font-weight: 600; color: #64748b;">${contadorPasajero++}</td>
+                <td>
+                  <div class="identity-container">
+                    <span class="identity-badge">${escapeHTML(cedulaStr)}</span>
+                    <span class="identity-name">${escapeHTML(p.nombre)}</span>
+                  </div>
+                </td>
+                <td><span class="badge" style="background:#f1f5f9; color:#1e3a8a; padding:2px 6px; border-radius:3px; font-size:0.7rem; line-height:1.1; display:inline-block;">${escapeHTML(p.especialidad || 'N/D')}</span></td>
+                <td style="text-align: center; font-family: monospace; font-size:0.78rem; color:#475569;">${escapeHTML(p.telefono || 'N/D')}</td>
+              </tr>`;
+              tbody.innerHTML += row;
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#64748b; padding:30px; font-weight:500;">No se encuentran especialistas registrados/apuntados para esta fecha.</td></tr>';
+          }
+          
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('contenidoManifiesto').style.display = 'block';
+        } else {
+          document.getElementById('loader').innerHTML = `<p style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Error del Servidor: ${escapeHTML(res ? res.message : 'Error desconocido')}</p>`;
+        }
+      } catch (err) {
+        console.error("Error en comunicación con la API REST:", err);
+        document.getElementById('loader').innerHTML = `<p style="color: #ef4444;"><i class="fa-solid fa-wifi"></i> Fallo de comunicación de red: ${escapeHTML(err.toString())}</p>`;
+      }
+    }
+
+    function escapeHTML(str) {
+      return str ? str.toString().replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      ) : '';
+    }
+
+    function generarPDFDescargable() {
+      const element = document.getElementById('contenidoManifiesto');
+      const btn = document.getElementById('btnDescargar');
+      
+      const idG = document.getElementById('mIdGuardia').innerText || "CF";
+      const fecha = document.getElementById('mFecha').innerText.replace(/\//g, "-") || "00-00-00";
+      
+      btn.style.display = 'none';
+
+      const opciones = {
+        margin:       [8, 10, 8, 10],
+        filename:     `Manifiesto_${idG}_${fecha}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            letterRendering: true,
+            scrollY: 0
+        },
+        jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      html2pdf().set(opciones).from(element).save().then(() => {
+          btn.style.display = 'flex';
+      });
+    }
+  </script>
+</body>
+</html>

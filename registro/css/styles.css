@@ -1,0 +1,164 @@
+/* Asegura el anclaje del badge absoluto sin romper la grilla */
+/* ==========================================================================
+   ESTILOS DE LA GRILLA DEL CALENDARIO DE GUARDIAS
+   ========================================================================== */
+
+.calendar-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 1px;
+  background-color: #e2e8f0; /* Borde sutil gris entre casillas */
+  border: 1px solid #cbd5e1;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+/* Encabezados de Días de la Semana (Lun, Mar, Mié...) */
+.calendar-header-day {
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0.6rem 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Celdas/Casillas Individuales de cada Día */
+.calendar-day {
+  background-color: #ffffff;
+  min-height: 95px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background-color: #f1f5f9;
+  cursor: pointer;
+}
+
+/* Días de meses anteriores/posteriores fuera del mes activo */
+.calendar-day.other-month {
+  background-color: #f8fafc;
+  opacity: 0.4;
+}
+
+/* Número de día del mes */
+.calendar-day-number {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+/* Día Actual destacado */
+.calendar-day.today {
+  background-color: #eff6ff !important;
+  border: 2px solid #3b82f6 !important;
+}
+
+/* Ajuste Responsivo para Celulares / Pantallas Pequeñas */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 65px;
+    padding: 3px;
+  }
+  
+  .calendar-header-day {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.1rem;
+  }
+
+  .calendar-day-number {
+    font-size: 0.75rem;
+  }
+} 
+
+/* ==========================================================================
+   ESTILOS DE LA GRILLA DEL CALENDARIO DE GUARDIAS
+   ========================================================================== */
+
+#calendarGrid,
+.calendar-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 1px !important;
+  background-color: #cbd5e1 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0 0 8px 8px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-header-day {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  text-align: center !important;
+  padding: 0.6rem 0.2rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.calendar-day {
+  background-color: #ffffff !important;
+  min-height: 90px !important;
+  padding: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-day:hover {
+  background-color: #f1f5f9 !important;
+  cursor: pointer !important;
+}
+
+.calendar-day.empty {
+  background-color: #f8fafc !important;
+  cursor: default !important;
+}
+
+.day-number,
+.calendar-day-number {
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  color: #0f172a !important;
+}
+
+.guardia-indicador {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 3px 6px !important;
+  border-radius: 4px !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  margin-top: 4px !important;
+}
+
+.guardia-gris  { background-color: #64748b !important; }
+.guardia-rojo  { background-color: #ef4444 !important; }
+.guardia-ambar { background-color: #f59e0b !important; }
+.guardia-verde { background-color: #10b981 !important; }
+.guardia-azul  { background-color: #3b82f6 !important; }
+
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 65px !important;
+    padding: 3px !important;
+  }
+  .guardia-indicador {
+    font-size: 0.65rem !important;
+    padding: 2px 4px !important;
+  }
+}
