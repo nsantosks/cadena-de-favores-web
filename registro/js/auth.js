@@ -3,6 +3,33 @@
 // Cadena de Favores Venezuela
 // ==========================================================================
 
+// Capturar y procesar el Token de Google que viene en la URL al retornar del popup
+document.addEventListener("DOMContentLoaded", function() {
+  const hash = window.location.hash;
+  if (hash && hash.includes("access_token")) {
+    const params = new URLSearchParams(hash.substring(1)); // Remueve el '#'
+    const accessToken = params.get("access_token");
+    const stateJson = params.get("state");
+
+    if (accessToken && stateJson) {
+      try {
+        const stateObj = JSON.parse(decodeURIComponent(stateJson));
+        const emailEsperado = stateObj.email;
+        
+        // Limpiar la URL del navegador para que no quede el token expuesto
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // Disparar la validación oficial con tu backend de Apps Script
+        if (typeof validarTokenDeGoogleServidor === "function") {
+          validarTokenDeGoogleServidor(accessToken, emailEsperado);
+        }
+      } catch (e) {
+        console.error("Error al procesar el estado de Google OAuth:", e);
+      }
+    }
+  }
+});
+
 var googleClientIdCache = window.googleClientIdCache || null;
 var webAppUrlCache = window.webAppUrlCache || null;
 var emailBuscadoCache = window.emailBuscadoCache || "";
