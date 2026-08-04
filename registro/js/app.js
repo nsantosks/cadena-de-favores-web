@@ -84,7 +84,8 @@ async function cargarVista(nombreVista) {
   // --- RENDERIZAR VISTA DE CALENDARIO (AÑADIR ESTE BLOQUE) ---
   else if (nombreVista === 'calendario') {
     container.innerHTML = obtenerTemplateCalendarioHTML();
-    // Ejecutar el inicializador del calendario si existe en calendario.js
+    
+    // Ejecutar el motor lógico del calendario de forma inmediata
     if (typeof inicializarCalendarioModulo === 'function') {
       inicializarCalendarioModulo();
     } else if (typeof renderizarCalendario === 'function') {
