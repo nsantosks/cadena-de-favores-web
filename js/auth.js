@@ -1,6 +1,6 @@
 // ==========================================================================
 // MÓDULO JS: AUTENTICACIÓN Y CONTROL DE ACCESO (NETLIFY / API REST)
-// Cadena de Favores Venezuela
+// Cadena de Favores Venezuela — Resiliente y Desacoplado
 // ==========================================================================
 
 // Capturar y procesar el Token de Google que viene en la URL al retornar del popup
@@ -163,11 +163,19 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
   }
   
   if (res && res.status === "SUCCESS") {
-    const perfilSesion = res.perfil;
-    perfilSesion.rolActivo = rol; 
+    const perfilSesion = res.perfil || {};
+    
+    // Asignación estricta de roles
+    if (rol === "coordinador" || perfilSesion.esCoordinador) {
+      perfilSesion.rolActivo = "coordinador";
+      perfilSesion.esCoordinador = true;
+    } else {
+      perfilSesion.rolActivo = "eslabon";
+    }
     
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
+    localStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
     // Forzar la visualización inmediata del dashboard y carga de perfil
     const authView = document.getElementById('contenedorAuthView');
@@ -177,6 +185,8 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
       appDashboard.classList.remove('d-none');
       appDashboard.classList.add('d-flex');
     }
+
+    sincronizarHeaderGlobal();
 
     if (typeof verificarPermisosRol === 'function') verificarPermisosRol();
     if (typeof cargarVista === 'function') {
@@ -237,12 +247,22 @@ async function validarYAccederOTP() {
   });
 
   if (res && res.status === "SUCCESS") {
-    const perfilSesion = res.perfil;
-    perfilSesion.rolActivo = rol; 
+    const perfilSesion = res.perfil || {};
+    
+    // Asignación estricta de roles
+    if (rol === "coordinador" || perfilSesion.esCoordinador) {
+      perfilSesion.rolActivo = "coordinador";
+      perfilSesion.esCoordinador = true;
+    } else {
+      perfilSesion.rolActivo = "eslabon";
+    }
     
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
+    localStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
+    sincronizarHeaderGlobal();
+
     if (typeof inicializarApp === 'function') {
       inicializarApp();
     } else {
@@ -305,6 +325,9 @@ function cerrarSesion() {
   window.location.href = "../index.html"; 
 }
 
+/**
+ * Sincroniza los elementos visuales del Header, Avatar y Badge de Rol
+ */
 function sincronizarHeaderGlobal() {
   const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile') || 'null');
   
@@ -314,6 +337,7 @@ function sincronizarHeaderGlobal() {
   const navBtnLogout = document.getElementById('navBtnLogout');
   const elementosSesion = document.querySelectorAll('.nav-item-sesion');
   const btnGestion = document.getElementById('navItemGestionVoluntarios');
+  const badgeContainer = document.getElementById('sessionRoleBadgeContainer');
 
   // Detectar la profundidad de ruta para el fallback del logo
   const esSubcarpeta = window.location.pathname.includes('/trabajo/') || 
@@ -333,18 +357,44 @@ function sincronizarHeaderGlobal() {
     elementosSesion.forEach(el => el.classList.remove('d-none'));
 
     // Validar rol de coordinador
-    const rol = cuentaActiva.rolActivo || cuentaActiva.rolActive || (cuentaActiva.esCoordinador ? "coordinador" : "eslabon");
+    const esCoordinadorReal = Boolean(
+      cuentaActiva.esCoordinador || 
+      cuentaActiva.coordinador === true || 
+      cuentaActiva.isCoordinador === true ||
+      cuentaActiva.rolActivo === "coordinador" || 
+      cuentaActiva.rolActive === "coordinador" ||
+      cuentaActiva.role === "coordinador"
+    );
+
+    // Actualización del botón de gestión personal
     if (btnGestion) {
-      if (rol === "coordinador") {
+      if (esCoordinadorReal) {
         btnGestion.classList.remove('d-none');
       } else {
         btnGestion.classList.add('d-none');
       }
     }
 
+    // Actualización visual del Badge de Rol en el Header
+    if (badgeContainer) {
+      if (esCoordinadorReal) {
+        badgeContainer.innerHTML = `
+          <span class="badge bg-danger border border-light text-white px-3 py-2 rounded-pill shadow-sm">
+            <i class="fa-solid fa-user-shield me-1"></i> Rol: Coordinador
+          </span>
+        `;
+      } else {
+        badgeContainer.innerHTML = `
+          <span class="badge bg-secondary border border-light text-white px-3 py-2 rounded-pill shadow-sm">
+            <i class="fa-solid fa-link me-1"></i> Rol: Eslabón
+          </span>
+        `;
+      }
+      badgeContainer.classList.remove('d-none');
+    }
+
     // --- MANEJO DEL AVATAR / FOTO DE PERFIL ---
     if (navAvatarContainer && navDefaultIcon) {
-      // Prioridad: URL Google/Avatar -> Base64 -> Iniciales
       let urlFoto = cuentaActiva.picture || cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto;
 
       navDefaultIcon.classList.add('d-none');
@@ -375,6 +425,7 @@ function sincronizarHeaderGlobal() {
     elementosSesion.forEach(el => el.classList.add('d-none'));
     if (navAvatarContainer) navAvatarContainer.classList.add('d-none');
     if (navDefaultIcon) navDefaultIcon.classList.remove('d-none');
+    if (badgeContainer) badgeContainer.classList.add('d-none');
   }
 }
 
