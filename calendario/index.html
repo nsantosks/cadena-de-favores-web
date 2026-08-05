@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario de Guardias - Cadena de Favores Venezuela</title>
+
+  <!-- CSS de Bootstrap 5, FontAwesome y Animate.css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- Estilos Personalizados (Un nivel arriba) -->
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- ================================================================= -->
+  <!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
+  <!-- ================================================================= -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
+    <div class="container-fluid px-3 px-md-4">
+      
+      <!-- Logotipo, Icono y Avatar Dinámico -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="../index.html">
+        
+        <!-- Contenedor del Avatar (Se muestra SOLO si hay sesión activa) -->
+        <div id="navAvatarContainer" class="d-none"></div>
+
+        <!-- Logotipo Institucional por defecto -->
+        <img src="../assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+
+        <!-- Texto Institucional de Marca -->
+        <div class="d-flex flex-column">
+          <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
+        </div>
+      </a>
+
+      <!-- Badge de Rol Activo -->
+      <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
+          
+          <!-- Enlaces Principales Públicos -->
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../index.html" data-page="index">Quiénes Somos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../trabajo/index.html" data-page="trabajo">Nuestro Trabajo</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../jornadas/index.html" data-page="jornadas">Jornadas</a>
+          </li>
+
+          <!-- Enlaces Privados (Visibles SOLO con Sesión Activa) -->
+          <li class="nav-item nav-item-sesion d-none">
+            <a class="nav-link fw-semibold" href="../perfil/index.html" data-page="perfil">
+              <i class="fa-solid fa-user-circle me-1"></i> Mi Perfil
+            </a>
+          </li>
+          <li class="nav-item nav-item-sesion d-none">
+            <a class="nav-link fw-semibold" href="../calendario/index.html" data-page="calendario">
+              <i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias
+            </a>
+          </li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios">
+            <a class="nav-link fw-semibold" href="../voluntarios/index.html" data-page="voluntarios">
+              <i class="fa-solid fa-users-gear me-1"></i> Gestión Personal
+            </a>
+          </li>
+
+          <!-- Botón Dinámico de Autenticación / Cierre de Sesión -->
+          <li class="nav-item ms-lg-3">
+            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="../auth/index.html">
+              <i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión
+            </a>
+            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()">
+              <i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión
+            </button>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================================================================= -->
+  <!-- CONTENIDO CENTRAL: CALENDARIZACIÓN DE GUARDIAS Y MISIONES         -->
+  <!-- ================================================================= -->
+  <main class="flex-grow-1">
+    
+    <section class="hero-calendario text-white position-relative overflow-hidden" style="padding-top: 9rem !important; padding-bottom: 5rem !important; min-height: 420px; display: flex; align-items: center; background-image: url('../assets/banner01.jpeg');">
+      <div class="container py-4 text-center animate__animated animate__fadeIn">
+        <span class="badge font-monospace px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase shadow-sm" style="letter-spacing: 1px;">
+          <i class="fa-solid fa-calendar-days me-1"></i> Agenda Operativa Activa
+        </span>
+        <h1 class="display-4 fw-bold mb-3 text-white">Calendario de Guardias y Jornadas</h1>
+        <p class="lead mb-4">Consulta los próximos despliegues humanitarios médicos, nutricionales y de campo, e inscríbete según tu especialidad verificada.</p>
+      </div>
+    </section>
+
+    <!-- Contenedor Principal del Calendario -->
+    <section id = "calendario-cdf" class="container py-5">
+      
+      <!-- Controles de Mes (Necesarios para que initCalendar() y renderCalendar() funcionen) -->
+      <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm">
+        <button id="btnPrevMonth" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+          <i class="fa-solid fa-chevron-left me-1"></i> Mes Anterior
+        </button>
+        <h4 id="monthYearDisplay" class="fw-bold text-dark m-0">Cargando...</h4>
+        <button id="btnNextMonth" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+          Mes Siguiente <i class="fa-solid fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+
+      <!-- Cuadrícula del Calendario que exige calendario.js -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div id="calendarGrid" class="calendar-grid-container">
+          <!-- El script calendario.js inyectará dinámicamente las celdas y guardias aquí -->
+          <div class="col-12 text-center py-5" style="grid-column: 1 / -1;">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted small mt-2">Sincronizando Calendario Operativo...</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- FOOTER INSTITUCIONAL REDISEÑADO                                   -->
+  <!-- ================================================================= -->
+  <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
+    <div class="container py-3">
+      <div class="row g-4 justify-content-between">
+        
+        <div class="col-12 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+            <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          </div>
+          <p class="small text-white-50 mb-3" style="line-height: 1.6;">
+            Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+          </p>
+          <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
+          </span>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
+            <li><a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652</a></li>
+            <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
+            <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
+            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
+            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="border-secondary my-4 opacity-25">
+
+      <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
+        <div class="col-12 col-md-6 text-white-50 small">
+          <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
+        </div>
+        <div class="col-12 col-md-6 text-md-end text-white-50 small">
+          <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white border-bottom border-secondary">
+          <h5 class="modal-title" id="modalPoliticasLabel">
+            <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0" style="height: 75vh;">
+          <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+        </div>
+        <div class="modal-footer bg-light border-top">
+          <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR DE BOTONES FLOTANTES (WhatsApp y Subir) -->
+  <div class="floating-buttons-container">
+    <a id="btnWhatsappFlotante" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="btn-float-whatsapp animate__animated animate__fadeInUp" 
+       title="Soporte y Atención Básica por WhatsApp">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+    <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
+
+  <!-- DEPENDENCIAS JS Y SCRIPTS DE CONTROL -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/calendario.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // 1. Sincronizar Header Global
+      if (typeof sincronizarHeaderGlobal === 'function') {
+        sincronizarHeaderGlobal();
+      }
+      
+      // 2. Inyección dinámica del enlace de WhatsApp
+      const btnFlotante = document.getElementById('btnWhatsappFlotante');
+      if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
+        btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
+      }
+      const linkFooter = document.getElementById('linkWhatsappFooter');
+      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+        linkFooter.href = obtenerEnlaceWhatsApp('footer');
+      }
+
+      // 3. Inicializar el módulo de calendario con la función correcta
+      if (typeof inicializarCalendarioView === 'function') {
+        inicializarCalendarioView();
+      }
+    });
+
+    // Control de visibilidad del botón "Ir Arriba"
+    window.addEventListener('scroll', function() {
+      const btnTop = document.getElementById('btnScrollTop');
+      if (btnTop) {
+        if (window.scrollY > 300) {
+          btnTop.classList.add('show');
+        } else {
+          btnTop.classList.remove('show');
+        }
+      }
+    });
+
+    function irArriba() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  </script>
+
+  <!-- ================================================================= -->
+  <!-- MODAL UNIFICADO DE GESTIÓN Y POSTULACIÓN DE GUARDIAS              -->
+  <!-- ================================================================= -->
+  <div class="modal fade" id="modalGuardia" tabindex="-1" aria-labelledby="modalGuardiaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        
+        <!-- Cabecera del Modal -->
+        <div class="modal-header bg-dark text-white border-bottom border-secondary">
+          <h5 class="modal-title fw-bold" id="modalGuardiaLabel">
+            <i class="fa-solid fa-calendar-check text-warning me-2"></i> Gestión de Turno Operativo
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <!-- Cuerpo Dinámico (Inyectado por calendario.js) -->
+        <div class="modal-body p-4" id="modalGuardiaBody">
+          <!-- Contenido asíncrono según rol (Eslabón o Coordinador) -->
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted small mt-2">Cargando detalles de la misión...</p>
+          </div>
+        </div>
+
+        <!-- Pie de Página del Modal (Botones de Acción Globales / Eslabón) -->
+        <div class="modal-footer bg-light border-top px-4 py-3" id="modalGuardiaFooter">
+          <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" id="btnInscribirse" class="btn btn-primary btn-sm px-4 rounded-pill fw-bold shadow-sm" style="display: none;">
+            Inscribirme como Voluntario
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

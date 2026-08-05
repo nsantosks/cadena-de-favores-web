@@ -1,18 +1,20 @@
 # ==========================================================================
-# ROBOTS.TXT — Cadena de Favores Venezuela
-# https://voluntariadocdfvzla.org/
+# ROBOTS.TXT — CADENA DE FAVORES VENEZUELA (RED OPERATIVA)
 # ==========================================================================
 
 User-agent: *
 Allow: /
 
-# Bloquear la indexación de la carpeta interna del sistema operativo/registro
-# para que los bots de Google no intenten escanear paneles de usuario privado o scripts de backend.
-Disallow: /registro/js/
-Disallow: /registro/css/
+# Permitir indexación de los módulos públicos y principales
+Allow: /trabajo/
+Allow: /jornadas/
+Allow: /auth/
+Allow: /politicas.html
 
-# (Opcional) Si en el futuro agregas carpetas con datos sensibles o endpoints directos de API, bloquéalos aquí:
-# Disallow: /api/
+# Directorios de gestión interna / paneles de usuario (opcionalmente acotados para bots)
+# Los crawlers pueden rastrearlos, pero priorizamos el contenido público
+Allow: /perfil/
+Allow: /voluntarios/
 
-# Declaración opcional de la ubicación exacta del sitemap (reemplaza por tu dominio real)
+# Declaración de la ruta del mapa del sitio (Sitemap)
 Sitemap: https://voluntariadocdfvzla.org/sitemap.xml

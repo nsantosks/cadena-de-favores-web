@@ -1,0 +1,467 @@
+:root {
+  --color-brand: #1E3A8A;
+  --color-accent: #86C232;
+  --color-accent-hover: #72a829;
+}
+
+/* Eliminar márgenes y paddings por defecto para evitar espacios blancos superiores */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #334155;
+}
+
+main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.bg-brand {
+  background-color: var(--color-brand) !important;
+}
+
+.text-brand {
+  color: var(--color-brand) !important;
+}
+
+.text-accent {
+  color: var(--color-accent) !important;
+}
+
+.btn-brand {
+  background-color: var(--color-brand);
+  color: white;
+}
+.btn-brand:hover {
+  background-color: #172554;
+  color: white;
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+}
+.btn-accent:hover {
+  background-color: var(--color-accent-hover);
+  color: white;
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  border-radius: 50%;
+  background: white;
+  padding: 2px;
+}
+
+.hero-section {
+  background: linear-gradient(rgba(30, 58, 138, 0.85), rgba(30, 58, 138, 0.85)), url('../assets/banner01.jpeg') center/cover no-repeat;
+  min-height: 80vh;
+}
+
+.divider {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.icon-box {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   ESTILOS UNIFICADOS DEL NAVBAR INSTITUCIONAL (FLOTANTE Y ANCLADO)
+   ========================================================================== */
+.navbar-institucional {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 1030 !important;
+  background-color: rgba(13, 27, 42, 0.95) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.navbar-institucional .navbar-brand {
+  font-size: 1.15rem;
+  letter-spacing: -0.5px;
+}
+
+.navbar-institucional .nav-link {
+  color: #f8fafc !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.navbar-institucional .nav-link:hover,
+.navbar-institucional .nav-link.active {
+  color: #fbbf24 !important;
+}
+
+.btn-involucrate-nav {
+  background-color: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 50rem !important;
+  padding: 0.5rem 1.25rem !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-involucrate-nav:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  transform: translateY(-1px);
+} 
+
+/* ========================================================================== */
+/* BOTONES FLOTANTES DE ACCESO RÁPIDO                                         */
+/* ========================================================================== */
+.floating-buttons-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+@keyframes ctaPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(37, 211, 102, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  }
+}
+
+.btn-float-whatsapp {
+  width: 55px;
+  height: 55px;
+  background-color: #25d366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+  animation: ctaPulse 2s infinite ease-in-out;
+  transition: transform 0.2s ease;
+}
+
+.btn-float-whatsapp:hover {
+  background-color: #20ba5a;
+  color: white;
+  animation: none;
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+}
+
+.btn-float-top {
+  width: 42px;
+  height: 42px;
+  background-color: #0d1b2a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  cursor: pointer;
+}
+
+.btn-float-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.btn-float-top:hover {
+  background-color: #1b263b;
+  color: #ffc107;
+  transform: scale(1.08);
+}
+
+/* ========================================================================== */
+/* TARJETAS INTERACTIVAS CON HOVER                                            */
+/* ========================================================================== */
+.card-valor-hover,
+.card-trabajo-hover {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  min-height: 250px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.card-valor-hover .card-body-content,
+.card-trabajo-hover .card-body-content {
+  position: relative;
+  z-index: 2;
+  background-color: #ffffff;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.card-valor-hover::before,
+.card-trabajo-hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(13, 27, 42, 0.85);
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+}
+
+.card-valor-hover:hover::before,
+.card-trabajo-hover:hover::before {
+  opacity: 1;
+}
+
+.card-valor-hover:hover,
+.card-trabajo-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0,0,0,0.175) !important;
+}
+
+.card-valor-hover:hover .card-body-content,
+.card-trabajo-hover:hover .card-body-content {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.card-valor-hover:hover .card-body-content h3,
+.card-valor-hover:hover .card-body-content p,
+.card-valor-hover:hover .card-body-content i,
+.card-trabajo-hover:hover .card-body-content h3,
+.card-trabajo-hover:hover .card-body-content h4,
+.card-trabajo-hover:hover .card-body-content p,
+.card-trabajo-hover:hover .card-body-content span,
+.card-trabajo-hover:hover .card-body-content i {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.card-valor-hover .card-body-content *,
+.card-trabajo-hover .card-body-content * {
+  transition: all 0.4s ease;
+}
+
+/* ========================================================================== */
+/* HERO HEADERS UNIFICADOS (TRABAJO Y CALENDARIO)                             */
+/* ========================================================================== */
+.hero-trabajo,
+.hero-calendario {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1E3A8A;
+}
+
+.hero-trabajo::before,
+.hero-calendario::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(30, 58, 138, 0.75), rgba(30, 58, 138, 0.85));
+  z-index: 1;
+}
+
+.hero-trabajo .container,
+.hero-calendario .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-trabajo h1,
+.hero-calendario h1 {
+  font-weight: 800 !important;
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+.hero-trabajo p,
+.hero-calendario p {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.hero-trabajo .badge {
+  background-color: rgba(251, 191, 36, 0.95) !important;
+  color: #1e293b !important;
+  border: 1px solid #f59e0b !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.hero-calendario .badge {
+  background-color: rgba(16, 185, 129, 0.9) !important;
+  color: #ffffff !important;
+  border: 1px solid #34d399 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================================================== */
+/* ESTILOS UNIFICADOS DE LA GRILLA DEL CALENDARIO DE GUARDIAS                 */
+/* ========================================================================== */
+#calendarGrid,
+.calendar-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 1px !important;
+  background-color: #cbd5e1 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0 0 8px 8px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-header-day {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  text-align: center !important;
+  padding: 0.6rem 0.2rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.calendar-day {
+  background-color: #ffffff !important;
+  min-height: 90px !important;
+  padding: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-day:hover {
+  background-color: #f1f5f9 !important;
+  cursor: pointer !important;
+}
+
+.calendar-day.empty {
+  background-color: #f8fafc !important;
+  cursor: default !important;
+}
+
+.calendar-day.other-month {
+  background-color: #f8fafc !important;
+  opacity: 0.4;
+}
+
+.calendar-day.today {
+  background-color: #eff6ff !important;
+  border: 2px solid #3b82f6 !important;
+}
+
+.day-number,
+.calendar-day-number {
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  color: #0f172a !important;
+}
+
+.guardia-indicador {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 3px 6px !important;
+  border-radius: 4px !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  margin-top: 4px !important;
+}
+
+.guardia-gris  { background-color: #64748b !important; }
+.guardia-rojo  { background-color: #ef4444 !important; }
+.guardia-ambar { background-color: #f59e0b !important; }
+.guardia-verde { background-color: #10b981 !important; }
+.guardia-azul  { background-color: #3b82f6 !important; }
+
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 65px !important;
+    padding: 3px !important;
+  }
+  .calendar-header-day {
+    font-size: 0.7rem !important;
+    padding: 0.4rem 0.1rem !important;
+  }
+  .calendar-day-number,
+  .day-number {
+    font-size: 0.75rem !important;
+  }
+  .guardia-indicador {
+    font-size: 0.65rem !important;
+    padding: 2px 4px !important;
+  }
+} 
+
+/* ========================================================================== */
+/* UNIFICACIÓN TIPOGRÁFICA DE HÉROES (Landing, Trabajo y Calendario)          */
+/* ========================================================================== */
+.hero-section h1,
+.hero-trabajo h1,
+.hero-calendario h1 {
+  font-size: calc(1.475rem + 2.7vw) !important; /* Equivalente exacto a display-4 de Bootstrap */
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p,
+.hero-trabajo p,
+.hero-calendario p {
+  font-size: 1.25rem !important; /* Equivalente exacto a la clase lead */
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}

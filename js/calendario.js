@@ -8,6 +8,21 @@ let catalogoChoferes = null;           // Cache de choferes
 let catalogoPuntos = null;             // Cache de puntos
 let cacheEspecialidadesGuardia = null; // Cache especialidades
 
+// ==========================================================================
+// CONFIGURACIÓN DE CACHÉ LOCAL (TTL: 5 MINUTOS)
+// ==========================================================================
+const CALENDAR_CACHE_KEY = 'cdf_guardias_cache';
+const CALENDAR_CACHE_TIME_KEY = 'cdf_guardias_cache_time';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos en milisegundos
+
+/**
+ * Invalida la caché del calendario para forzar una sincronización limpia desde el servidor
+ */
+function invalidarCacheCalendario() {
+  sessionStorage.removeItem(CALENDAR_CACHE_KEY);
+  sessionStorage.removeItem(CALENDAR_CACHE_TIME_KEY);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
   if (document.getElementById('calendarGrid')) {
     initCalendar();
@@ -16,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /**
- * Inicializador global expuesto para ser invocado por app.js
+ * Inicializador global expuesto para ser invocado por app.js o rutas dinámicas
  */
 window.inicializarCalendarioView = function() {
   initCalendar();
@@ -24,22 +39,46 @@ window.inicializarCalendarioView = function() {
 };
 
 /**
- * Consulta de Guardias mediante API REST
+ * Consulta de Guardias mediante API REST con Soporte de Caché Inteligente
+ * @param {boolean} forzarRecarga - Si es true, ignora la caché local y consulta a Apps Script
  */
-async function cargarDatos() {
+async function cargarDatos(forzarRecarga = false) {
   const grid = document.getElementById('calendarGrid');
   if (!grid) return;
-  
+
+  const now = new Date().getTime();
+  const cacheGuardado = sessionStorage.getItem(CALENDAR_CACHE_KEY);
+  const cacheTiempo = sessionStorage.getItem(CALENDAR_CACHE_TIME_KEY);
+
+  // 1. VERIFICAR CACHÉ VÁLIDA (Menos de 5 minutos transcurridos y sin forzar recarga)
+  if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CACHE_TTL_MS)) {
+    try {
+      guardiasData = JSON.parse(cacheGuardado);
+      renderCalendar(currentDate);
+      actualizarBadgeRolNavbar();
+      return; // Carga instantánea sin golpear a Google Apps Script
+    } catch (e) {
+      console.warn("Caché local ilegible, reconsultando al servidor...", e);
+      invalidarCacheCalendario();
+    }
+  }
+
+  // 2. CONSULTAR AL BACKEND (Si la caché expiró o se invocó un cambio en la BD)
   grid.innerHTML = `
     <div class="p-5 text-center" style="grid-column: 1 / -1;">
       <div class="spinner-border text-primary" role="status"></div>
       <p class="mt-2 text-muted fw-semibold">Sincronizando Calendario Operativo...</p>
     </div>`;
-  
+
   const response = await callBackend('obtenerCalendario', {});
-  
+
   if (response && (response.status === 'success' || response.status === 'SUCCESS' || Array.isArray(response))) {
     guardiasData = Array.isArray(response) ? response : (response.data || response.guardias || []);
+    
+    // Guardar respuesta y timestamp en la caché de la sesión
+    sessionStorage.setItem(CALENDAR_CACHE_KEY, JSON.stringify(guardiasData));
+    sessionStorage.setItem(CALENDAR_CACHE_TIME_KEY, now.toString());
+
     renderCalendar(currentDate);
     actualizarBadgeRolNavbar();
   } else {
@@ -518,7 +557,8 @@ async function ejecutarCreacionGuardia(fechaStr, btn) {
     setTimeout(() => {
         const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
         if (modalInstance) modalInstance.hide();
-        cargarDatos();
+        invalidarCacheCalendario();
+        cargarDatos(true);
     }, 1500);
 
   } else {
@@ -544,7 +584,8 @@ async function expulsarVoluntarioFuerza(email, idGuardia, btn) {
         itemRow.className += " animate__animated animate__fadeOutRight";
         setTimeout(() => itemRow.remove(), 500);
       }
-      cargarDatos(); 
+      invalidarCacheCalendario();
+      cargarDatos(true); 
    } else {
       alert(res ? res.message : "Error al remover voluntario.");
       btn.disabled = false;
@@ -586,7 +627,8 @@ async function guardarRequerimientosEditados(idGuardia, btn) {
       setTimeout(() => {
           const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
           if (modalInstance) modalInstance.hide();
-          cargarDatos();
+          invalidarCacheCalendario();
+          cargarDatos(true);
       }, 1800);
 
    } else {
@@ -644,12 +686,14 @@ async function confirmarEliminacionGuardiaFinal(idGuardia) {
       setTimeout(() => {
           const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
           if (modalInstance) modalInstance.hide();
-          cargarDatos();
+          invalidarCacheCalendario();
+          cargarDatos(true);
       }, 1500);
 
    } else {
       alert("Error al purgar registro: " + (res ? res.message : "Fallo de comunicación"));
-      cargarDatos();
+      invalidarCacheCalendario();
+      cargarDatos(true);
    }
 }
 
@@ -772,7 +816,8 @@ async function procesarInscripcionDirecta(email, idGuardia, btn, modal) {
       
       setTimeout(() => {
           modal.hide();
-          cargarDatos();
+          invalidarCacheCalendario();
+          cargarDatos(true);
       }, 1800);
   } else {
       alert("Error: " + (res ? res.message : "Fallo de conexión"));
@@ -807,7 +852,8 @@ async function confirmarAsignacionTransporte(idGuardia) {
       btn.classList.replace('btn-primary', 'btn-success');
       btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> ¡Asignado!';
       
-      if (typeof cargarDatos === "function") cargarDatos(); 
+      invalidarCacheCalendario();
+      cargarDatos(true); 
 
       setTimeout(() => {
           btn.disabled = false;
@@ -867,11 +913,13 @@ async function ejecutarBajaDefinitiva(email, idGuardia) {
       setTimeout(() => {
           const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
           if (modalInstance) modalInstance.hide();
-          cargarDatos(); 
+          invalidarCacheCalendario();
+          cargarDatos(true); 
       }, 1800);
   } else {
       alert("Error al procesar el retiro: " + (res ? res.message : "Error de red"));
-      cargarDatos();
+      invalidarCacheCalendario();
+      cargarDatos(true);
   }
 }
 
@@ -1025,7 +1073,6 @@ async function ejecutarDespachoMasivoFinal(idGuardia) {
                <button class="btn btn-secondary btn-sm mt-3 px-4" data-bs-dismiss="modal">Entendido y Cerrar</button>
            </div>`;
 
-       // INYECCIÓN RECUPERADA: Sincronizar cuota visual en el perfil del coordinador
        if (typeof sincronizarCuotaDeEnvios === "function") {
            sincronizarCuotaDeEnvios();
        }
@@ -1033,7 +1080,8 @@ async function ejecutarDespachoMasivoFinal(idGuardia) {
        setTimeout(() => {
            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
            if (modalInstance) modalInstance.hide();
-           cargarDatos(); 
+           invalidarCacheCalendario();
+           cargarDatos(true); 
        }, 3000);
        
    } else {
@@ -1061,7 +1109,6 @@ async function abrirInformeConvocadosHoy(btn) {
     }
 
     try {
-        // Llamada al backend para obtener los convocados del día
         const res = await callBackend('obtenerConvocadosHoy', {});
         
         if (btn) {
@@ -1070,7 +1117,6 @@ async function abrirInformeConvocadosHoy(btn) {
         }
 
         if (res && res.status === "SUCCESS") {
-            // Aquí puedes inyectar los datos en el modal de guardia o mostrar una alerta/tabla
             alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
         } else {
             alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
@@ -1083,4 +1129,4 @@ async function abrirInformeConvocadosHoy(btn) {
         console.error("Error al obtener reporte de convocados:", e);
         alert("No se pudo conectar con el servidor para generar el reporte.");
     }
-}
+} 

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso y Registro - Cadena de Favores Venezuela</title>
+
+  <!-- CSS de Bootstrap 5, FontAwesome y Animate.css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- Estilos Personalizados (Un nivel arriba) -->
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- ================================================================= -->
+  <!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
+  <!-- ================================================================= -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
+    <div class="container-fluid px-3 px-md-4">
+      
+      <!-- Logotipo, Icono y Avatar Dinámico -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="../index.html">
+        
+        <!-- Contenedor del Avatar (Se muestra SOLO si hay sesión activa) -->
+        <div id="navAvatarContainer" class="d-none"></div>
+
+        <!-- Logotipo Institucional por defecto -->
+        <img src="../assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+
+        <!-- Texto Institucional de Marca -->
+        <div class="d-flex flex-column">
+          <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
+        </div>
+      </a>
+
+      <!-- Badge de Rol Activo -->
+      <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
+          
+          <!-- Enlaces Principales Públicos -->
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../index.html" data-page="index">Quiénes Somos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../trabajo/index.html" data-page="trabajo">Nuestro Trabajo</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="../jornadas/index.html" data-page="jornadas">Jornadas</a>
+          </li>
+
+          <!-- Enlaces Privados (Visibles SOLO con Sesión Activa) -->
+          <li class="nav-item nav-item-sesion d-none">
+            <a class="nav-link fw-semibold" href="../perfil/index.html" data-page="perfil">
+              <i class="fa-solid fa-user-circle me-1"></i> Mi Perfil
+            </a>
+          </li>
+          <li class="nav-item nav-item-sesion d-none">
+            <a class="nav-link fw-semibold" href="../calendario/index.html" data-page="calendario">
+              <i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias
+            </a>
+          </li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios">
+            <a class="nav-link fw-semibold" href="../voluntarios/index.html" data-page="voluntarios">
+              <i class="fa-solid fa-users-gear me-1"></i> Gestión Personal
+            </a>
+          </li>
+
+          <!-- Botón Dinámico de Autenticación / Cierre de Sesión -->
+          <li class="nav-item ms-lg-3">
+            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white" href="../auth/index.html">
+              <i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión
+            </a>
+            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3 d-none" onclick="cerrarSesion()">
+              <i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión
+            </button>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================================================================= -->
+  <!-- CONTENIDO CENTRAL: MOTOR DE AUTENTICACIÓN DINÁMICO                -->
+  <!-- ================================================================= -->
+  <main class="container py-5 mt-5 flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="row w-100 justify-content-center animate__animated animate__fadeIn">
+      <div class="col-12 col-md-8 col-lg-5">
+        <div class="card border-0 shadow-lg rounded-4 bg-white p-4 p-md-5">
+          
+          <!-- Cabecera del Formulario -->
+          <div class="text-center mb-4">
+            <img src="../assets/logo.png" alt="Logo Institucional" class="mb-3 rounded-circle shadow-sm" style="width: 64px; height: 64px; object-fit: cover;">
+            <h3 class="fw-bold text-dark">Portal de Acceso</h3>
+            <p class="text-muted small">Identifícate con tu cuenta Google o código temporal para postularte a las jornadas.</p>
+          </div>
+
+          <!-- Selector de Rol (Eslabón / Coordinador) -->
+          <div class="btn-group w-100 mb-4 p-1 bg-light rounded-pill border" role="group">
+            <input type="radio" class="btn-check" name="btnRol" id="rolEslabon" value="eslabon" checked autocomplete="off">
+            <label class="btn btn-outline-primary rounded-pill py-2 fw-bold border-0 shadow-none" for="rolEslabon">
+              <i class="fa-solid fa-link me-1"></i> Eslabón
+            </label>
+
+            <input type="radio" class="btn-check" name="btnRol" id="rolCoordinador" value="coordinador" autocomplete="off">
+            <label class="btn btn-outline-primary rounded-pill py-2 fw-bold border-0 shadow-none" for="rolCoordinador">
+              <i class="fa-solid fa-user-shield me-1"></i> Coordinador
+            </label>
+          </div>
+
+          <div id="loginErrorMsg" class="alert alert-danger d-none text-center small py-2 mb-3" role="alert"></div>
+
+          <!-- Paso 1A: Ingreso de Correo Electrónico -->
+          <div id="authStep1">
+            <div class="mb-3 text-start">
+              <label for="loginEmail" class="form-label small fw-bold text-secondary">Correo Electrónico</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
+                <input type="email" class="form-control border-start-0 bg-light" id="loginEmail" placeholder="usuario@dominio.com" required>
+              </div>
+            </div>
+            <button type="button" id="btnContinuarEmail" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3 rounded-pill" onclick="procesarVerificacionInicial()">
+              Continuar <i class="fa-solid fa-arrow-right ms-1"></i>
+            </button>
+          </div>
+
+          <!-- Paso 1B: Google SSO (Se muestra dinámicamente según auth.js) -->
+          <div id="authStepGoogle" class="d-none text-center mt-3 animate__animated animate__fadeIn">
+            <div class="mb-3">
+              <button type="button" class="btn btn-outline-dark btn-lg w-100 py-3 rounded-pill fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2 bg-white text-dark border" onclick="lanzarPopupAutenticacionGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" style="width: 20px; height: 20px;">
+                <span>Iniciar sesión con Google</span>
+              </button>
+            </div>
+            <button type="button" class="btn btn-link text-muted small text-decoration-none" onclick="forzarCambioA_OTP()">
+              ¿Prefieres un código por correo en su lugar?
+            </button>
+          </div>
+
+          <!-- Paso 1C: Verificación por Código OTP -->
+          <div id="authStepOTP" class="d-none text-center mt-3 animate__animated animate__fadeIn">
+            <div class="mb-3 text-start">
+              <label for="loginOTP" class="form-label small fw-bold text-success"><i class="fa-solid fa-check-circle me-1"></i> Código de Verificación (6 dígitos)</label>
+              <input type="text" class="form-control form-control-lg text-center fw-bold fs-4 bg-light" id="loginOTP" maxlength="6" placeholder="------">
+            </div>
+            <button type="button" id="btnConfirmOTP" class="btn btn-success btn-lg w-100 fw-bold shadow-sm py-3 rounded-pill mb-2" onclick="validarYAccederOTP()">
+              Confirmar Identidad y Acceder
+            </button>
+            <button type="button" class="btn btn-link text-muted small text-decoration-none" onclick="location.reload()">
+              Volver atrás
+            </button>
+          </div>
+
+          <!-- Alertas de Estado -->
+          <div id="authAlertContainer" class="mt-3"></div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- FOOTER INSTITUCIONAL REDISEÑADO                                   -->
+  <!-- ================================================================= -->
+  <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
+    <div class="container py-3">
+      <div class="row g-4 justify-content-between">
+        
+        <div class="col-12 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+            <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          </div>
+          <p class="small text-white-50 mb-3" style="line-height: 1.6;">
+            Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+          </p>
+          <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
+          </span>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
+            <li><a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652</a></li>
+            <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
+            <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
+            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
+            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="border-secondary my-4 opacity-25">
+
+      <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
+        <div class="col-12 col-md-6 text-white-50 small">
+          <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
+        </div>
+        <div class="col-12 col-md-6 text-md-end text-white-50 small">
+          <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white border-bottom border-secondary">
+          <h5 class="modal-title" id="modalPoliticasLabel">
+            <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0" style="height: 75vh;">
+          <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+        </div>
+        <div class="modal-footer bg-light border-top">
+          <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR DE BOTONES FLOTANTES (WhatsApp y Subir) -->
+  <div class="floating-buttons-container">
+    <a id="btnWhatsappFlotante" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="btn-float-whatsapp animate__animated animate__fadeInUp" 
+       title="Soporte y Atención Básica por WhatsApp">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+    <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
+
+  <!-- DEPENDENCIAS JS Y SCRIPTS DE CONTROL -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // 1. Sincronizar Header Global (lee el estado de la sesión)
+      if (typeof sincronizarHeaderGlobal === 'function') {
+        sincronizarHeaderGlobal();
+      }
+
+      // 2. PROTECCIÓN DE RUTA: Si ya hay una sesión activa, redirigir al Landing Page
+      // Verificamos las llaves comunes que utiliza tu motor de autenticación
+      const sesionActiva = localStorage.getItem('cdf_usuario_token') || 
+                           sessionStorage.getItem('cdf_usuario_token') || 
+                           localStorage.getItem('usuarioLogueado') ||
+                           sessionStorage.getItem('usuarioLogueado');
+
+      // Opcional: También puedes verificar si el header ya pintó el botón de logout o el avatar
+      const btnLogoutVisible = document.getElementById('navBtnLogout') && !document.getElementById('navBtnLogout').classList.contains('d-none');
+
+      if (sesionActiva || btnLogoutVisible) {
+        // Redirección inmediata al panel de calendario operativo
+        window.location.replace('../calendario/');
+        return;
+      }
+      
+      // 3. Inyección dinámica del enlace de WhatsApp con alcance 'flotante' y 'footer'
+      const btnFlotante = document.getElementById('btnWhatsappFlotante');
+      if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
+        btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
+      }
+      const linkFooter = document.getElementById('linkWhatsappFooter');
+      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+        linkFooter.href = obtenerEnlaceWhatsApp('footer');
+      }
+    });
+
+    // 4. Control de visibilidad del botón "Ir Arriba" según el scroll
+    window.addEventListener('scroll', function() {
+      const btnTop = document.getElementById('btnScrollTop');
+      if (btnTop) {
+        if (window.scrollY > 300) {
+          btnTop.classList.add('show');
+        } else {
+          btnTop.classList.remove('show');
+        }
+      }
+    });
+
+    // 5. Función de desplazamiento suave hacia el inicio
+    function irArriba() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  </script>
+</body>
+</html>

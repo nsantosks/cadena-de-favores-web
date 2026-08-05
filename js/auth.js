@@ -304,3 +304,81 @@ function cerrarSesion() {
 
   window.location.href = "../index.html"; 
 }
+
+function sincronizarHeaderGlobal() {
+  const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile') || 'null');
+  
+  const navAvatarContainer = document.getElementById('navAvatarContainer');
+  const navDefaultIcon = document.getElementById('navDefaultIcon');
+  const navBtnAuth = document.getElementById('navBtnAuth');
+  const navBtnLogout = document.getElementById('navBtnLogout');
+  const elementosSesion = document.querySelectorAll('.nav-item-sesion');
+  const btnGestion = document.getElementById('navItemGestionVoluntarios');
+
+  // Detectar la profundidad de ruta para el fallback del logo
+  const esSubcarpeta = window.location.pathname.includes('/trabajo/') || 
+                       window.location.pathname.includes('/jornadas/') || 
+                       window.location.pathname.includes('/perfil/') || 
+                       window.location.pathname.includes('/calendario/') || 
+                       window.location.pathname.includes('/voluntarios/') || 
+                       window.location.pathname.includes('/auth/');
+
+  const rutaLogoFallback = esSubcarpeta ? "../assets/logo.png" : "assets/logo.png";
+
+  if (cuentaActiva && cuentaActiva.email && cuentaActiva.email.trim() !== "") {
+    // --- USUARIO LOGUEADO ---
+    if (navBtnAuth) navBtnAuth.classList.add('d-none');
+    if (navBtnLogout) navBtnLogout.classList.remove('d-none');
+    
+    elementosSesion.forEach(el => el.classList.remove('d-none'));
+
+    // Validar rol de coordinador
+    const rol = cuentaActiva.rolActivo || cuentaActiva.rolActive || (cuentaActiva.esCoordinador ? "coordinador" : "eslabon");
+    if (btnGestion) {
+      if (rol === "coordinador") {
+        btnGestion.classList.remove('d-none');
+      } else {
+        btnGestion.classList.add('d-none');
+      }
+    }
+
+    // --- MANEJO DEL AVATAR / FOTO DE PERFIL ---
+    if (navAvatarContainer && navDefaultIcon) {
+      // Prioridad: URL Google/Avatar -> Base64 -> Iniciales
+      let urlFoto = cuentaActiva.picture || cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto;
+
+      navDefaultIcon.classList.add('d-none');
+      navAvatarContainer.classList.remove('d-none');
+
+      if (urlFoto && (urlFoto.startsWith("http") || urlFoto.startsWith("data:image"))) {
+        navAvatarContainer.innerHTML = `
+          <img src="${urlFoto}" 
+               alt="Avatar" 
+               class="rounded-circle border border-2 border-warning shadow-sm" 
+               style="width: 34px; height: 34px; object-fit: cover;"
+               onerror="this.onerror=null; this.src='${rutaLogoFallback}';">
+        `;
+      } else {
+        const inicial = (cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "U").charAt(0).toUpperCase();
+        navAvatarContainer.innerHTML = `
+          <div class="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center shadow-sm" 
+               style="width: 34px; height: 34px; font-size: 0.85rem;">
+            ${inicial}
+          </div>
+        `;
+      }
+    }
+  } else {
+    // --- SIN SESIÓN ---
+    if (navBtnAuth) navBtnAuth.classList.remove('d-none');
+    if (navBtnLogout) navBtnLogout.classList.add('d-none');
+    elementosSesion.forEach(el => el.classList.add('d-none'));
+    if (navAvatarContainer) navAvatarContainer.classList.add('d-none');
+    if (navDefaultIcon) navDefaultIcon.classList.remove('d-none');
+  }
+}
+
+// Ejecutar sincronización al cargar cualquier página
+document.addEventListener("DOMContentLoaded", () => {
+    sincronizarHeaderGlobal();
+});

@@ -7,10 +7,26 @@ var cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
 var cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 var poolVoluntarios = poolVoluntarios || []; 
 
+// ==========================================================================
+// CONFIGURACIÓN DE CACHÉ LOCAL DEL PERFIL (TTL: 5 MINUTOS)
+// ==========================================================================
+const PROFILE_CACHE_KEY = 'cdf_perfil_cache';
+const PROFILE_CACHE_TIME_KEY = 'cdf_perfil_cache_time';
+const PROFILE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+
+/**
+ * Invalida la caché del perfil para forzar la sincronización fresca desde Apps Script
+ */
+function invalidarCachePerfil() {
+  sessionStorage.removeItem(PROFILE_CACHE_KEY);
+  sessionStorage.removeItem(PROFILE_CACHE_TIME_KEY);
+}
+
 /**
  * Inicializador modular expuesto de forma global.
+ * @param {boolean} forzarRecarga - Si es true, ignora la caché local y consulta al backend
  */
-window.inicializarPerfilModulo = async function() {
+window.inicializarPerfilModulo = async function(forzarRecarga = false) {
     if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
 
     // 1. Ocultar inmediatamente el loader spinner global de la app
@@ -25,19 +41,35 @@ window.inicializarPerfilModulo = async function() {
         return;
     }
 
-    // 3. CACHÉ INTELIGENTE: Validar si los datos clave ya están cargados en memoria/sesión.
-    // Si ya poseemos el nombre o la cédula guardados, evitamos la llamada repetitiva al backend 
-    // al hacer clic en "Mi Perfil", logrando una transición instantánea.
-    const perfilYaCargado = Boolean(cuentaActiva.nombre || cuentaActiva.Nombre_Completo || cuentaActiva.cedula || cuentaActiva.ID_Voluntario);
-    
-    if (!perfilYaCargado) {
-        // Solo si es la primera vez que entra y faltan datos principales, consultamos al servidor
+    // 3. CACHÉ INTELIGENTE: Validar si los datos clave ya están cargados y vigentes en caché local.
+    const now = new Date().getTime();
+    const cacheGuardado = sessionStorage.getItem(PROFILE_CACHE_KEY);
+    const cacheTiempo = sessionStorage.getItem(PROFILE_CACHE_TIME_KEY);
+
+    const esCacheValida = !forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < PROFILE_CACHE_TTL_MS);
+
+    if (esCacheValida) {
+        try {
+            const perfilCache = JSON.parse(cacheGuardado);
+            cuentaActiva = { ...cuentaActiva, ...perfilCache };
+            window.sesionUsuario = cuentaActiva;
+            sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+        } catch (e) {
+            console.warn("Caché de perfil corrupta, reconsultando servidor...", e);
+            invalidarCachePerfil();
+        }
+    } else {
+        // Consultar al backend únicamente si la caché expiró o se forzó recarga
         try {
             const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
             if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
                 cuentaActiva = { ...cuentaActiva, ...resPerfil.perfil };
                 window.sesionUsuario = cuentaActiva;
                 sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+                
+                // Guardar perfil fresco en caché con timestamp actual
+                sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(resPerfil.perfil));
+                sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, now.toString());
             }
         } catch (e) {
             console.warn("No se pudo sincronizar el perfil con el servidor, usando datos locales.", e);
@@ -150,7 +182,7 @@ window.inicializarPerfilModulo = async function() {
         }
     }
 
-    // 9. Control de permisos, roles y estatus (Blindado para múltiples variantes de propiedades)
+    // 9. Control de permisos, roles y estatus
     const lblEstatus = document.getElementById('lblEstatusVerificacion');
     const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
     const contenedorBloqueo = document.getElementById('contenedorBloqueo');
@@ -311,8 +343,11 @@ async function actualizarPerfil(event) {
         cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
         cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 
+        // Invalidar la caché local para forzar actualización limpia
+        invalidarCachePerfil();
+
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
-        if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo();
+        if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo(true);
 
     } else {
         alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor. Reintente más tarde."));
@@ -416,6 +451,7 @@ async function eliminarCredencialFicha(fileId, idVol) {
 
     if (res && res.status === "SUCCESS") {
         alert("Documento removido exitosamente.");
+        invalidarCachePerfil();
         cargarHistorialDocumentosFicha();
     } else {
         alert("Error al eliminar documento: " + (res ? res.message : "Error de comunicación"));
@@ -454,4 +490,4 @@ async function abrirInformeConvocadosHoy(btn) {
         console.error("Error al obtener reporte de convocados:", e);
         alert("No se pudo conectar con el servidor para generar el reporte.");
     }
-}
+} 

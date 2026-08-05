@@ -135,3 +135,95 @@ async function callBackend(action, payload = {}) {
 
 // Inicialización automática al instanciar el script
 refrescarSesionLocal();
+
+/**
+ * Configuración Centralizada de Canales de WhatsApp (Alcances y Mensajes)
+ */
+const WHATSAPP_CONFIG = {
+  // Número base institucional (puedes cambiarlo aquí y se actualiza en todo el sitio)
+  numero: "584244626652",
+  
+  // Alcances y mensajes predefinidos
+  alcances: {
+    flotante: "Hola,%20necesito%20asistencia%20básica%20o%20soporte%20rápido%20con%20la%20Red%20Operativa.",
+    footer: "Estimado%20equipo%20de%20Cadena%20de%20Favores%20Venezuela,%20les%20escribo%20con%20motivo%20de%20una%20consulta%20institucional.",
+    voluntariado: "Hola,%20quiero%20más%20información%20detallada%20sobre%20los%20procesos%20de%20inscripción%20para%20voluntarios."
+  }
+};
+
+/**
+ * Genera el enlace de WhatsApp según el alcance solicitado
+ * @param {string} alcance - 'flotante', 'footer', 'voluntariado', etc.
+ * @returns {string} URL completa de WhatsApp con el mensaje configurado
+ */
+function obtenerEnlaceWhatsApp(alcance = 'flotante') {
+  const num = WHATSAPP_CONFIG.numero;
+  const msg = WHATSAPP_CONFIG.alcances[alcance] || WHATSAPP_CONFIG.alcances.flotante;
+  return `https://wa.me/${num}?text=${msg}`;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  // 1. DETECCIÓN AUTOMÁTICA DE RUTAS (Raíz vs Subcarpetas)
+  const pathActual = window.location.pathname;
+  const esSubcarpeta = pathActual.includes('/trabajo/') || 
+                       pathActual.includes('/jornadas/') || 
+                       pathActual.includes('/perfil/') || 
+                       pathActual.includes('/calendario/') || 
+                       pathActual.includes('/voluntarios/') || 
+                       pathActual.includes('/auth/');
+
+  if (esSubcarpeta) {
+    // Ajustar los enlaces y recursos si estamos en una subcarpeta
+    const brandLink = document.querySelector('.brand-link-dinamico');
+    if (brandLink) brandLink.href = "../index.html";
+
+    const logoImg = document.getElementById('navDefaultIcon');
+    if (logoImg) logoImg.src = "../assets/logo.png";
+
+    // Ajustar los href del menú relativo
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link[data-page], #navBtnAuth');
+    navLinks.forEach(link => {
+      const pagina = link.getAttribute('data-page');
+      if (pagina === 'index') link.href = "../index.html";
+      else if (link.id === 'navBtnAuth') link.href = "../auth/index.html";
+      else {
+        const hrefActual = link.getAttribute('href');
+        if (hrefActual && !hrefActual.startsWith('../')) {
+          link.href = "../" + hrefActual;
+        }
+      }
+    });
+  } else {
+    // Si estamos en la raíz
+    const brandLink = document.querySelector('.brand-link-dinamico');
+    if (brandLink) brandLink.href = "index.html";
+
+    const logoImg = document.getElementById('navDefaultIcon');
+    if (logoImg) logoImg.src = "assets/logo.png";
+  }
+
+  // 2. ILUMINAR AUTOMÁTICAMENTE LA PESTAÑA ACTIVA SEGÚN LA URL
+  const todosLosLinks = document.querySelectorAll('.navbar-nav .nav-link');
+  todosLosLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    
+    // Compara si la URL actual contiene el identificador de la página
+    if (
+      (pathActual.endsWith('/') && href === 'index.html') ||
+      (pathActual.includes('index.html') && href.includes('index.html') && !pathActual.includes('/')) ||
+      (pathActual.includes('trabajo') && href.includes('trabajo')) ||
+      (pathActual.includes('jornadas') && href.includes('jornadas')) ||
+      (pathActual.includes('perfil') && href.includes('perfil')) ||
+      (pathActual.includes('calendario') && href.includes('calendario')) ||
+      (pathActual.includes('voluntarios') && href.includes('voluntarios'))
+    ) {
+      link.classList.add('active', 'fw-semibold');
+    } else {
+      // Evita marcar auth o desmarca los demás
+      if (!link.id.includes('navBtnAuth')) {
+        link.classList.remove('active');
+      }
+    }
+  });
+});

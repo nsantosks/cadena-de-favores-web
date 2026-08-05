@@ -9,15 +9,47 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- 2. Portal de Registro y Autenticación de Voluntarios -->
+  <!-- 2. Módulo de Nuestro Trabajo -->
   <url>
-    <loc>https://voluntariadocdfvzla.org/registro/</loc>
+    <loc>https://voluntariadocdfvzla.org/trabajo/</loc>
     <lastmod>2026-08-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- 3. Página de Políticas de Privacidad y Marco Legal -->
+  <!-- 3. Módulo de Jornadas y Calendario Operativo -->
+  <url>
+    <loc>https://voluntariadocdfvzla.org/jornadas/</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 4. Portal de Autenticación y Registro -->
+  <url>
+    <loc>https://voluntariadocdfvzla.org/auth/</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 5. Panel de Perfil Operativo -->
+  <url>
+    <loc>https://voluntariadocdfvzla.org/perfil/</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 6. Consola de Gestión de Personal / Voluntarios -->
+  <url>
+    <loc>https://voluntariadocdfvzla.org/voluntarios/</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- 7. Página de Políticas de Privacidad y Marco Legal -->
   <url>
     <loc>https://voluntariadocdfvzla.org/politicas.html</loc>
     <lastmod>2026-08-04</lastmod>
