@@ -96,7 +96,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         txtNombreHeader.innerText = cuentaActiva.nombre || cuentaActiva.Nombre_Completo;
     }
 
-    // 5. RESOLUCIÓN DE LA SELFIE
+    // 5. RESOLUCIÓN DE LA SELFIE CON CACHÉ LOCAL OPTIMIZADA
     const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.urlProfile || "";
     const avatarImg = document.getElementById('avatarPrevisualizacion');
     
@@ -107,6 +107,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         avatarImg.className = "rounded-circle border border-3 border-primary shadow-sm";
 
         const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
+        // Avatar por defecto como respaldo visual inmediato
         avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
 
         if (urlFotoDrive && urlFotoDrive.trim() !== "") {
@@ -115,13 +116,27 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
             } else if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
                 avatarImg.src = urlFotoDrive;
             } else {
-                callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive }).then(base64Res => {
-                    if (base64Res && base64Res.base64) {
-                        avatarImg.src = base64Res.base64;
-                    }
-                }).catch(err => {
-                    console.warn("No se pudo obtener la imagen en Base64 de la API:", err);
-                });
+                // VERIFICAR SI YA TENEMOS EL BASE64 GUARDADO EN CACHÉ DE SESIÓN
+                const avatarCacheKey = 'cdf_avatar_b64_' + cuentaActiva.email;
+                const base64Cached = sessionStorage.getItem(avatarCacheKey);
+                const urlDriveCached = sessionStorage.getItem(avatarCacheKey + '_url');
+
+                if (base64Cached && urlDriveCached === urlFotoDrive) {
+                    // Impacto inmediato desde caché local (0 llamadas de red)
+                    avatarImg.src = base64Cached;
+                } else {
+                    // Si no está en caché o la foto cambió, consultamos al servidor una sola vez
+                    callBackend('obtenerImagenBase64', { urlDrive: urlFotoDrive }).then(base64Res => {
+                        if (base64Res && base64Res.base64) {
+                            avatarImg.src = base64Res.base64;
+                            // Guardar en sessionStorage para futuras visitas en la sesión
+                            sessionStorage.setItem(avatarCacheKey, base64Res.base64);
+                            sessionStorage.setItem(avatarCacheKey + '_url', urlFotoDrive);
+                        }
+                    }).catch(err => {
+                        console.warn("No se pudo obtener la imagen en Base64 de la API:", err);
+                    });
+                }
             }
         }
     }
@@ -331,17 +346,37 @@ async function actualizarPerfil(event) {
     }
 
     if (res && res.status === "SUCCESS") {
+        // 1. Tomar el perfil actualizado que devuelve el servidor o fusionarlo con los datos enviados
         const perfilActualizado = res.perfil || { ...cuentaActiva, ...datos };
-        sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
-        window.sesionUsuario = perfilActualizado;
         
+        if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
+        if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
+
+        // 2. Actualizar la sesión activa global y en el almacenamiento local
+        window.sesionUsuario = perfilActualizado;
+        sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
+        
+        // 3. INVALIDAR LA CACHÉ DE PERFIL Y DE AVATAR PARA FORZAR DATOS FRESCOS
+        invalidarCachePerfil();
+        const avatarCacheKey = 'cdf_avatar_b64_' + cuentaActiva.email;
+        sessionStorage.removeItem(avatarCacheKey);
+        sessionStorage.removeItem(avatarCacheKey + '_url');
+
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
-        invalidarCachePerfil();
-        alert("¡Perfil guardado y sincronizado exitosamente!");
-        if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo(true);
+        // Limpiar caché temporal de archivos locales
+        cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
+        cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
+
+        alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
+        
+        // 4. Recargar el módulo pasando 'true' para forzar la lectura limpia sin bloqueos de caché
+        if (typeof window.inicializarPerfilModulo === "function") {
+            window.inicializarPerfilModulo(true);
+        }
+
     } else {
-        alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor."));
+        alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor. Reintente más tarde."));
     }
 }
 
@@ -515,7 +550,7 @@ function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
 }
 
 /**
- * Sube la Selfie de forma independiente y asíncrona para evitar timeouts en el perfil general.
+ * Sube la Selfie de forma independiente y asíncrona con indicador visual dinámico.
  */
 async function procesarYSubirSelfie(input) {
     if (!input.files || !input.files[0]) return;
@@ -524,16 +559,26 @@ async function procesarYSubirSelfie(input) {
     const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
-        alert("Por favor, ingrese o guarde primero su Cédula / ID de Voluntario antes de adjuntar archivos.");
+        alert("Por favor, ingrese y verifique primero su Cédula de Identidad antes de actualizar la foto.");
         input.value = "";
         return;
     }
 
     const avatarImg = document.getElementById('avatarPrevisualizacion');
-    if (avatarImg) avatarImg.style.opacity = "0.5";
+    
+    // Crear o buscar un indicador visual de carga junto al input
+    let feedbackEl = document.getElementById('feedbackSelfie');
+    if (!feedbackEl) {
+        feedbackEl = document.createElement('div');
+        feedbackEl.id = 'feedbackSelfie';
+        feedbackEl.className = 'form-text text-primary fw-bold mt-1';
+        input.parentNode.appendChild(feedbackEl);
+    }
+    feedbackEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Comprimiendo y subiendo a Drive...';
+    input.disabled = true;
+    if (avatarImg) avatarImg.style.opacity = "0.4";
 
     try {
-        // Comprimir imagen localmente
         const base64Comprimido = await comprimirImagenLocal(file, 800, 0.75);
         if (avatarImg) avatarImg.src = base64Comprimido;
 
@@ -543,25 +588,31 @@ async function procesarYSubirSelfie(input) {
             imagen_profile_nombre: file.name
         };
 
-        const res = await callBackend('subirArchivoIndividual', payload); // O tu endpoint específico de Drive
+        const res = await callBackend('subirArchivoIndividual', payload);
         if (res && res.status === "SUCCESS") {
             if (res.urlProfile) document.getElementById('perfilUrlFotoActual').value = res.urlProfile;
             if (res.imgApp) document.getElementById('perfilImgAppActual').value = res.imgApp;
-            alert("¡Selfie subida y sincronizada con Google Drive exitosamente!");
+            feedbackEl.className = 'form-text text-success fw-bold mt-1';
+            feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Selfie sincronizada con éxito!';
         } else {
-            alert("No se pudo subir la selfie: " + (res ? res.message : "Error desconocido"));
+            feedbackEl.className = 'form-text text-danger fw-bold mt-1';
+            feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';
+            alert("No se pudo guardar la selfie: " + (res ? res.message : "Error"));
         }
     } catch (e) {
         console.error("Error al procesar la selfie:", e);
-        alert("Ocurrió un error al procesar la imagen localmente.");
+        feedbackEl.className = 'form-text text-danger fw-bold mt-1';
+        feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error de red.';
     } finally {
+        input.disabled = false;
         if (avatarImg) avatarImg.style.opacity = "1";
+        setTimeout(() => { if (feedbackEl) feedbackEl.innerHTML = ""; }, 4000);
         input.value = "";
     }
 }
 
 /**
- * Sube un Documento de soporte de forma independiente y asíncrona.
+ * Sube un Documento con indicador visual de carga en el DOM.
  */
 async function procesarYSubirDocumento(input) {
     if (!input.files || !input.files[0]) return;
@@ -570,16 +621,25 @@ async function procesarYSubirDocumento(input) {
     const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
-        alert("Por favor, ingrese primero su Cédula / ID de Voluntario.");
+        alert("Por favor, ingrese primero su Cédula de Identidad.");
         input.value = "";
         return;
     }
+
+    let feedbackEl = document.getElementById('feedbackDoc');
+    if (!feedbackEl) {
+        feedbackEl = document.createElement('div');
+        feedbackEl.id = 'feedbackDoc';
+        feedbackEl.className = 'form-text text-primary fw-bold mt-1';
+        input.parentNode.appendChild(feedbackEl);
+    }
+    feedbackEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Subiendo documento a Drive...';
+    input.disabled = true;
 
     let base64Data = "";
     if (file.type.startsWith('image/')) {
         base64Data = await comprimirImagenLocal(file, 1000, 0.8);
     } else {
-        // Si es PDF u otro formato, leer directo en base64 sin compresión de imagen
         base64Data = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
@@ -593,24 +653,26 @@ async function procesarYSubirDocumento(input) {
         Documentacion_nombre: file.name
     };
 
-    const btnSubir = input;
-    btnSubir.disabled = true;
-
     try {
         const res = await callBackend('subirArchivoIndividual', payload);
         if (res && res.status === "SUCCESS") {
-            alert("¡Documento anexado correctamente al expediente!");
+            feedbackEl.className = 'form-text text-success fw-bold mt-1';
+            feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Documento anexado correctamente!';
             if (typeof cargarHistorialDocumentosFicha === 'function') {
                 cargarHistorialDocumentosFicha();
             }
         } else {
+            feedbackEl.className = 'form-text text-danger fw-bold mt-1';
+            feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';
             alert("Error al subir documento: " + (res ? res.message : "Error"));
         }
     } catch (e) {
         console.error("Error de red al subir documento:", e);
-        alert("Error de red al intentar adjuntar el documento.");
+        feedbackEl.className = 'form-text text-danger fw-bold mt-1';
+        feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error de red.';
     } finally {
-        btnSubir.disabled = false;
+        input.disabled = false;
+        setTimeout(() => { if (feedbackEl) feedbackEl.innerHTML = ""; }, 4000);
         input.value = "";
     }
 }
