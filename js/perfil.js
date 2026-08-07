@@ -277,28 +277,32 @@ function procesarDocumentoLocal(input) {
     }
 }
 
+/**
+ * Procesa el guardado del perfil del voluntario sin reglas duras quemadas en el cliente.
+ * La obligatoriedad de campos la dictamina el backend (Maestro_Consignacion).
+ */
 async function actualizarPerfil(event) {
     event.preventDefault();
     const formElement = document.getElementById('formPerfil');
     
     if (!formElement) return;
 
+    // 1. Validar si los archivos locales en Base64 aún están en proceso de lectura
     if (cacheFotoPerfilB64.cargando || cacheDocumentacionB64.cargando) {
         alert("Los archivos adjuntos aún se están procesando localmente. Espere un momento.");
         return;
     }
     
+    // 2. Validación de HTML5 estándar (inputs con atributo 'required')
     formElement.classList.add('was-validated');
     if (!formElement.checkValidity()) {
         return;
     }
 
-    const urlFotoActual = document.getElementById('perfilUrlFotoActual')?.value || "";
-    if (!cacheFotoPerfilB64.base64 && (!urlFotoActual || urlFotoActual.trim() === "")) {
-        alert("La Selfie/Fotografía de perfil es obligatoria para la acreditación en la Red.");
-        return;
-    }
+    // --- SE ELIMINÓ LA VALIDACIÓN RÍGIDA DE LA SELFIE AQUÍ ---
+    // La obligatoriedad la determina dinámicamente Apps Script al recibir la carga de datos.
 
+    const urlFotoActual = document.getElementById('perfilUrlFotoActual')?.value || "";
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
 
     const datos = {
@@ -340,10 +344,11 @@ async function actualizarPerfil(event) {
         window.sesionUsuario = perfilActualizado;
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
+        // Limpiar caché de archivos locales
         cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
         cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 
-        // Invalidar la caché local para forzar actualización limpia
+        // Invalidar caché del perfil local para forzar renderizado limpio
         invalidarCachePerfil();
 
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
