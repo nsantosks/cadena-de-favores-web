@@ -164,43 +164,41 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         console.warn("No se pudieron pre-cargar especialidades maestro.");
     }
 
-    // 8. SELECTOR DINÁMICO DE PUNTOS DE RECOGIDA (Optimizado para respetar la selección cacheada)
+    // 8. SELECTOR DINÁMICO DE PUNTOS DE RECOGIDA (100% Cacheado)
     const selectRecogida = document.getElementById('perfilRecogida');
     if (selectRecogida) {
         const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || cuentaActiva.puntoRecogidaID || "";
         
-        // Solo cargamos las opciones del select si está vacío
-        if (selectRecogida.options.length <= 1) {
+        // Buscar en caché primero
+        let puntosCache = sessionStorage.getItem('cdf_puntos_cache');
+        let puntosLista = puntosCache ? JSON.parse(puntosCache) : null;
+
+        if (!puntosLista) {
             try {
                 const resPuntos = await callBackend('obtenerPuntosRecogida', {});
                 if (resPuntos && resPuntos.puntos) {
-                    selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
-                    
-                    resPuntos.puntos.forEach((lugar) => {
-                        const option = document.createElement('option');
-                        option.value = lugar.id || lugar.nombre;     
-                        option.innerText = lugar.nombre; 
-                        
-                        if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
-                            option.selected = true;
-                        }
-                        selectRecogida.appendChild(option);
-                    });
-
-                    if (puntoDefinido && !selectRecogida.value) {
-                        const optExtra = document.createElement('option');
-                        optExtra.value = puntoDefinido;
-                        optExtra.innerText = puntoDefinido;
-                        optExtra.selected = true;
-                        selectRecogida.appendChild(optExtra);
-                    }
+                    puntosLista = resPuntos.puntos;
+                    sessionStorage.setItem('cdf_puntos_cache', JSON.stringify(puntosLista)); // Guardar en caché
                 }
             } catch(err) {
-                selectRecogida.innerHTML = `<option value="Estación">Estación / Base de Salida</option>`;
+                console.warn("No se pudo cargar los puntos.");
             }
-        } else {
-            // Si ya tenías opciones cargadas, aseguramos que mantenga seleccionado el valor actual del perfil
-            selectRecogida.value = puntoDefinido;
+        }
+
+        // Pintar siempre desde la memoria
+        if (puntosLista) {
+            selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
+            puntosLista.forEach((lugar) => {
+                const option = document.createElement('option');
+                option.value = lugar.id || lugar.nombre;     
+                option.innerText = lugar.nombre; 
+                if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) option.selected = true;
+                selectRecogida.appendChild(option);
+            });
+            
+            if (puntoDefinido && !selectRecogida.value) {
+                selectRecogida.innerHTML += `<option value="${puntoDefinido}" selected>${puntoDefinido}</option>`;
+            }
         }
     }
 
@@ -471,6 +469,9 @@ async function sincronizarCuotaDeEnvios(btn) {
     }
 }
 
+/**
+ * Carga el historial de documentos usando Caché Local para evitar parpadeos
+ */
 async function cargarHistorialDocumentosFicha() {
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
     const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || "";
@@ -478,14 +479,25 @@ async function cargarHistorialDocumentosFicha() {
     const divContenedor = document.getElementById('contenedorDocsVoluntario');
     
     if (!tbody || !divContenedor || !idVol) return;
-    
-    const res = await callBackend('obtenerDocumentosVoluntario', { idVoluntario: idVol });
 
-    if (res && res.status === "SUCCESS" && res.documentos && res.documentos.length > 0) {
+    const docsCacheKey = 'cdf_docs_cache_' + idVol;
+    let docsHistorial = JSON.parse(sessionStorage.getItem(docsCacheKey));
+
+    // Si no está en caché, consultamos a la base de datos
+    if (!docsHistorial) {
+        const res = await callBackend('obtenerDocumentosVoluntario', { idVoluntario: idVol });
+        if (res && res.status === "SUCCESS" && res.documentos) {
+            docsHistorial = res.documentos;
+            sessionStorage.setItem(docsCacheKey, JSON.stringify(docsHistorial)); // Guardar en caché
+        }
+    }
+
+    // Pintar desde la caché directamente
+    if (docsHistorial && docsHistorial.length > 0) {
         divContenedor.classList.remove('d-none');
         tbody.innerHTML = "";
         
-        res.documentos.forEach(doc => {
+        docsHistorial.forEach(doc => {
             tbody.innerHTML += `
               <tr>
                 <td class="text-truncate" style="max-width: 250px;" title="${doc.nombre}">
