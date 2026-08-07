@@ -19,28 +19,19 @@
 <body class="bg-light d-flex flex-column min-vh-100">
 
   <!-- ================================================================= -->
-  <!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
+  <!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE (Landing Principal)      -->
   <!-- ================================================================= -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
     <div class="container-fluid px-3 px-md-4">
-      
-      <!-- Logotipo, Icono y Avatar Dinámico -->
-      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="../index.html">
-        
-        <!-- Contenedor del Avatar (Se muestra SOLO si hay sesión activa) -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="/index.html">
         <div id="navAvatarContainer" class="d-none"></div>
-
-        <!-- Logotipo Institucional por defecto -->
-        <img src="../assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
-
-        <!-- Texto Institucional de Marca -->
+        <img src="/assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
         <div class="d-flex flex-column">
           <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
           <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
         </div>
       </a>
 
-      <!-- Badge de Rol Activo -->
       <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
 
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
@@ -49,45 +40,17 @@
 
       <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
-          
-          <!-- Enlaces Principales Públicos -->
-          <li class="nav-item">
-            <a class="nav-link fw-semibold" href="../index.html" data-page="index">Quiénes Somos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-semibold" href="../trabajo/index.html" data-page="trabajo">Nuestro Trabajo</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-semibold" href="../jornadas/index.html" data-page="jornadas">Jornadas</a>
-          </li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="/" data-page="index">Quiénes Somos</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="/trabajo/" data-page="trabajo">Nuestro Trabajo</a></li>
+          <li class="nav-item"><a class="nav-link fw-semibold" href="/jornadas/" data-page="jornadas">Jornadas</a></li>
+          <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="/perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="/calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="/voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
 
-          <!-- Enlaces Privados (Visibles SOLO con Sesión Activa) -->
-          <li class="nav-item nav-item-sesion d-none">
-            <a class="nav-link fw-semibold" href="../perfil/index.html" data-page="perfil">
-              <i class="fa-solid fa-user-circle me-1"></i> Mi Perfil
-            </a>
-          </li>
-          <li class="nav-item nav-item-sesion d-none" id="navItemCalendario">
-            <a class="nav-link fw-semibold" href="../calendario/index.html" data-page="calendario">
-              <i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias
-            </a>
-          </li>
-          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios">
-            <a class="nav-link fw-semibold" href="../voluntarios/index.html" data-page="voluntarios">
-              <i class="fa-solid fa-users-gear me-1"></i> Gestión Personal
-            </a>
-          </li>
-
-          <!-- Botón Dinámico de Autenticación / Cierre de Sesión -->
           <li class="nav-item ms-lg-3">
-            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white" href="../auth/index.html">
-              <i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión
-            </a>
-            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3 d-none" onclick="cerrarSesion()">
-              <i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión
-            </button>
+            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="/auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
+            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión</button>
           </li>
-
         </ul>
       </div>
     </div>
