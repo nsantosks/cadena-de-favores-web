@@ -306,7 +306,7 @@ async function actualizarPerfil(event) {
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
 
     const datos = {
-        ID_Voluntario: cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim(),
+        ID_Voluntario: cuentaActiva.ID_Voluntario || cuentaActiva.id || cuentaActiva.idVoluntario || document.getElementById('perfilCedula').value.trim(),
         cedula: document.getElementById('perfilCedula').value.trim(),
         Nombre_Completo: document.getElementById('perfilNombre').value.trim(),
         Voluntariado: document.getElementById('perfilVoluntariado').value,
