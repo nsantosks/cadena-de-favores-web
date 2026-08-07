@@ -294,36 +294,51 @@ function procesarDocumentoLocal(input) {
 /**
  * Procesa el guardado del perfil alineando las claves requeridas por Apps Script.
  */
+/**
+ * Procesa el guardado general del perfil enviando texto y asegurando sincronización inmediata sin latencia de Sheets.
+ */
 async function actualizarPerfil(event) {
     event.preventDefault();
     const formElement = document.getElementById('formPerfil');
+    
     if (!formElement) return;
-
+    
     formElement.classList.add('was-validated');
-    if (!formElement.checkValidity()) return;
+    if (!formElement.checkValidity()) {
+        return;
+    }
 
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
     const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id;
 
-    // PAYLOAD EXCLUSIVAMENTE DE TEXTO Y REFERENCIAS YA ALMACENADAS
+    // CAPTURAR LOS VALORES FRESCOS DIRECTAMENTE DE LOS INPUTS DEL FORMULARIO
+    const nombreIngresado = document.getElementById('perfilNombre').value.trim();
+    const cedulaIngresada = document.getElementById('perfilCedula').value.trim();
+    const voluntariadoIngresado = document.getElementById('perfilVoluntariado').value.trim();
+    const especialidadIngresada = document.getElementById('perfilEspecialidad').value.trim();
+    const puntoIngresado = document.getElementById('perfilRecogida')?.value || "";
+    const telefonoIngresado = document.getElementById('perfilTelefono').value.trim();
+    const direccionIngresada = document.getElementById('perfilDireccion').value.trim();
+
+    // PAYLOAD DE TEXTO PARA EL SERVIDOR
     const datos = {
         idVoluntario: idVoluntarioCalculado,
         ID_Voluntario: idVoluntarioCalculado,
-        cedula: document.getElementById('perfilCedula').value.trim(),
-        nombre: document.getElementById('perfilNombre').value.trim(),
-        Nombre_Completo: document.getElementById('perfilNombre').value.trim(),
-        voluntariado: document.getElementById('perfilVoluntariado').value.trim(),
-        Voluntariado: document.getElementById('perfilVoluntariado').value.trim(),
-        especialidad: document.getElementById('perfilEspecialidad').value.trim(),
-        Especialidad: document.getElementById('perfilEspecialidad').value.trim(),
-        puntoRecogida: document.getElementById('perfilRecogida')?.value || "",
-        Punto_Recogida_Preferido: document.getElementById('perfilRecogida')?.value || "",
-        telefono: document.getElementById('perfilTelefono').value.trim(),
-        Telefono: document.getElementById('perfilTelefono').value.trim(),
-        direccion: document.getElementById('perfilDireccion').value.trim(),
+        cedula: cedulaIngresada,
+        nombre: nombreIngresado,
+        Nombre_Completo: nombreIngresado,
+        voluntariado: voluntariadoIngresado,
+        Voluntariado: voluntariadoIngresado,
+        especialidad: especialidadIngresada,
+        Especialidad: especialidadIngresada,
+        puntoRecogida: puntoIngresado,
+        Punto_Recogida_Preferido: puntoIngresado,
+        telefono: telefonoIngresado,
+        Telefono: telefonoIngresado,
+        direccion: direccionIngresada,
         correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
+        Correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
         
-        // Referencias de archivos previamente subidos de forma asíncrona
         imagen_profile_actual: document.getElementById('perfilUrlFotoActual')?.value || "",
         imgApp_actual: document.getElementById('perfilImgAppActual')?.value || "",
         Documentacion_URL_actual: document.getElementById('perfilUrlDocActual')?.value || ""
@@ -334,10 +349,9 @@ async function actualizarPerfil(event) {
     if (btnSubmit) {
         btnSubmit.disabled = true;
         htmlOriginalBtn = btnSubmit.innerHTML;
-        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Sincronizando Perfil...';
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Sincronizando con la Red...';
     }
 
-    // Llamada rápida al backend (sin transferencia pesada de binarios)
     const res = await callBackend('registrarVoluntario', datos);
 
     if (btnSubmit) {
@@ -346,22 +360,34 @@ async function actualizarPerfil(event) {
     }
 
     if (res && res.status === "SUCCESS") {
-        // 1. Tomar el perfil actualizado que devuelve el servidor o fusionarlo con los datos enviados
-        const perfilActualizado = res.perfil || { ...cuentaActiva, ...datos };
+        // CONSTRUCCIÓN LOCAL DEL PERFIL ACTUALIZADO (Garantiza sincronía instantánea al 100%)
+        const perfilActualizado = {
+            ...cuentaActiva,
+            ...datos,
+            nombre: nombreIngresado,
+            Nombre_Completo: nombreIngresado,
+            cedula: cedulaIngresada,
+            voluntariado: voluntariadoIngresado,
+            Voluntariado: voluntariadoIngresado,
+            especialidad: especialidadIngresada,
+            Especialidad: especialidadIngresada,
+            telefono: telefonoIngresado,
+            Telefono: telefonoIngresado,
+            puntoRecogida: puntoIngresado,
+            Punto_Recogida_Preferido: puntoIngresado,
+            direccion: direccionIngresada,
+            ...(res.perfil || {}) // Respeta metadatos de estatus o URLs devueltas por el servidor
+        };
         
         if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
         if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
 
-        // 2. Actualizar la sesión activa global y en el almacenamiento local
+        // ACTUALIZACIÓN DIRECTA DE LA SESIÓN Y CACHÉ LOCAL
         window.sesionUsuario = perfilActualizado;
         sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
+        sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(perfilActualizado));
+        sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, new Date().getTime().toString());
         
-        // 3. INVALIDAR LA CACHÉ DE PERFIL Y DE AVATAR PARA FORZAR DATOS FRESCOS
-        invalidarCachePerfil();
-        const avatarCacheKey = 'cdf_avatar_b64_' + cuentaActiva.email;
-        sessionStorage.removeItem(avatarCacheKey);
-        sessionStorage.removeItem(avatarCacheKey + '_url');
-
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
         // Limpiar caché temporal de archivos locales
@@ -370,9 +396,9 @@ async function actualizarPerfil(event) {
 
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
         
-        // 4. Recargar el módulo pasando 'true' para forzar la lectura limpia sin bloqueos de caché
+        // REINICIALIZAR MÓDULO (Cargará de inmediato la caché fresca que acabamos de escribir)
         if (typeof window.inicializarPerfilModulo === "function") {
-            window.inicializarPerfilModulo(true);
+            window.inicializarPerfilModulo(false); 
         }
 
     } else {
