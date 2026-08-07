@@ -388,23 +388,52 @@ async function actualizarPerfil(event) {
         if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
         if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
 
-        // ACTUALIZACIÓN DIRECTA DE LA SESIÓN Y CACHÉ LOCAL
+        // 1. ACTUALIZACIÓN DIRECTA DE LA SESIÓN Y CACHÉ LOCAL
         window.sesionUsuario = perfilActualizado;
         sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
+        localStorage.setItem('userProfile', JSON.stringify(perfilActualizado)); // <-- Añadido localStorage por redundancia
         sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(perfilActualizado));
         sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, new Date().getTime().toString());
         
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
+        // 2. RE-SINCRONIZAR EL HEADER GLOBAL (Aparecerá la opción Calendario en la barra)
+        if (typeof sincronizarHeaderGlobal === 'function') {
+            sincronizarHeaderGlobal();
+        }
+
         // Limpiar caché temporal de archivos locales
         cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
         cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 
+        // 3. EVALUACIÓN Y REDIRECCIÓN/DESPLIEGUE AL CALENDARIO
+        const esVerificadoReal = Boolean(
+            perfilActualizado.verificado === true || 
+            perfilActualizado.verificado === "Verificado" || 
+            perfilActualizado.verificado === "TRUE"
+        );
+
+        const esCoordinadorReal = Boolean(
+            perfilActualizado.esCoordinador || 
+            perfilActualizado.coordinador === true || 
+            perfilActualizado.rolActivo === "coordinador"
+        );
+
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
-        
-        // REINICIALIZAR MÓDULO (Cargará de inmediato la caché fresca que acabamos de escribir)
-        if (typeof window.inicializarPerfilModulo === "function") {
-            window.inicializarPerfilModulo(false); 
+
+        if (esVerificadoReal || esCoordinadorReal) {
+            // Si la aplicación funciona como SPA, navega a la vista de calendario
+            if (typeof cargarVista === 'function') {
+                cargarVista('calendario');
+            } else {
+                // Si son páginas independientes en subcarpetas, redirige directamente
+                window.location.href = "../calendario/index.html";
+            }
+        } else {
+            // Si falta algún dato/documento obligatorio según Maestro_Consignacion
+            if (typeof window.inicializarPerfilModulo === "function") {
+                window.inicializarPerfilModulo(false); 
+            }
         }
 
     } else {
