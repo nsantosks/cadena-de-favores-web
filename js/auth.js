@@ -337,6 +337,7 @@ function sincronizarHeaderGlobal() {
   const navBtnLogout = document.getElementById('navBtnLogout');
   const elementosSesion = document.querySelectorAll('.nav-item-sesion');
   const btnGestion = document.getElementById('navItemGestionVoluntarios');
+  const btnCalendario = document.getElementById('navItemCalendario'); // <-- NUEVA REFERENCIA
   const badgeContainer = document.getElementById('sessionRoleBadgeContainer');
 
   // Detectar la profundidad de ruta para el fallback del logo
@@ -356,7 +357,14 @@ function sincronizarHeaderGlobal() {
     
     elementosSesion.forEach(el => el.classList.remove('d-none'));
 
-    // Validar rol de coordinador
+    // 1. Validar estatus de verificación
+    const esVerificadoReal = Boolean(
+      cuentaActiva.verificado === true || 
+      cuentaActiva.verificado === "Verificado" || 
+      cuentaActiva.verificado === "TRUE"
+    );
+
+    // 2. Validar rol de coordinador
     const esCoordinadorReal = Boolean(
       cuentaActiva.esCoordinador || 
       cuentaActiva.coordinador === true || 
@@ -366,7 +374,16 @@ function sincronizarHeaderGlobal() {
       cuentaActiva.role === "coordinador"
     );
 
-    // Actualización del botón de gestión personal
+    // 3. Control de visibilidad del Calendario (Solo Verificados o Coordinadores)
+    if (btnCalendario) {
+      if (esVerificadoReal || esCoordinadorReal) {
+        btnCalendario.classList.remove('d-none');
+      } else {
+        btnCalendario.classList.add('d-none');
+      }
+    }
+
+    // 4. Actualización del botón de gestión personal (Solo Coordinadores)
     if (btnGestion) {
       if (esCoordinadorReal) {
         btnGestion.classList.remove('d-none');
@@ -426,6 +443,7 @@ function sincronizarHeaderGlobal() {
     if (navAvatarContainer) navAvatarContainer.classList.add('d-none');
     if (navDefaultIcon) navDefaultIcon.classList.remove('d-none');
     if (badgeContainer) badgeContainer.classList.add('d-none');
+    if (btnCalendario) btnCalendario.classList.add('d-none');
   }
 }
 
