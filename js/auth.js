@@ -221,7 +221,7 @@ async function enviarCodigoSeguridadOTP(email) {
 }
 
 /**
- * Valida el código OTP enviado al correo
+ * Valida el código OTP enviado al correo y gestiona el flujo de acceso o registro
  */
 async function validarYAccederOTP() {
   const email = document.getElementById('loginEmail').value.trim();
@@ -270,31 +270,34 @@ async function validarYAccederOTP() {
     }
 
   } else if (res && res.status === "REQUIRES_REGISTRATION") {
+    btn.disabled = false;
+    btn.innerText = "Confirmar Identidad y Acceder";
+
     const perfilProvisional = { email: res.email || email, rolActivo: rol, nuevoRegistro: true };
     window.sesionUsuario = perfilProvisional;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
 
-    if (typeof inicializarApp === 'function') {
-      inicializarApp();
-    } else {
-      window.location.reload();
-    }
-    
-    setTimeout(() => {
-      const modalElem = document.getElementById('modalGuardia');
-      if (!modalElem) return;
+    // Si existe la función de cargar el formulario dinámico, se invoca directamente SIN recargar la página
+    if (typeof cargarFormularioNuevoVoluntario === 'function') {
+      cargarFormularioNuevoVoluntario(res.email || email, null);
+      
+      const modalElem = document.getElementById('modalGuardia') || document.getElementById('modalRegistroVoluntario');
+      if (modalElem) {
+        modalElem.setAttribute('data-bs-backdrop', 'static');
+        modalElem.setAttribute('data-bs-keyboard', 'false');
+        const closeBtn = modalElem.querySelector('.btn-close');
+        if (closeBtn) closeBtn.style.display = 'none';
 
-      modalElem.setAttribute('data-bs-backdrop', 'static');
-      modalElem.setAttribute('data-bs-keyboard', 'false');
-      const closeBtn = modalElem.querySelector('.btn-close');
-      if (closeBtn) closeBtn.style.display = 'none';
-
-      const modal = bootstrap.Modal.getOrCreateInstance(modalElem);
-      if (typeof cargarFormularioNuevoVoluntario === 'function') {
-        cargarFormularioNuevoVoluntario(res.email || email, null);
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElem);
         modal.show();
       }
-    }, 800); 
+    } else if (typeof cargarVista === 'function') {
+      // Si estamos en la SPA de perfil, cargamos la vista de perfil
+      cargarVista('perfil');
+    } else {
+      // Redireccionamos a la vista de perfil para que complete el registro
+      window.location.href = "../perfil/index.html?nuevo=true";
+    }
 
   } else {
     mostrarErrorAuth(res ? res.message : "Código de verificación incorrecto.");
