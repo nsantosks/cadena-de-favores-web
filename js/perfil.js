@@ -18,8 +18,12 @@ const PROFILE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
  * Invalida la caché del perfil para forzar la sincronización fresca desde Apps Script
  */
 function invalidarCachePerfil() {
-  sessionStorage.removeItem(PROFILE_CACHE_KEY);
-  sessionStorage.removeItem(PROFILE_CACHE_TIME_KEY);
+    sessionStorage.removeItem(PROFILE_CACHE_KEY);
+    sessionStorage.removeItem(PROFILE_CACHE_TIME_KEY);
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || "";
+    if (idVol) sessionStorage.removeItem('cdf_docs_cache_' + idVol);
+    if (cuentaActiva.email) sessionStorage.removeItem('cdf_avatar_b64_' + cuentaActiva.email);
 }
 
 /**
@@ -60,11 +64,13 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         }
     } else {
         try {
-            const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
+            // CORRECCIÓN CRÍTICA: La acción en el switch de Apps Script es 'obtenerPerfil'
+            const resPerfil = await callBackend('obtenerPerfil', { email: cuentaActiva.email });
             if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
                 cuentaActiva = { ...cuentaActiva, ...resPerfil.perfil };
                 window.sesionUsuario = cuentaActiva;
                 sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+                localStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
                 
                 sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(resPerfil.perfil));
                 sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, now.toString());
@@ -136,17 +142,8 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         }
     }
 
-    // 6. DESPLIEGUE CACHEADO DEL HISTORIAL DE CREDENCIALES (Evita recargas innecesarias si ya existe)
-    const urlDocExistente = cuentaActiva.Documentacion_URL || cuentaActiva.docUrl;
-    const tbodyDocs = document.getElementById('tablaDocsVoluntarioBody');
-    if (urlDocExistente && urlDocExistente.trim() !== "") {
-        // Si la tabla ya tiene elementos pintados, no volvemos a consultar a Drive en cada cambio de pestaña
-        if (!tbodyDocs || tbodyDocs.children.length === 0) {
-            cargarHistorialDocumentosFicha();
-        } else {
-            document.getElementById('contenedorDocsVoluntario')?.classList.remove('d-none');
-        }
-    }
+    // 6. DESPLIEGUE CACHEADO DEL HISTORIAL DE CREDENCIALES
+    cargarHistorialDocumentosFicha();
 
     // 7. Catálogo maestro de especialidades
     try {
@@ -164,12 +161,11 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         console.warn("No se pudieron pre-cargar especialidades maestro.");
     }
 
-    // 8. SELECTOR DINÁMICO DE PUNTOS DE RECOGIDA (100% Cacheado)
+    // 8. SELECTOR DINÁMICO DE PUNTOS DE RECOGIDA
     const selectRecogida = document.getElementById('perfilRecogida');
     if (selectRecogida) {
         const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || cuentaActiva.puntoRecogidaID || "";
         
-        // Buscar en caché primero
         let puntosCache = sessionStorage.getItem('cdf_puntos_cache');
         let puntosLista = puntosCache ? JSON.parse(puntosCache) : null;
 
@@ -178,14 +174,13 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
                 const resPuntos = await callBackend('obtenerPuntosRecogida', {});
                 if (resPuntos && resPuntos.puntos) {
                     puntosLista = resPuntos.puntos;
-                    sessionStorage.setItem('cdf_puntos_cache', JSON.stringify(puntosLista)); // Guardar en caché
+                    sessionStorage.setItem('cdf_puntos_cache', JSON.stringify(puntosLista));
                 }
             } catch(err) {
                 console.warn("No se pudo cargar los puntos.");
             }
         }
 
-        // Pintar siempre desde la memoria
         if (puntosLista) {
             selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
             puntosLista.forEach((lugar) => {
@@ -202,7 +197,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         }
     }
 
-    // 9. CONTROL DE PERMISOS, ROLES Y ESTATUS (Directo de la caché de sesión)
+    // 9. CONTROL DE PERMISOS, ROLES Y ESTATUS
     const lblEstatus = document.getElementById('lblEstatusVerificacion');
     const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
     const contenedorBloqueo = document.getElementById('contenedorBloqueo');
@@ -298,10 +293,7 @@ function procesarDocumentoLocal(input) {
 }
 
 /**
- * Procesa el guardado del perfil alineando las claves requeridas por Apps Script.
- */
-/**
- * Procesa el guardado general del perfil enviando texto y asegurando sincronización inmediata sin latencia de Sheets.
+ * Procesa el guardado general del perfil enviando texto y asegurando sincronización inmediata.
  */
 async function actualizarPerfil(event) {
     event.preventDefault();
@@ -315,9 +307,8 @@ async function actualizarPerfil(event) {
     }
 
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
-    const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id;
+    const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id || cuentaActiva.cedula;
 
-    // CAPTURAR LOS VALORES FRESCOS DIRECTAMENTE DE LOS INPUTS DEL FORMULARIO
     const nombreIngresado = document.getElementById('perfilNombre').value.trim();
     const cedulaIngresada = document.getElementById('perfilCedula').value.trim();
     const voluntariadoIngresado = document.getElementById('perfilVoluntariado').value.trim();
@@ -326,7 +317,6 @@ async function actualizarPerfil(event) {
     const telefonoIngresado = document.getElementById('perfilTelefono').value.trim();
     const direccionIngresada = document.getElementById('perfilDireccion').value.trim();
 
-    // PAYLOAD DE TEXTO PARA EL SERVIDOR
     const datos = {
         idVoluntario: idVoluntarioCalculado,
         ID_Voluntario: idVoluntarioCalculado,
@@ -366,7 +356,6 @@ async function actualizarPerfil(event) {
     }
 
     if (res && res.status === "SUCCESS") {
-        // CONSTRUCCIÓN LOCAL DEL PERFIL ACTUALIZADO (Garantiza sincronía instantánea al 100%)
         const perfilActualizado = {
             ...cuentaActiva,
             ...datos,
@@ -382,31 +371,30 @@ async function actualizarPerfil(event) {
             puntoRecogida: puntoIngresado,
             Punto_Recogida_Preferido: puntoIngresado,
             direccion: direccionIngresada,
-            ...(res.perfil || {}) // Respeta metadatos de estatus o URLs devueltas por el servidor
+            ...(res.perfil || {})
         };
         
         if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
         if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
 
-        // 1. ACTUALIZACIÓN DIRECTA DE LA SESIÓN Y CACHÉ LOCAL
+        // 1. ACTUALIZACIÓN DIRECTA DE SESIÓN Y CACHÉ LOCAL
         window.sesionUsuario = perfilActualizado;
         sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
-        localStorage.setItem('userProfile', JSON.stringify(perfilActualizado)); // <-- Añadido localStorage por redundancia
-        sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(perfilActualizado));
-        sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, new Date().getTime().toString());
+        localStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
         
+        invalidarCachePerfil();
+
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
-        // 2. RE-SINCRONIZAR EL HEADER GLOBAL (Aparecerá la opción Calendario en la barra)
+        // 2. RE-SINCRONIZAR EL HEADER GLOBAL
         if (typeof sincronizarHeaderGlobal === 'function') {
             sincronizarHeaderGlobal();
         }
 
-        // Limpiar caché temporal de archivos locales
         cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
         cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 
-        // 3. EVALUACIÓN Y REDIRECCIÓN/DESPLIEGUE AL CALENDARIO
+        // 3. NAVEGACIÓN O DESPLIEGUE SEGÚN VERIFICACIÓN
         const esVerificadoReal = Boolean(
             perfilActualizado.verificado === true || 
             perfilActualizado.verificado === "Verificado" || 
@@ -422,17 +410,14 @@ async function actualizarPerfil(event) {
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
 
         if (esVerificadoReal || esCoordinadorReal) {
-            // Si la aplicación funciona como SPA, navega a la vista de calendario
             if (typeof cargarVista === 'function') {
                 cargarVista('calendario');
             } else {
-                // Si son páginas independientes en subcarpetas, redirige directamente
                 window.location.href = "../calendario/index.html";
             }
         } else {
-            // Si falta algún dato/documento obligatorio según Maestro_Consignacion
             if (typeof window.inicializarPerfilModulo === "function") {
-                window.inicializarPerfilModulo(false); 
+                window.inicializarPerfilModulo(true); 
             }
         }
 
@@ -499,11 +484,12 @@ async function sincronizarCuotaDeEnvios(btn) {
 }
 
 /**
- * Carga el historial de documentos usando Caché Local para evitar parpadeos
+ * Carga el historial de documentos
  */
 async function cargarHistorialDocumentosFicha() {
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
-    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || "";
+    // BÚSQUEDA TRIPLE DEL ID PARA EVITAR DESCONEXIONES
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || document.getElementById('perfilCedula')?.value.trim() || "";
     const tbody = document.getElementById('tablaDocsVoluntarioBody');
     const divContenedor = document.getElementById('contenedorDocsVoluntario');
     
@@ -512,16 +498,14 @@ async function cargarHistorialDocumentosFicha() {
     const docsCacheKey = 'cdf_docs_cache_' + idVol;
     let docsHistorial = JSON.parse(sessionStorage.getItem(docsCacheKey));
 
-    // Si no está en caché, consultamos a la base de datos
     if (!docsHistorial) {
         const res = await callBackend('obtenerDocumentosVoluntario', { idVoluntario: idVol });
         if (res && res.status === "SUCCESS" && res.documentos) {
             docsHistorial = res.documentos;
-            sessionStorage.setItem(docsCacheKey, JSON.stringify(docsHistorial)); // Guardar en caché
+            sessionStorage.setItem(docsCacheKey, JSON.stringify(docsHistorial));
         }
     }
 
-    // Pintar desde la caché directamente
     if (docsHistorial && docsHistorial.length > 0) {
         divContenedor.classList.remove('d-none');
         tbody.innerHTML = "";
@@ -590,10 +574,6 @@ async function abrirInformeConvocadosHoy(btn) {
     }
 }
 
-/**
- * Comprime una imagen (File) en el cliente antes de transformarla a Base64.
- * Reduce el peso drásticamente para evitar saturar el payload de red.
- */
 function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -615,7 +595,6 @@ function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Exportar a JPEG comprimido
                 const dataUrlCompressed = canvas.toDataURL('image/jpeg', quality);
                 resolve(dataUrlCompressed);
             };
@@ -631,7 +610,7 @@ async function procesarYSubirSelfie(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
-    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
         alert("Por favor, ingrese y verifique primero su Cédula de Identidad antes de actualizar la foto.");
@@ -641,7 +620,6 @@ async function procesarYSubirSelfie(input) {
 
     const avatarImg = document.getElementById('avatarPrevisualizacion');
     
-    // Crear o buscar un indicador visual de carga junto al input
     let feedbackEl = document.getElementById('feedbackSelfie');
     if (!feedbackEl) {
         feedbackEl = document.createElement('div');
@@ -667,8 +645,15 @@ async function procesarYSubirSelfie(input) {
         if (res && res.status === "SUCCESS") {
             if (res.urlProfile) document.getElementById('perfilUrlFotoActual').value = res.urlProfile;
             if (res.imgApp) document.getElementById('perfilImgAppActual').value = res.imgApp;
+            
+            // INVALIDACIÓN ATÓMICA DE CACHÉ
+            invalidarCachePerfil();
+            
             feedbackEl.className = 'form-text text-success fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Selfie sincronizada con éxito!';
+            
+            // Refrescar perfil para sincronizar el estatus final de verificación
+            window.inicializarPerfilModulo(true);
         } else {
             feedbackEl.className = 'form-text text-danger fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';
@@ -693,7 +678,7 @@ async function procesarYSubirDocumento(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
-    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
         alert("Por favor, ingrese primero su Cédula de Identidad.");
@@ -733,9 +718,11 @@ async function procesarYSubirDocumento(input) {
         if (res && res.status === "SUCCESS") {
             feedbackEl.className = 'form-text text-success fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Documento anexado correctamente!';
-            if (typeof cargarHistorialDocumentosFicha === 'function') {
-                cargarHistorialDocumentosFicha();
-            }
+            
+            // INVALIDACIÓN ATÓMICA Y REFREASCO FRESCO
+            invalidarCachePerfil();
+            cargarHistorialDocumentosFicha();
+            window.inicializarPerfilModulo(true);
         } else {
             feedbackEl.className = 'form-text text-danger fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';
