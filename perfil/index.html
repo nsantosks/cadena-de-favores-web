@@ -88,16 +88,15 @@
                 <div class="col-md-6"><label class="form-label small fw-bold">Punto de Recogida Preferido</label><select id="perfilRecogida" class="form-select"></select></div>
                 <div class="col-12"><label class="form-label small fw-bold">Dirección de Residencia</label><input type="text" id="perfilDireccion" class="form-control" required></div>
                 
-                <!-- Inputs de Archivos Configurados para Cámara y Documentos -->
+                <!-- Inputs de Archivos Configurados para Subida Independiente -->
                 <div class="col-md-6">
                   <label class="form-label small fw-bold">Actualizar Selfie (Foto)</label>
-                  <input type="file" id="inputFotoCamara" class="form-control" accept="image/*" capture="user" onchange="procesarPrevisualizacionFoto(this)">
+                  <input type="file" id="inputFotoCamara" class="form-control" accept="image/*" capture="user" onchange="procesarYSubirSelfie(this)">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-bold">Anexar Documento / Credencial</label>
-                  <input type="file" id="inputDocumento" class="form-control" accept="image/*,.pdf" onchange="procesarDocumentoLocal(this)">
+                  <input type="file" id="inputDocumento" class="form-control" accept="image/*,.pdf" onchange="procesarYSubirDocumento(this)">
                 </div>
-              </div>
 
               <!-- Expediente Digital de Documentos -->
               <div id="contenedorDocsVoluntario" class="mt-4 border rounded p-3 bg-light d-none">

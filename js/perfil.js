@@ -282,23 +282,15 @@ function procesarDocumentoLocal(input) {
 async function actualizarPerfil(event) {
     event.preventDefault();
     const formElement = document.getElementById('formPerfil');
-    
     if (!formElement) return;
 
-    if (cacheFotoPerfilB64.cargando || cacheDocumentacionB64.cargando) {
-        alert("Los archivos adjuntos aún se están procesando localmente. Espere un momento.");
-        return;
-    }
-    
     formElement.classList.add('was-validated');
-    if (!formElement.checkValidity()) {
-        return;
-    }
+    if (!formElement.checkValidity()) return;
 
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
-    const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id || cuentaActiva.cedula;
+    const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id;
 
-    // PAYLOAD SERIALIZADO DUAL PARA APPS SCRIPT Y APPSHEET
+    // PAYLOAD EXCLUSIVAMENTE DE TEXTO Y REFERENCIAS YA ALMACENADAS
     const datos = {
         idVoluntario: idVoluntarioCalculado,
         ID_Voluntario: idVoluntarioCalculado,
@@ -315,18 +307,11 @@ async function actualizarPerfil(event) {
         Telefono: document.getElementById('perfilTelefono').value.trim(),
         direccion: document.getElementById('perfilDireccion').value.trim(),
         correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
-        Correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
         
-        // Punteros e imágenes
+        // Referencias de archivos previamente subidos de forma asíncrona
         imagen_profile_actual: document.getElementById('perfilUrlFotoActual')?.value || "",
         imgApp_actual: document.getElementById('perfilImgAppActual')?.value || "",
-        Documentacion_URL_actual: document.getElementById('perfilUrlDocActual')?.value || "",
-        
-        // Archivos procesados en Base64
-        imagen_profile_base64: cacheFotoPerfilB64.base64,
-        imagen_profile_nombre: cacheFotoPerfilB64.nombre,
-        Documentacion_base64: cacheDocumentacionB64.base64,
-        Documentacion_nombre: cacheDocumentacionB64.nombre
+        Documentacion_URL_actual: document.getElementById('perfilUrlDocActual')?.value || ""
     };
 
     const btnSubmit = formElement.querySelector('button[type="submit"]');
@@ -334,9 +319,10 @@ async function actualizarPerfil(event) {
     if (btnSubmit) {
         btnSubmit.disabled = true;
         htmlOriginalBtn = btnSubmit.innerHTML;
-        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Guardando en la Red...';
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Sincronizando Perfil...';
     }
 
+    // Llamada rápida al backend (sin transferencia pesada de binarios)
     const res = await callBackend('registrarVoluntario', datos);
 
     if (btnSubmit) {
@@ -346,26 +332,16 @@ async function actualizarPerfil(event) {
 
     if (res && res.status === "SUCCESS") {
         const perfilActualizado = res.perfil || { ...cuentaActiva, ...datos };
-        
-        if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
-        if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
-
         sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
         window.sesionUsuario = perfilActualizado;
         
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
-        // Limpiar caché de archivos locales
-        cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
-        cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
-
         invalidarCachePerfil();
-
-        alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
+        alert("¡Perfil guardado y sincronizado exitosamente!");
         if (typeof window.inicializarPerfilModulo === "function") window.inicializarPerfilModulo(true);
-
     } else {
-        alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor. Reintente más tarde."));
+        alert("Atención: " + (res ? res.message : "No se pudo sincronizar el perfil con el servidor."));
     }
 }
 
@@ -501,5 +477,140 @@ async function abrirInformeConvocadosHoy(btn) {
         }
         console.error("Error al obtener reporte de convocados:", e);
         alert("No se pudo conectar con el servidor para generar el reporte.");
+    }
+}
+
+/**
+ * Comprime una imagen (File) en el cliente antes de transformarla a Base64.
+ * Reduce el peso drásticamente para evitar saturar el payload de red.
+ */
+function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Exportar a JPEG comprimido
+                const dataUrlCompressed = canvas.toDataURL('image/jpeg', quality);
+                resolve(dataUrlCompressed);
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+/**
+ * Sube la Selfie de forma independiente y asíncrona para evitar timeouts en el perfil general.
+ */
+async function procesarYSubirSelfie(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
+
+    if (!idVol) {
+        alert("Por favor, ingrese o guarde primero su Cédula / ID de Voluntario antes de adjuntar archivos.");
+        input.value = "";
+        return;
+    }
+
+    const avatarImg = document.getElementById('avatarPrevisualizacion');
+    if (avatarImg) avatarImg.style.opacity = "0.5";
+
+    try {
+        // Comprimir imagen localmente
+        const base64Comprimido = await comprimirImagenLocal(file, 800, 0.75);
+        if (avatarImg) avatarImg.src = base64Comprimido;
+
+        const payload = {
+            idVoluntario: idVol,
+            imagen_profile_base64: base64Comprimido,
+            imagen_profile_nombre: file.name
+        };
+
+        const res = await callBackend('subirArchivoIndividual', payload); // O tu endpoint específico de Drive
+        if (res && res.status === "SUCCESS") {
+            if (res.urlProfile) document.getElementById('perfilUrlFotoActual').value = res.urlProfile;
+            if (res.imgApp) document.getElementById('perfilImgAppActual').value = res.imgApp;
+            alert("¡Selfie subida y sincronizada con Google Drive exitosamente!");
+        } else {
+            alert("No se pudo subir la selfie: " + (res ? res.message : "Error desconocido"));
+        }
+    } catch (e) {
+        console.error("Error al procesar la selfie:", e);
+        alert("Ocurrió un error al procesar la imagen localmente.");
+    } finally {
+        if (avatarImg) avatarImg.style.opacity = "1";
+        input.value = "";
+    }
+}
+
+/**
+ * Sube un Documento de soporte de forma independiente y asíncrona.
+ */
+async function procesarYSubirDocumento(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || document.getElementById('perfilCedula').value.trim();
+
+    if (!idVol) {
+        alert("Por favor, ingrese primero su Cédula / ID de Voluntario.");
+        input.value = "";
+        return;
+    }
+
+    let base64Data = "";
+    if (file.type.startsWith('image/')) {
+        base64Data = await comprimirImagenLocal(file, 1000, 0.8);
+    } else {
+        // Si es PDF u otro formato, leer directo en base64 sin compresión de imagen
+        base64Data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const payload = {
+        idVoluntario: idVol,
+        Documentacion_base64: base64Data,
+        Documentacion_nombre: file.name
+    };
+
+    const btnSubir = input;
+    btnSubir.disabled = true;
+
+    try {
+        const res = await callBackend('subirArchivoIndividual', payload);
+        if (res && res.status === "SUCCESS") {
+            alert("¡Documento anexado correctamente al expediente!");
+            if (typeof cargarHistorialDocumentosFicha === 'function') {
+                cargarHistorialDocumentosFicha();
+            }
+        } else {
+            alert("Error al subir documento: " + (res ? res.message : "Error"));
+        }
+    } catch (e) {
+        console.error("Error de red al subir documento:", e);
+        alert("Error de red al intentar adjuntar el documento.");
+    } finally {
+        btnSubir.disabled = false;
+        input.value = "";
     }
 }
