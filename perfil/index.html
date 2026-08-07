@@ -63,10 +63,23 @@
             
             <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
               <div class="d-flex align-items-center gap-3">
-                <img id="avatarPrevisualizacion" src="https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE" class="rounded-circle border border-3 border-primary shadow-sm" style="width:90px; height:90px; object-fit:cover;">
+                <!-- CONTENEDOR DE AVATAR CON BOTÓN FLOTANTE TIPO LÁPIZ -->
+                <div class="position-relative d-inline-block">
+                  <img id="avatarPrevisualizacion" src="https://placehold.co/130x130/f1f5f9/1e3a8a?text=SELFIE" class="rounded-circle border border-3 border-primary shadow-sm" style="width:90px; height:90px; object-fit:cover;">
+                  
+                  <!-- Botón flotante tipo lápiz -->
+                  <label for="inputFotoCamaraOculto" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 32px; height: 32px; cursor: pointer; border: 2px solid #ffffff;" title="Cambiar Selfie">
+                    <i class="fa-solid fa-pen-to-square fs-6"></i>
+                  </label>
+                  
+                  <!-- Input file oculto que se activa al hacer clic en el lápiz -->
+                  <input type="file" id="inputFotoCamaraOculto" class="d-none" accept="image/*" capture="user" onchange="procesarYSubirSelfie(this)">
+                </div>
+
                 <div>
                   <h4 class="fw-bold mb-1 text-dark" id="txtPerfilNombreHeader">Perfil Operativo</h4>
                   <div id="lblEstatusVerificacion" class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> En Revisión</div>
+                  <div id="feedbackSelfie" class="small mt-1"></div>
                 </div>
               </div>
             </div>
@@ -88,15 +101,13 @@
                 <div class="col-md-6"><label class="form-label small fw-bold">Punto de Recogida Preferido</label><select id="perfilRecogida" class="form-select"></select></div>
                 <div class="col-12"><label class="form-label small fw-bold">Dirección de Residencia</label><input type="text" id="perfilDireccion" class="form-control" required></div>
                 
-                <!-- Inputs de Archivos Configurados para Subida Independiente -->
-                <div class="col-md-6">
-                  <label class="form-label small fw-bold">Actualizar Selfie (Foto)</label>
-                  <input type="file" id="inputFotoCamara" class="form-control" accept="image/*" capture="user" onchange="procesarYSubirSelfie(this)">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label small fw-bold">Anexar Documento / Credencial</label>
+                <!-- Único input visible de archivo restante: Credenciales/Documentos -->
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Anexar Documento / Credencial de Soporte</label>
                   <input type="file" id="inputDocumento" class="form-control" accept="image/*,.pdf" onchange="procesarYSubirDocumento(this)">
+                  <div id="feedbackDoc" class="small mt-1"></div>
                 </div>
+              </div>
 
               <!-- Expediente Digital de Documentos -->
               <div id="contenedorDocsVoluntario" class="mt-4 border rounded p-3 bg-light d-none">
