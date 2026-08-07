@@ -41,7 +41,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         return;
     }
 
-    // 3. CACHÉ INTELIGENTE: Validar si los datos clave ya están cargados y vigentes en caché local.
+    // 3. CACHÉ INTELIGENTE
     const now = new Date().getTime();
     const cacheGuardado = sessionStorage.getItem(PROFILE_CACHE_KEY);
     const cacheTiempo = sessionStorage.getItem(PROFILE_CACHE_TIME_KEY);
@@ -59,7 +59,6 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
             invalidarCachePerfil();
         }
     } else {
-        // Consultar al backend únicamente si la caché expiró o se forzó recarga
         try {
             const resPerfil = await callBackend('obtenerPerfilVoluntario', { email: cuentaActiva.email });
             if (resPerfil && resPerfil.status === "SUCCESS" && resPerfil.perfil) {
@@ -67,7 +66,6 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
                 window.sesionUsuario = cuentaActiva;
                 sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
                 
-                // Guardar perfil fresco en caché con timestamp actual
                 sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(resPerfil.perfil));
                 sessionStorage.setItem(PROFILE_CACHE_TIME_KEY, now.toString());
             }
@@ -86,19 +84,20 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
     setFieldValue('perfilVoluntariado', cuentaActiva.voluntariado || cuentaActiva.Voluntariado);
     setFieldValue('perfilEspecialidad', cuentaActiva.especialidad || cuentaActiva.Especialidad);
     setFieldValue('perfilTelefono', cuentaActiva.telefono || cuentaActiva.Telefono);
-    setFieldValue('perfilCedula', cuentaActiva.cedula || cuentaActiva.ID_Voluntario);
-    setFieldValue('perfilUrlFotoActual', cuentaActiva.imagen_profile || cuentaActiva.imagenProfile);
-    setFieldValue('perfilUrlDocActual', cuentaActiva.Documentacion_URL || cuentaActiva.docUrl);
-    setFieldValue('perfilDireccion', cuentaActiva.direccion);
+    setFieldValue('perfilCedula', cuentaActiva.cedula || cuentaActiva.ID_Voluntario || cuentaActiva.id);
+    setFieldValue('perfilUrlFotoActual', cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.urlProfile || "");
+    setFieldValue('perfilImgAppActual', cuentaActiva.imgApp || cuentaActiva.Imagen_Appsheet || "");
+    setFieldValue('perfilUrlDocActual', cuentaActiva.Documentacion_URL || cuentaActiva.docUrl || "");
+    setFieldValue('perfilDireccion', cuentaActiva.direccion || cuentaActiva.Direccion || "");
 
-    // Actualizar nombre en encabezado si existe el elemento
+    // Actualizar nombre en encabezado
     const txtNombreHeader = document.getElementById('txtPerfilNombreHeader');
     if (txtNombreHeader && (cuentaActiva.nombre || cuentaActiva.Nombre_Completo)) {
         txtNombreHeader.innerText = cuentaActiva.nombre || cuentaActiva.Nombre_Completo;
     }
 
-    // 5. RESOLUCIÓN DE LA SELFIE BLINDADA
-    const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto || "";
+    // 5. RESOLUCIÓN DE LA SELFIE
+    const urlFotoDrive = cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.urlProfile || "";
     const avatarImg = document.getElementById('avatarPrevisualizacion');
     
     if (avatarImg) {
@@ -111,7 +110,9 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
 
         if (urlFotoDrive && urlFotoDrive.trim() !== "") {
-            if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
+            if (urlFotoDrive.startsWith("data:image")) {
+                avatarImg.src = urlFotoDrive;
+            } else if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
                 avatarImg.src = urlFotoDrive;
             } else {
                 callBackend('obtenerImagenBase64', { urlFoto: urlFotoDrive }).then(base64Res => {
@@ -125,7 +126,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         }
     }
 
-    // 6. Despliegue del historial de credenciales documentales
+    // 6. Despliegue del historial de credenciales
     const urlDocExistente = cuentaActiva.Documentacion_URL || cuentaActiva.docUrl;
     if (urlDocExistente && urlDocExistente.trim() !== "") {
         cargarHistorialDocumentosFicha();
@@ -147,7 +148,7 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         console.warn("No se pudieron pre-cargar especialidades maestro.");
     }
 
-    // 8. Selector dinámico de puntos de recogida (Corregido para mantener la selección)
+    // 8. Selector dinámico de puntos de recogida
     const selectRecogida = document.getElementById('perfilRecogida');
     if (selectRecogida) {
         const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || "";
@@ -156,19 +157,17 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
             if (resPuntos && resPuntos.puntos) {
                 selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
                 
-                resPuntos.puntos.forEach((lugar, indice) => {
+                resPuntos.puntos.forEach((lugar) => {
                     const option = document.createElement('option');
                     option.value = lugar.id || lugar.nombre;     
                     option.innerText = lugar.nombre; 
                     
-                    // Comprobación exacta con el valor guardado
                     if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
                         option.selected = true;
                     }
                     selectRecogida.appendChild(option);
                 });
 
-                // Si ninguna opción coincidió pero hay un valor definido, lo agregamos temporalmente
                 if (puntoDefinido && !selectRecogida.value) {
                     const optExtra = document.createElement('option');
                     optExtra.value = puntoDefinido;
@@ -278,8 +277,7 @@ function procesarDocumentoLocal(input) {
 }
 
 /**
- * Procesa el guardado del perfil del voluntario sin reglas duras quemadas en el cliente.
- * La obligatoriedad de campos la dictamina el backend (Maestro_Consignacion).
+ * Procesa el guardado del perfil alineando las claves requeridas por Apps Script.
  */
 async function actualizarPerfil(event) {
     event.preventDefault();
@@ -287,36 +285,44 @@ async function actualizarPerfil(event) {
     
     if (!formElement) return;
 
-    // 1. Validar si los archivos locales en Base64 aún están en proceso de lectura
     if (cacheFotoPerfilB64.cargando || cacheDocumentacionB64.cargando) {
         alert("Los archivos adjuntos aún se están procesando localmente. Espere un momento.");
         return;
     }
     
-    // 2. Validación de HTML5 estándar (inputs con atributo 'required')
     formElement.classList.add('was-validated');
     if (!formElement.checkValidity()) {
         return;
     }
 
-    // --- SE ELIMINÓ LA VALIDACIÓN RÍGIDA DE LA SELFIE AQUÍ ---
-    // La obligatoriedad la determina dinámicamente Apps Script al recibir la carga de datos.
-
-    const urlFotoActual = document.getElementById('perfilUrlFotoActual')?.value || "";
     const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    const idVoluntarioCalculado = document.getElementById('perfilCedula').value.trim() || cuentaActiva.ID_Voluntario || cuentaActiva.id || cuentaActiva.cedula;
 
+    // PAYLOAD SERIALIZADO DUAL PARA APPS SCRIPT Y APPSHEET
     const datos = {
-        ID_Voluntario: cuentaActiva.ID_Voluntario || cuentaActiva.id || cuentaActiva.idVoluntario || document.getElementById('perfilCedula').value.trim(),
+        idVoluntario: idVoluntarioCalculado,
+        ID_Voluntario: idVoluntarioCalculado,
         cedula: document.getElementById('perfilCedula').value.trim(),
+        nombre: document.getElementById('perfilNombre').value.trim(),
         Nombre_Completo: document.getElementById('perfilNombre').value.trim(),
-        Voluntariado: document.getElementById('perfilVoluntariado').value,
-        Especialidad: document.getElementById('perfilEspecialidad').value.trim(), 
+        voluntariado: document.getElementById('perfilVoluntariado').value.trim(),
+        Voluntariado: document.getElementById('perfilVoluntariado').value.trim(),
+        especialidad: document.getElementById('perfilEspecialidad').value.trim(),
+        Especialidad: document.getElementById('perfilEspecialidad').value.trim(),
+        puntoRecogida: document.getElementById('perfilRecogida')?.value || "",
         Punto_Recogida_Preferido: document.getElementById('perfilRecogida')?.value || "",
+        telefono: document.getElementById('perfilTelefono').value.trim(),
         Telefono: document.getElementById('perfilTelefono').value.trim(),
         direccion: document.getElementById('perfilDireccion').value.trim(),
+        correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
         Correo: cuentaActiva.email || cuentaActiva.Correo || "voluntario@cadenadefavoresvzla.org",
-        imagen_profile_actual: urlFotoActual,
+        
+        // Punteros e imágenes
+        imagen_profile_actual: document.getElementById('perfilUrlFotoActual')?.value || "",
+        imgApp_actual: document.getElementById('perfilImgAppActual')?.value || "",
         Documentacion_URL_actual: document.getElementById('perfilUrlDocActual')?.value || "",
+        
+        // Archivos procesados en Base64
         imagen_profile_base64: cacheFotoPerfilB64.base64,
         imagen_profile_nombre: cacheFotoPerfilB64.nombre,
         Documentacion_base64: cacheDocumentacionB64.base64,
@@ -339,16 +345,20 @@ async function actualizarPerfil(event) {
     }
 
     if (res && res.status === "SUCCESS") {
-        const perfilActualizado = res.perfil || datos;
+        const perfilActualizado = res.perfil || { ...cuentaActiva, ...datos };
+        
+        if (res.urlProfile) perfilActualizado.imagen_profile = res.urlProfile;
+        if (res.imgApp) perfilActualizado.imgApp = res.imgApp;
+
         sessionStorage.setItem('userProfile', JSON.stringify(perfilActualizado));
         window.sesionUsuario = perfilActualizado;
+        
         if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
         
         // Limpiar caché de archivos locales
         cacheFotoPerfilB64 = { base64: null, nombre: null, cargando: false };
         cacheDocumentacionB64 = { base64: null, nombre: null, cargando: false };
 
-        // Invalidar caché del perfil local para forzar renderizado limpio
         invalidarCachePerfil();
 
         alert("¡Perfil guardado y sincronizado exitosamente con la Red Operativa!");
@@ -463,9 +473,6 @@ async function eliminarCredencialFicha(fileId, idVol) {
     }
 }
 
-/**
- * Función para generar el Reporte de Convocados del Día
- */
 async function abrirInformeConvocadosHoy(btn) {
     let originalText = "";
     if (btn) {
@@ -495,4 +502,4 @@ async function abrirInformeConvocadosHoy(btn) {
         console.error("Error al obtener reporte de convocados:", e);
         alert("No se pudo conectar con el servidor para generar el reporte.");
     }
-} 
+}
