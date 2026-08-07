@@ -107,7 +107,6 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         avatarImg.className = "rounded-circle border border-3 border-primary shadow-sm";
 
         const nombreUsuario = cuentaActiva.nombre || cuentaActiva.Nombre_Completo || "Usuario";
-        // Avatar por defecto como respaldo visual inmediato
         avatarImg.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nombreUsuario) + "&background=0d6efd&color=ffffff&size=130&bold=true";
 
         if (urlFotoDrive && urlFotoDrive.trim() !== "") {
@@ -116,20 +115,16 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
             } else if (urlFotoDrive.startsWith("http") && !urlFotoDrive.includes("drive.google.com")) {
                 avatarImg.src = urlFotoDrive;
             } else {
-                // VERIFICAR SI YA TENEMOS EL BASE64 GUARDADO EN CACHÉ DE SESIÓN
                 const avatarCacheKey = 'cdf_avatar_b64_' + cuentaActiva.email;
                 const base64Cached = sessionStorage.getItem(avatarCacheKey);
                 const urlDriveCached = sessionStorage.getItem(avatarCacheKey + '_url');
 
                 if (base64Cached && urlDriveCached === urlFotoDrive) {
-                    // Impacto inmediato desde caché local (0 llamadas de red)
                     avatarImg.src = base64Cached;
                 } else {
-                    // Si no está en caché o la foto cambió, consultamos al servidor una sola vez
                     callBackend('obtenerImagenBase64', { urlDrive: urlFotoDrive }).then(base64Res => {
                         if (base64Res && base64Res.base64) {
                             avatarImg.src = base64Res.base64;
-                            // Guardar en sessionStorage para futuras visitas en la sesión
                             sessionStorage.setItem(avatarCacheKey, base64Res.base64);
                             sessionStorage.setItem(avatarCacheKey + '_url', urlFotoDrive);
                         }
@@ -141,10 +136,16 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         }
     }
 
-    // 6. Despliegue del historial de credenciales
+    // 6. DESPLIEGUE CACHEADO DEL HISTORIAL DE CREDENCIALES (Evita recargas innecesarias si ya existe)
     const urlDocExistente = cuentaActiva.Documentacion_URL || cuentaActiva.docUrl;
+    const tbodyDocs = document.getElementById('tablaDocsVoluntarioBody');
     if (urlDocExistente && urlDocExistente.trim() !== "") {
-        cargarHistorialDocumentosFicha();
+        // Si la tabla ya tiene elementos pintados, no volvemos a consultar a Drive en cada cambio de pestaña
+        if (!tbodyDocs || tbodyDocs.children.length === 0) {
+            cargarHistorialDocumentosFicha();
+        } else {
+            document.getElementById('contenedorDocsVoluntario')?.classList.remove('d-none');
+        }
     }
 
     // 7. Catálogo maestro de especialidades
@@ -163,40 +164,47 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
         console.warn("No se pudieron pre-cargar especialidades maestro.");
     }
 
-    // 8. Selector dinámico de puntos de recogida
+    // 8. SELECTOR DINÁMICO DE PUNTOS DE RECOGIDA (Optimizado para respetar la selección cacheada)
     const selectRecogida = document.getElementById('perfilRecogida');
     if (selectRecogida) {
-        const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || "";
-        try {
-            const resPuntos = await callBackend('obtenerPuntosRecogida', {});
-            if (resPuntos && resPuntos.puntos) {
-                selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
-                
-                resPuntos.puntos.forEach((lugar) => {
-                    const option = document.createElement('option');
-                    option.value = lugar.id || lugar.nombre;     
-                    option.innerText = lugar.nombre; 
+        const puntoDefinido = cuentaActiva.puntoRecogida || cuentaActiva.Punto_Recogida_Preferido || cuentaActiva.puntoRecogidaID || "";
+        
+        // Solo cargamos las opciones del select si está vacío
+        if (selectRecogida.options.length <= 1) {
+            try {
+                const resPuntos = await callBackend('obtenerPuntosRecogida', {});
+                if (resPuntos && resPuntos.puntos) {
+                    selectRecogida.innerHTML = '<option value="" disabled>-- Seleccione un Punto --</option>'; 
                     
-                    if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
-                        option.selected = true;
-                    }
-                    selectRecogida.appendChild(option);
-                });
+                    resPuntos.puntos.forEach((lugar) => {
+                        const option = document.createElement('option');
+                        option.value = lugar.id || lugar.nombre;     
+                        option.innerText = lugar.nombre; 
+                        
+                        if (puntoDefinido === lugar.id || puntoDefinido === lugar.nombre) {
+                            option.selected = true;
+                        }
+                        selectRecogida.appendChild(option);
+                    });
 
-                if (puntoDefinido && !selectRecogida.value) {
-                    const optExtra = document.createElement('option');
-                    optExtra.value = puntoDefinido;
-                    optExtra.innerText = puntoDefinido;
-                    optExtra.selected = true;
-                    selectRecogida.appendChild(optExtra);
+                    if (puntoDefinido && !selectRecogida.value) {
+                        const optExtra = document.createElement('option');
+                        optExtra.value = puntoDefinido;
+                        optExtra.innerText = puntoDefinido;
+                        optExtra.selected = true;
+                        selectRecogida.appendChild(optExtra);
+                    }
                 }
+            } catch(err) {
+                selectRecogida.innerHTML = `<option value="Estación">Estación / Base de Salida</option>`;
             }
-        } catch(err) {
-            selectRecogida.innerHTML = `<option value="Estación">Estación / Base de Salida</option>`;
+        } else {
+            // Si ya tenías opciones cargadas, aseguramos que mantenga seleccionado el valor actual del perfil
+            selectRecogida.value = puntoDefinido;
         }
     }
 
-    // 9. Control de permisos, roles y estatus
+    // 9. CONTROL DE PERMISOS, ROLES Y ESTATUS (Directo de la caché de sesión)
     const lblEstatus = document.getElementById('lblEstatusVerificacion');
     const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
     const contenedorBloqueo = document.getElementById('contenedorBloqueo');
