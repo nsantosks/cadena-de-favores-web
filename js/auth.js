@@ -451,3 +451,30 @@ function sincronizarHeaderGlobal() {
 document.addEventListener("DOMContentLoaded", () => {
     sincronizarHeaderGlobal();
 });
+
+/**
+ * Manejador dinámico para botones que requieren verificación
+ */
+function gestionarRedireccionCalendario(event) {
+  event.preventDefault(); // Previene la navegación por defecto
+  
+  const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile') || 'null');
+  
+  // Mismos criterios de verificación que usamos en el Header
+  const esVerificadoReal = cuentaActiva && (cuentaActiva.verificado === true || cuentaActiva.verificado === "Verificado" || cuentaActiva.verificado === "TRUE");
+  const esCoordinadorReal = cuentaActiva && Boolean(
+    cuentaActiva.esCoordinador || 
+    cuentaActiva.coordinador === true || 
+    cuentaActiva.rolActivo === "coordinador"
+  );
+
+  if (esVerificadoReal || esCoordinadorReal) {
+    // Si está verificado o es coordinador, enviar al calendario
+    window.location.href = "../calendario/index.html";
+  } else {
+    // Si no, enviar al Auth para que se registre/valide
+    // Opcionalmente, podrías mostrar un alert o modal antes
+    alert("Para acceder al calendario de guardias, primero debes completar tu perfil y ser verificado por un coordinador.");
+    window.location.href = "../auth/index.html";
+  }
+}
