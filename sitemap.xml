@@ -49,4 +49,12 @@
         <priority>0.4</priority>
     </url>
 
+    <!-- 9. Sección de Donaciones -->
+    <url>
+        <loc>https://voluntariadocdfvzla.org/donaciones/</loc>
+        <lastmod>2026-08-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
 </urlset>

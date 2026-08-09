@@ -193,6 +193,12 @@ main {
 /* ========================================================================== */
 /* BOTONES FLOTANTES DE ACCESO RÁPIDO                                         */
 /* ========================================================================== */
+
+/* Ajuste para que el de WhatsApp no tape al de donar en pantallas pequeñas */
+.btn-float-whatsapp {
+  bottom: 80px !important;
+}
+
 .floating-buttons-container {
   position: fixed;
   bottom: 25px;
@@ -231,7 +237,7 @@ main {
   font-size: 1.8rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   text-decoration: none;
-  animation: ctaPulse 2s infinite ease-in-out;
+  /*animation: ctaPulse 2s infinite ease-in-out;*/
   transition: transform 0.2s ease;
 }
 
@@ -242,6 +248,10 @@ main {
   transform: scale(1.15);
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
 }
+
+/* ==========================================================================
+   BOTÓN FLOTANTE DE IR ARRIBA (TOP)
+   ========================================================================== */
 
 .btn-float-top {
   width: 42px;
@@ -270,6 +280,67 @@ main {
   background-color: #1b263b;
   color: #ffc107;
   transform: scale(1.08);
+}
+
+/* ==========================================================================
+   BOTÓN FLOTANTE DE DONAR (Expandible en Hover con Pulso)
+   ========================================================================== */
+.btn-float-donar {
+  position: fixed;
+  bottom: 150px; /* Posicionado arriba del de WhatsApp */
+  right: 20px;
+  height: 55px;
+  padding: 0 17px; /* Padding simétrico inicial */
+  background-color: #ffc107; /* Color warning llamativo */
+  color: #0d1b2a;
+  border-radius: 50rem; /* Forma de píldora */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  z-index: 1000;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Estilo y transición para el texto interno */
+.btn-float-donar .btn-text {
+  max-width: 0;
+  opacity: 0;
+  font-size: 15px;
+  font-weight: 700;
+  margin-left: 0;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, margin-left 0.35s ease;
+  display: inline-block;
+  overflow: hidden;
+}
+
+/* Comportamiento al pasar el cursor (Hover) */
+.btn-float-donar:hover {
+  background-color: #ffca2c;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
+  color: #000;
+}
+
+.btn-float-donar:hover .btn-text {
+  max-width: 120px; /* Espacio suficiente para la palabra "Donaciones" */
+  opacity: 1;
+  margin-left: 8px; /* Separa visualmente el icono del texto */
+}
+
+/* Efecto de pulso para el botón de donar */
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
 }
 
 /* ========================================================================== */
@@ -529,3 +600,132 @@ main {
     padding: 2px 4px !important;
   }
 } 
+
+/* ==========================================================================
+   ESTILOS ESPECÍFICOS: MÓDULO DE DONACIONES E INSUMOS
+   Cadena de Favores Venezuela
+   ========================================================================== */
+
+.hero-donaciones {
+  background: linear-gradient(rgba(13, 27, 42, 0.85), rgba(13, 27, 42, 0.9)), url('../assets/esperanza-cdf.jpg');
+  background-size: cover;
+  background-position: center;
+  padding-top: 9rem !important;
+  padding-bottom: 5rem !important;
+}
+
+.donation-card {
+  border: none;
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+}
+
+.donation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.payment-method-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.dropzone-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.badge-supply {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 50rem;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  display: inline-block;
+  margin: 0.2rem;
+}
+
+/* ==========================================================================
+   EFECTO DE RELIEVE Y ELEVACIÓN EN HOVER (TARJETAS DE DONACIONES)
+   ========================================================================== */
+.payment-method-box, 
+.dropzone-card, 
+.container .card {
+  transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out !important;
+}
+
+.payment-method-box:hover, 
+.dropzone-card:hover, 
+.container .card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important; /* Sutil destello corporativo opcional */
+} 
+
+/* ==========================================================================
+   ESTILOS DE TARJETAS DE INSUMOS CON IMAGEN DE FONDO Y OVERLAY
+   ========================================================================== */
+.dropzone-card-bg {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: none !important;
+}
+
+/* Capa translúcida oscura/clara sobre la imagen para asegurar contraste y legibilidad */
+.dropzone-card-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.92); /* Fondo blanco semitransparente (92% opaco) */
+  z-index: 1;
+}
+
+/* Forzar que el contenido interno quede por encima de la capa de fondo */
+.dropzone-card-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   DESPLEGABLE NAVBAR EN HOVER (SOLO ESCRITORIO >= 992px)
+   ========================================================================== */
+@media (min-width: 992px) {
+  /* Mostrar el menú desplegable al posicionar el cursor */
+  .navbar-nav .nav-item-hover:hover .dropdown-menu {
+    display: block;
+    animation: fadeInMenu 0.2s ease-in-out forwards;
+  }
+}
+
+/* Animación sutil de aparición */
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para los ítems dentro del desplegable */
+.dropdown-menu-dark .dropdown-item:hover {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}

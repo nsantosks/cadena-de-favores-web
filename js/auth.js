@@ -340,18 +340,22 @@ function sincronizarHeaderGlobal() {
   const navBtnLogout = document.getElementById('navBtnLogout');
   const elementosSesion = document.querySelectorAll('.nav-item-sesion');
   const btnGestion = document.getElementById('navItemGestionVoluntarios');
-  const btnCalendario = document.getElementById('navItemCalendario'); // <-- NUEVA REFERENCIA
+  const btnCalendario = document.getElementById('navItemCalendario');
   const badgeContainer = document.getElementById('sessionRoleBadgeContainer');
 
-  // Detectar la profundidad de ruta para el fallback del logo
-  const esSubcarpeta = window.location.pathname.includes('/trabajo/') || 
-                       window.location.pathname.includes('/jornadas/') || 
-                       window.location.pathname.includes('/perfil/') || 
-                       window.location.pathname.includes('/calendario/') || 
-                       window.location.pathname.includes('/voluntarios/') || 
-                       window.location.pathname.includes('/auth/');
+  // 1. Obtener los segmentos válidos de la URL actual
+  const segmentos = window.location.pathname
+    .split('/')
+    .filter(seg => seg.length > 0 && !seg.endsWith('.html'));
 
-  const rutaLogoFallback = esSubcarpeta ? "../assets/logo.png" : "assets/logo.png";
+  // 2. Definir la profundidad (0 = raíz, 1 = /donaciones/, 2 = /jornadas/nutriendo-amor/)
+  const profundidad = segmentos.length;
+
+  // 3. Generar el prefijo dinámico ("" o "../" o "../../")
+  const prefijoRuta = "../".repeat(profundidad);
+
+  // 4. Fallback del logo exacto para cualquier nivel de subcarpeta presente o futuro
+  const rutaLogoFallback = `${prefijoRuta}assets/logo.png`;
 
   if (cuentaActiva && cuentaActiva.email && cuentaActiva.email.trim() !== "") {
     // --- USUARIO LOGUEADO ---

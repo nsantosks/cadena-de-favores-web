@@ -37,42 +37,70 @@
 <body class="bg-light">
 
   <!-- ================================================================= -->
-  <!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE (Landing Principal)      -->
-  <!-- ================================================================= -->
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
-    <div class="container-fluid px-3 px-md-4">
-      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="/index.html">
-        <div id="navAvatarContainer" class="d-none"></div>
-        <img src="/assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
-        <div class="d-flex flex-column">
-          <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
-          <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
-        </div>
-      </a>
-
-      <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
-
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
-          <li class="nav-item"><a class="nav-link fw-semibold" href="/" data-page="index">Quiénes Somos</a></li>
-          <li class="nav-item"><a class="nav-link fw-semibold" href="/trabajo/" data-page="trabajo">Nuestro Trabajo</a></li>
-          <li class="nav-item"><a class="nav-link fw-semibold" href="/jornadas/" data-page="jornadas">Jornadas</a></li>
-          <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="/perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
-          <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="/calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
-          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="/voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
-
-          <li class="nav-item ms-lg-3">
-            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="/auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
-            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión</button>
-          </li>
-        </ul>
+<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
+<!-- ================================================================= -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
+  <div class="container-fluid px-3 px-md-4">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="/index.html">
+      <div id="navAvatarContainer" class="d-none"></div>
+      <img src="/assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+      <div class="d-flex flex-column">
+        <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+        <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
       </div>
+    </a>
+
+    <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
+        <li class="nav-item"><a class="nav-link fw-semibold" href="/" data-page="index">Quiénes Somos</a></li>
+        
+        <!-- PESTAÑA NUESTRO TRABAJO CON DESPLEGABLE EN HOVER -->
+        <li class="nav-item dropdown nav-item-hover">
+          <a class="nav-link fw-semibold dropdown-toggle" href="/trabajo/" id="dropdownTrabajo" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-page="trabajo">
+            Nuestro Trabajo
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-0 rounded-3 mt-0" aria-labelledby="dropdownTrabajo" style="background-color: #0d1b2a;">
+            <li>
+              <a class="dropdown-item py-2 fw-semibold" href="/trabajo/">
+                <i class="fa-solid fa-briefcase text-warning me-2"></i> Ejes e Impacto Social
+              </a>
+            </li>
+            <li><hr class="dropdown-divider border-secondary opacity-25 my-1"></li>
+            <li>
+              <a class="dropdown-item py-2 small" href="/trabajo/nutriendo-amor/">
+                <i class="fa-solid fa-bowl-food text-warning me-2"></i> Nutriendo Amor
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 small" href="/trabajo/apoyo-hospitalario/">
+                <i class="fa-solid fa-hospital text-danger me-2"></i> Apoyo Hospitalario y UCIP
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a class="nav-link fw-semibold" href="/jornadas/" data-page="jornadas">Jornadas</a></li>
+        
+        <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="/perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
+        <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="/calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
+        <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="/voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
+        
+        <li class="nav-item"><a class="nav-link fw-semibold" href="/donaciones/" data-page="donaciones"><i class="fa-solid fa-hand-holding-heart me-1 text-warning"></i> Donaciones</a></li>
+        
+        <li class="nav-item ms-lg-3">
+          <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="/auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
+          <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i></button>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="container py-5 mt-4">
@@ -250,13 +278,29 @@
 
   <!-- BOTONES FLOTANTES -->
   <div class="floating-buttons-container">
-    <a id="btnWhatsappFlotante" target="_blank" rel="noopener noreferrer" class="btn-float-whatsapp animate__animated animate__fadeInUp" title="Soporte y Atención Básica por WhatsApp">
-      <i class="fa-brands fa-whatsapp"></i>
-    </a>
-    <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
-      <i class="fa-solid fa-chevron-up"></i>
-    </button>
-  </div>
+  <!-- Botón Flotante de Donar con expansión de texto en hover -->
+  <a href="/donaciones/" 
+     class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" 
+     title="Haz tu donación">
+    <i class="fa-solid fa-hand-holding-heart fs-5"></i>
+    <span class="btn-text">Donaciones</span>
+  </a>
+
+  <!-- Botón de WhatsApp -->
+  <a id="btnWhatsappFlotante" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     class="btn-float-whatsapp animate__animated animate__fadeInUp" 
+     style="bottom: 85px;"
+     title="Soporte y Atención por WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- Botón de Subir -->
+  <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+</div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {

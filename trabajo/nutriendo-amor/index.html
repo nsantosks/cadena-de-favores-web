@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- 1. Configuración Básica y SEO -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://voluntariadocdfvzla.org/jornadas/nutriendo-amor/" />
+
+  <title>Programa Nutriendo Amor - Cadena de Favores Venezuela</title>
+  <meta name="description" content="Conoce el programa Nutriendo Amor de Cadena de Favores Venezuela en Guacara, Carabobo. Acompañamiento médico pediátrico y entrega semanal de bolsas de alimentación proteica desde 2020.">
+  <meta name="author" content="Cadena de Favores Venezuela">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://voluntariadocdfvzla.org/jornadas/nutriendo-amor/">
+  <meta property="og:title" content="Programa Nutriendo Amor - Cadena de Favores Venezuela">
+  <meta property="og:description" content="Reconstruyendo el futuro desde la raíz. Apoya nuestro programa de asistencia nutricional y control pediátrico ininterrumpido en Guacara.">
+  <meta property="og:image" content="https://voluntariadocdfvzla.org/assets/banner01.jpeg">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Programa Nutriendo Amor",
+    "url": "https://voluntariadocdfvzla.org/jornadas/nutriendo-amor/",
+    "description": "Programa institucional de asistencia nutricional infantil y control pediátrico especializado en Guacara, Estado Carabobo.",
+    "publisher": {
+      "@type": "NGO",
+      "name": "Cadena de Favores Venezuela",
+      "url": "https://voluntariadocdfvzla.org/"
+    }
+  }
+  </script>
+
+  <!-- CSS de Bootstrap 5, FontAwesome y Animate.css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- Estilos Personalizados (Dos niveles arriba para la ruta css) -->
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- ================================================================= -->
+  <!-- NAVBAR INSTITUCIONAL UNIFICADO (SUBCARPETAS 2 NIVELES)           -->
+  <!-- ================================================================= -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
+    <div class="container-fluid px-3 px-md-4">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="../../">
+        <div id="navAvatarContainer" class="d-none"></div>
+        <img src="../../assets/logo.png" alt="Logo Cadena de Favores Venezuela" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+        <div class="d-flex flex-column">
+          <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
+        </div>
+      </a>
+
+      <div id="sessionRoleBadgeContainer" class="ms-2 me-auto d-none d-lg-block"></div>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
+          <li class="nav-item"><a class="nav-link fw-semibold" href="../../" data-page="index">Quiénes Somos</a></li>
+          
+          <!-- PESTAÑA NUESTRO TRABAJO CON DESPLEGABLE EN HOVER -->
+          <li class="nav-item dropdown nav-item-hover">
+            <a class="nav-link fw-semibold dropdown-toggle" href="../../trabajo/" id="dropdownTrabajo" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-page="trabajo">
+              Nuestro Trabajo
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-0 rounded-3 mt-0" aria-labelledby="dropdownTrabajo" style="background-color: #0d1b2a;">
+              <li>
+                <a class="dropdown-item py-2 fw-semibold" href="../../trabajo/">
+                  <i class="fa-solid fa-briefcase text-warning me-2"></i> Ejes e Impacto Social
+                </a>
+              </li>
+              <li><hr class="dropdown-divider border-secondary opacity-25 my-1"></li>
+              <li>
+                <a class="dropdown-item py-2 small" href="../../trabajo/nutriendo-amor/">
+                  <i class="fa-solid fa-bowl-food text-warning me-2"></i> Nutriendo Amor
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item py-2 small" href="../../trabajo/apoyo-hospitalario/">
+                  <i class="fa-solid fa-hospital text-danger me-2"></i> Apoyo Hospitalario y UCIP
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-item"><a class="nav-link fw-semibold" href="../../jornadas/" data-page="jornadas">Jornadas</a></li>
+          
+          <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="../../perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="../../calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
+          <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="../../voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
+          
+          <li class="nav-item"><a class="nav-link fw-semibold" href="../../donaciones/" data-page="donaciones"><i class="fa-solid fa-hand-holding-heart me-1 text-warning"></i> Donaciones</a></li>
+          
+          <li class="nav-item ms-lg-3">
+            <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="../../auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
+            <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i></button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION ESPECÍFICO -->
+  <header class="hero-nutriendo text-white position-relative overflow-hidden text-center py-5" style="background: linear-gradient(rgba(13, 27, 42, 0.8), rgba(13, 27, 42, 0.8)), url('../../assets/asistencia-nutricional.jpeg'); background-size: cover; background-position: center; padding-top: 11rem !important; padding-bottom: 6rem !important;">
+    <div class="container py-4 animate__animated animate__fadeIn">
+      <span class="badge bg-warning text-dark font-monospace px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase shadow-sm">
+        <i class="fa-solid fa-bowl-food me-1"></i> Programa Sostenido Desde 2020
+      </span>
+      <h1 class="display-4 fw-bold mb-3 text-white">Nutriendo Amor</h1>
+      <p class="lead mb-4 mx-auto" style="max-width: 750px;">
+        Reconstruyendo el futuro desde la raíz. Asistencia nutricional semanal y control pediátrico especializado para niños en estado de desnutrición en Guacara, Estado Carabobo.
+      </p>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-grow-1 py-5">
+    <div class="container">
+
+      <!-- Bloque de Reflexión / Introducción -->
+      <div class="row justify-content-center mb-5">
+        <div class="col-12 col-lg-10">
+          <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white text-center">
+            <blockquote class="blockquote mb-3">
+              <p class="fs-4 fst-italic text-dark fw-semibold">
+                &ldquo;Todos somos capaces de sostener y todos merecemos ser sostenidos... eso es hacer comunidad.&rdquo;
+              </p>
+            </blockquote>
+            <p class="text-muted mb-0" style="line-height: 1.8;">
+              Desde el año 2020, de forma ininterrumpida y con el corazón puesto en cada hogar, el programa <strong>«Nutriendo Amor»</strong> impulsado por el Voluntariado Cadena de Favores Venezuela se ha convertido en un faro de vida para decenas de niños. Este no es un esfuerzo de emergencia coyuntural; es un compromiso sostenido semana tras semana para cambiar el destino nutricional y médico de los más pequeños en Guacara.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: ¿Cómo se traduce tu aporte? -->
+      <section class="mb-5">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-dark"><i class="fa-solid fa-hand-holding-medical text-success me-2"></i> ¿Cómo se traduce tu aporte en Nutriendo Amor?</h2>
+          <p class="text-muted">Cada contribución se destina de forma directa, transparente y estructurada a tres pilares fundamentales:</p>
+        </div>
+
+        <div class="row g-4">
+          <!-- Pilar 1 -->
+          <div class="col-12 col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+              <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 65px; height: 65px;">
+                <i class="fa-solid fa-basket-shopping fs-4"></i>
+              </div>
+              <h3 class="h5 fw-bold text-dark mb-3">1. Bolsas de Alimentación Semanal</h3>
+              <p class="small text-muted mb-0" style="line-height: 1.6;">
+                Insumos esenciales y balanceados, priorizando fuentes de proteínas de alto valor biológico (huevos, carnes y lácteos) de difícil acceso para familias vulnerables.
+              </p>
+            </div>
+          </div>
+
+          <!-- Pilar 2 -->
+          <div class="col-12 col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+              <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 65px; height: 65px;">
+                <i class="fa-solid fa-user-doctor fs-4"></i>
+              </div>
+              <h3 class="h5 fw-bold text-dark mb-3">2. Control Pediátrico-Nutricional</h3>
+              <p class="small text-muted mb-0" style="line-height: 1.6;">
+                Cobertura de valoraciones médicas periódicas y seguimiento clínico especializado indispensable para evaluar el progreso y recuperación de cada niño.
+              </p>
+            </div>
+          </div>
+
+          <!-- Pilar 3 -->
+          <div class="col-12 col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
+              <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 65px; height: 65px;">
+                <i class="fa-solid fa-truck-fast fs-4"></i>
+              </div>
+              <h3 class="h5 fw-bold text-dark mb-3">3. Logística y Sostenibilidad</h3>
+              <p class="small text-muted mb-0" style="line-height: 1.6;">
+                Recursos necesarios para la movilización, acopio y distribución semanal de los kits nutricionales directamente a las familias en Guacara.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de Pilares Inquebrantables y Llamado a la Acción (GoFundMe) -->
+      <section class="mb-4">
+        <div class="row g-4 align-items-stretch">
+          
+          <!-- Columna de Pilares -->
+          <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+              <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-shield-heart text-danger me-2"></i> Nuestros Pilares Inquebrantables</h4>
+              <ul class="list-unstyled d-flex flex-column gap-3 mb-0 text-secondary small">
+                <li class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-check text-success"></i> <strong>Amor</strong> en cada ración entregada
+                </li>
+                <li class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-check text-success"></i> <strong>Dignidad</strong> para cada familia atendida
+                </li>
+                <li class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-check text-success"></i> <strong>Empatía</strong> ante la realidad de nuestros niños
+                </li>
+                <li class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-check text-success"></i> <strong>Responsabilidad</strong> con la constancia del programa
+                </li>
+                <li class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-check text-success"></i> <strong>Profesionalismo</strong> clínico y operativo riguroso
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Columna CTA GoFundMe / Donación -->
+          <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-dark text-white d-flex flex-column justify-content-between" style="background-color: #0d1b2a !important;">
+              <div>
+                <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-globe me-2"></i> Apoya nuestra campaña GoFundMe</h4>
+                <p class="text-white-50 small mb-4" style="line-height: 1.7;">
+                  Ningún aporte es pequeño cuando se convierte en salud, crecimiento y futuro para un niño. Ayúdanos a difundir compartiendo este enlace con familiares, amigos y redes de apoyo en el exterior.
+                </p>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <!-- Enlace de ejemplo para GoFundMe (ajusta la URL real cuando la tengas) -->
+                <a href="https://gofundme.com" target="_blank" rel="noopener noreferrer" class="btn btn-warning fw-bold rounded-pill text-dark py-2">
+                  <i class="fa-solid fa-heart me-1"></i> Donar en GoFundMe
+                </a>
+                <a href="../../donaciones/" class="btn btn-outline-light fw-semibold rounded-pill btn-sm py-2">
+                  <i class="fa-solid fa-wallet me-1"></i> Ver Métodos de Pago Locales
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- FOOTER INSTITUCIONAL                                            -->
+  <!-- ================================================================= -->
+  <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
+    <div class="container py-3">
+      <div class="row g-4 justify-content-between">
+        
+        <div class="col-12 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <img src="../../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+            <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+          </div>
+          <p class="small text-white-50 mb-3" style="line-height: 1.6;">
+            Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+          </p>
+          <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
+          </span>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">Contáctanos</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
+            <li><a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652</a></li>
+            <li><a href="../../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">Legales</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
+            <li><a href="../../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">¡Síguenos en redes!</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger"></i>Instagram</a></li>
+            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2"></i>TikTok</a></li>
+            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>Canal Oficial WhatsApp</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="border-secondary my-4 opacity-25">
+
+      <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
+        <div class="col-12 col-md-6 text-white-50 small">
+          <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
+        </div>
+        <div class="col-12 col-md-6 text-md-end text-white-50 small">
+          <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL POLÍTICAS -->
+  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white border-bottom border-secondary">
+          <h5 class="modal-title"><i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0" style="height: 75vh;">
+          <iframe src="../../politicas.html" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+        <div class="modal-footer bg-light border-top">
+          <a href="../../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva</a>
+          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTONES FLOTANTES -->
+  <div class="floating-buttons-container">
+    <a href="../../donaciones/" 
+       class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" 
+       title="Haz tu donación">
+      <i class="fa-solid fa-hand-holding-heart fs-5"></i>
+      <span class="btn-text">Donaciones</span>
+    </a>
+
+    <a id="btnWhatsappFlotante" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="btn-float-whatsapp animate__animated animate__fadeInUp" 
+       style="bottom: 85px;"
+       title="Soporte y Atención por WhatsApp">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/config.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof sincronizarHeaderGlobal === 'function') {
+        sincronizarHeaderGlobal();
+      }
+      const btnFlotante = document.getElementById('btnWhatsappFlotante');
+      if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
+        btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
+      }
+      const linkFooter = document.getElementById('linkWhatsappFooter');
+      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+        linkFooter.href = obtenerEnlaceWhatsApp('footer');
+      }
+    });
+
+    window.addEventListener('scroll', function() {
+      const btnTop = document.getElementById('btnScrollTop');
+      if (btnTop) {
+        if (window.scrollY > 300) btnTop.classList.add('show');
+        else btnTop.classList.remove('show');
+      }
+    });
+
+    function irArriba() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
