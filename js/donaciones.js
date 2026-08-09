@@ -35,7 +35,7 @@ function copiarPagoMovil(idContenedor, btnElement) {
   const telfLimpio = telfTexto.replace(/[^0-9]/g, '');
   const cedulaLimpiada = cedulaTexto.replace(/[^0-9]/g, '');
 
-  const textoCopiar = `Banco: ${bancoFormateado}\nTeléfono.: ${telfLimpio}\nCédula: ${cedulaLimpiada}`;
+  const textoCopiar = `Banco: ${bancoFormateado}\nTeléfono: ${telfLimpio}\nCédula: ${cedulaLimpiada}`;
 
   navigator.clipboard.writeText(textoCopiar).then(() => {
     const originalHTML = btnElement.innerHTML;
