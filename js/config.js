@@ -189,3 +189,41 @@ document.addEventListener("DOMContentLoaded", function() {
         window.history.replaceState(null, null, urlLimpia);
     }
 })();
+
+// ==========================================================================
+// CONFIGURACIÓN GLOBAL DE ENDPOINTS (NETLIFY / APPS SCRIPT)
+// Cadena de Favores Venezuela
+// ==========================================================================
+
+/**
+ * Devuelve la URL activa del servidor Apps Script evaluando múltiples orígenes.
+ * @returns {string} URL del ejecutable webapp (/exec)
+ */
+function obtenerUrlWebApp() {
+    // A. Evaluar constante declarada en el ámbito global
+    if (typeof CONFIG.API_BASE_URL !== 'undefined' && CONFIG.API_BASE_URL && CONFIG.API_BASE_URL.trim() !== "") {
+        return CONFIG.API_BASE_URL.trim();
+    }
+
+    // B. Evaluar propiedad adjunta al objeto window
+    if (window.API_BASE_URL && window.API_BASE_URL.trim() !== "") {
+        return window.API_BASE_URL.trim();
+    }
+
+    // C. Evaluar alias alternativos de API en window
+    if (window.API_URL && window.API_URL.trim() !== "") {
+        return window.API_URL.trim();
+    }
+
+    // D. Búsqueda en almacenamiento local del navegador (si se guarda dinámicamente)
+    const urlStorage = localStorage.getItem('cdf_url_webapp') || sessionStorage.getItem('cdf_url_webapp');
+    if (urlStorage && urlStorage.trim() !== "") {
+        return urlStorage.trim();
+    }
+
+    console.error("CRÍTICO: No se ha configurado 'URL_BASE_WEBAPP' en config.js.");
+    return "";
+}
+
+// Inyección opcional en el objeto global window para entornos SPA / Netlify
+window.obtenerUrlWebApp = obtenerUrlWebApp;

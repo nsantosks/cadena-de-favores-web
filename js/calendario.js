@@ -1,5 +1,6 @@
 // ==========================================================================
 // MÓDULO JS: LOGÍSTICA, CALENDARIO Y DESPACHO OPERATIVO
+// Cadena de Favores Venezuela — Resiliente y Desacoplado
 // ==========================================================================
 
 let currentDate = new Date(); // Inicia automáticamente en el mes y año real (Agosto 2026)
@@ -50,20 +51,20 @@ async function cargarDatos(forzarRecarga = false) {
   const cacheGuardado = sessionStorage.getItem(CALENDAR_CACHE_KEY);
   const cacheTiempo = sessionStorage.getItem(CALENDAR_CACHE_TIME_KEY);
 
-  // 1. VERIFICAR CACHÉ VÁLIDA (Menos de 5 minutos transcurridos y sin forzar recarga)
+  // 1. VERIFICAR CACHÉ VÁLIDA
   if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CACHE_TTL_MS)) {
     try {
       guardiasData = JSON.parse(cacheGuardado);
       renderCalendar(currentDate);
       actualizarBadgeRolNavbar();
-      return; // Carga instantánea sin golpear a Google Apps Script
+      return; 
     } catch (e) {
       console.warn("Caché local ilegible, reconsultando al servidor...", e);
       invalidarCacheCalendario();
     }
   }
 
-  // 2. CONSULTAR AL BACKEND (Si la caché expiró o se invocó un cambio en la BD)
+  // 2. CONSULTAR AL BACKEND
   grid.innerHTML = `
     <div class="p-5 text-center" style="grid-column: 1 / -1;">
       <div class="spinner-border text-primary" role="status"></div>
@@ -75,7 +76,6 @@ async function cargarDatos(forzarRecarga = false) {
   if (response && (response.status === 'success' || response.status === 'SUCCESS' || Array.isArray(response))) {
     guardiasData = Array.isArray(response) ? response : (response.data || response.guardias || []);
     
-    // Guardar respuesta y timestamp en la caché de la sesión
     sessionStorage.setItem(CALENDAR_CACHE_KEY, JSON.stringify(guardiasData));
     sessionStorage.setItem(CALENDAR_CACHE_TIME_KEY, now.toString());
 
@@ -125,7 +125,6 @@ function renderCalendar(date) {
   const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   monthYear.innerText = `${monthNames[month]} ${year}`;
 
-  // Encabezados de Días (Lunes a Domingo)
   const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   days.forEach(day => {
     const dayHeader = document.createElement('div');
@@ -134,12 +133,10 @@ function renderCalendar(date) {
     grid.appendChild(dayHeader);
   });
 
-  // Cálculo corregido del primer día de la semana (0 = Lunes, 6 = Domingo)
   const firstDayRaw = new Date(year, month, 1).getDay();
   const firstDay = firstDayRaw === 0 ? 6 : firstDayRaw - 1; 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Relleno de casillas vacías al inicio del mes
   for (let i = 0; i < firstDay; i++) {
     const emptyDiv = document.createElement('div');
     emptyDiv.className = 'calendar-day empty';
@@ -150,7 +147,6 @@ function renderCalendar(date) {
     ? window.sesionUsuario.email.toLowerCase().trim() 
     : "";
 
-  // Iteración de días del mes
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
@@ -203,7 +199,6 @@ function renderCalendar(date) {
     grid.appendChild(dayDiv);
   }
 
-  // Delegación de clics en las casillas
   grid.onclick = function(event) {
     const targetDay = event.target.closest('.calendar-day');
     if (!targetDay || targetDay.classList.contains('empty')) return;
@@ -369,7 +364,7 @@ function construirModalCoordinador(guardia) {
 
       <div class="row g-2 pt-1">
         <div class="col-6">
-          <button class="btn btn-success w-100 py-2 fw-bold shadow-sm btn-sm" onclick="descargarManifiestoPdf('${guardia.id}')">
+          <button class="btn btn-success w-100 py-2 fw-bold shadow-sm btn-sm" onclick="generarManifiestoNativo('${guardia.id}')">
             <i class="fa-solid fa-file-pdf me-1"></i> Manifiesto (Control)
           </button>
         </div>
@@ -701,20 +696,6 @@ function escapeHTML(str) {
   return str ? str.toString().replace(/[&<>'"]/g, 
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
   ) : '';
-}
-
-async function descargarManifiestoPdf(idGuardia) {
-  if (!idGuardia) return;
-  
-  const res = await callBackend('descargarManifiestoPDF', { idGuardia: idGuardia });
-  if (res && res.status === "SUCCESS" && res.base64) {
-    const link = document.createElement('a');
-    link.href = 'data:application/pdf;base64,' + res.base64;
-    link.download = res.fileName || `ManifiestoCF_${idGuardia}.pdf`;
-    link.click();
-  } else {
-    alert("No se pudo generar el documento PDF: " + (res ? res.message : "Error de red"));
-  }
 }
 
 function construirModalEslabon(guardia, colorClass) {
@@ -1130,3 +1111,52 @@ async function abrirInformeConvocadosHoy(btn) {
         alert("No se pudo conectar con el servidor para generar el reporte.");
     }
 } 
+
+/**
+ * Envía los parámetros a la Web App de Apps Script mediante un formulario dinámico GET
+ * para renderizar e imprimir el manifiesto en una nueva pestaña.
+ * @param {string} idGuardia - ID de la guardia/misión (ej. "GUA-123456")
+ */
+function generarManifiestoNativo(idGuardia) {
+    if (!idGuardia) {
+        alert("Error: No se ha identificado el ID de la guardia.");
+        return;
+    }
+
+    // Resolución segura de la URL del servidor Apps Script
+    let urlWebApp = "";
+    if (typeof CONFIG.API_BASE_URL !== 'undefined' && CONFIG.API_BASE_URL) {
+        urlWebApp = CONFIG.API_BASE_URL;
+    } else if (typeof obtenerUrlWebApp === 'function') {
+        urlWebApp = obtenerUrlWebApp();
+    }
+
+    if (!urlWebApp) {
+        alert("Error: No se pudo determinar la dirección del servidor Apps Script.");
+        return;
+    }
+
+    // Crear formulario dinámico invisible
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = urlWebApp;
+    form.target = '_blank'; 
+
+    // Parámetros obligatorios para la compilación del manifiesto
+    const inputPage = document.createElement('input');
+    inputPage.type = 'hidden';
+    inputPage.name = 'page';
+    inputPage.value = 'manifiesto';
+    form.appendChild(inputPage);
+
+    const inputId = document.createElement('input');
+    inputId.type = 'hidden';
+    inputId.name = 'id';
+    inputId.value = idGuardia;
+    form.appendChild(inputId);
+
+    // Inyectar y enviar
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
