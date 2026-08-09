@@ -10,11 +10,11 @@ Allow: /trabajo/
 Allow: /jornadas/
 Allow: /auth/
 Allow: /politicas.html
+Allow: /calendario/
 
-# Directorios de gestión interna / paneles de usuario (opcionalmente acotados para bots)
-# Los crawlers pueden rastrearlos, pero priorizamos el contenido público
-Allow: /perfil/
-Allow: /voluntarios/
+# Restringir paneles privados y de gestión interna (Protección de datos)
+Disallow: /perfil/
+Disallow: /voluntarios/
 
 # Declaración de la ruta del mapa del sitio (Sitemap)
 Sitemap: https://voluntariadocdfvzla.org/sitemap.xml
