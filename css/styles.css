@@ -672,6 +672,24 @@ main {
 } 
 
 /* ==========================================================================
+   BOTÓN OUTLINE INSTITUCIONAL: DONACIÓN (DORADO PREMIUM)
+   ========================================================================== */
+.btn-outline-donacion {
+  color: #d89415;
+  border-color: #D4AF37;
+  background-color: #0d1b2a;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-outline-donacion:hover,
+.btn-outline-donacion:focus {
+  background-color: #D4AF37;
+  color: #0d1b2a; /* Azul institucional profundo para alto contraste */
+  border-color: #D4AF37;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* ==========================================================================
    ESTILOS DE TARJETAS DE INSUMOS CON IMAGEN DE FONDO Y OVERLAY
    ========================================================================== */
 .dropzone-card-bg {
