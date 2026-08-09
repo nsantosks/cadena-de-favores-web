@@ -421,9 +421,9 @@ main {
 }
 
 .guardia-gris  { background-color: #64748b !important; }
-.guardia-rojo  { background-color: #ef4444 !important; }
-.guardia-ambar { background-color: #f59e0b !important; }
-.guardia-verde { background-color: #10b981 !important; }
+.guardia-baja  { background-color: #10b981 !important; }
+.guardia-media { background-color: #f59e0b !important; }
+.guardia-alta { background-color: #ef4444!important; }
 .guardia-azul  { background-color: #3b82f6 !important; }
 
 @media (max-width: 768px) {

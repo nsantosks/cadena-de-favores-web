@@ -100,14 +100,14 @@ function determinarColorGuardia(fechaStr, inscritos, requeridos) {
   fechaG.setHours(0,0,0,0);
 
   if (fechaG < hoy) return 'guardia-gris';
-  if (!requeridos || requeridos <= 0) return 'guardia-rojo';
+  if (!requeridos || requeridos <= 0) return 'guardia-baja';
 
   const porcentaje = (inscritos / requeridos) * 100;
 
   if (inscritos >= requeridos) return 'guardia-azul';    
-  if (porcentaje >= 60) return 'guardia-verde';        
-  if (porcentaje < 10) return 'guardia-rojo';          
-  return 'guardia-ambar';                              
+  if (porcentaje > 95 return 'guardia-alta';        
+  if (porcentaje < 10) return 'guardia-baja';          
+  return 'guardia-media';                              
 }
 
 function renderCalendar(date) {
@@ -865,7 +865,7 @@ function procesarRetiroDirecto(email, idGuardia, btn, modal) {
       <p class="text-muted small mb-4">Está a punto de desvincularse de la guardia del día <strong>${guardiaActual ? guardiaActual.fechaStr : idGuardia}</strong>. Su cupo quedará disponible para otro voluntario.</p>
       
       <div class="d-flex justify-content-center gap-2">
-        <button type="button" class="btn btn-light border w-50 fw-bold shadow-sm" onclick="abrirModalGuardia(guardiasData.find(g => g.id === '${idGuardia}'), 'guardia-verde')">Cancelar</button>
+        <button type="button" class="btn btn-light border w-50 fw-bold shadow-sm" onclick="abrirModalGuardia(guardiasData.find(g => g.id === '${idGuardia}'), 'guardia-alta')">Cancelar</button>
         <button type="button" class="btn btn-danger w-50 fw-bold shadow-sm" onclick="ejecutarBajaDefinitiva('${email}', '${idGuardia}')">Sí, Retirarme</button>
       </div>
     </div>
