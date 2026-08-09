@@ -105,7 +105,7 @@ function determinarColorGuardia(fechaStr, inscritos, requeridos) {
   const porcentaje = (inscritos / requeridos) * 100;
 
   if (inscritos >= requeridos) return 'guardia-azul';    
-  if (porcentaje > 95 return 'guardia-alta';        
+  if (porcentaje > 95) return 'guardia-alta';        
   if (porcentaje < 10) return 'guardia-baja';          
   return 'guardia-media';                              
 }
