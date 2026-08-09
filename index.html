@@ -46,6 +46,48 @@
   }
   </script>
 
+  <!-- Schema.org FAQPage para Rich Snippets en Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Cómo puedo realizar una donación desde el extranjero?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Puedes colaborar desde el exterior a través de nuestra campaña en GoFundMe, así como por transferencias directas en Zelle (Izachu_5@hotmail.com) y PayPal (mcerpamendez87@gmail.com)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué tipo de insumos o medicamentos puedo donar en los centros de acopio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Recibimos medicamentos urgentes (antihipertensivos, antibióticos, pediatría), insumos médico-quirúrgicos descartables, alimentos no perecederos y fórmulas infantiles en nuestros centros autorizados en Carabobo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo garantizan la transparencia en la entrega de las donaciones?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Operamos bajo un sistema de trazabilidad digital donde cada donación, inventario y asignación de ayuda queda registrada y verificada por nuestro equipo de coordinación operativa."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo puedo postularme como voluntario para las jornadas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Puedes registrarte directamente en nuestro portal web en la sección 'Registro / Inicio Sesión' seleccionando tu especialidad o área de apoyo en la red."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Estilos, Iconos y Pre-conexiones para rendimiento -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -402,6 +444,83 @@
               </a>
               <small class="text-muted d-block">Gestionado a través del sistema unificado de validación de Cadena de Favores Vzla.</small>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE PREGUNTAS FRECUENTES (SEO & UX) -->
+  <section class="py-5 bg-white border-top">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark font-monospace px-3 py-2 rounded-pill mb-2 fw-bold text-uppercase shadow-sm">
+          <i class="fa-solid fa-circle-question me-1"></i> Resuelve tus dudas
+        </span>
+        <h2 class="fw-bold text-dark">Preguntas Frecuentes</h2>
+        <p class="text-muted">Información clave sobre cómo aportamos, canalizamos y auditamos cada ayuda humanitaria.</p>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-9">
+          <div class="accordion accordion-flush shadow-sm rounded-4 border overflow-hidden" id="faqAccordion">
+            
+            <!-- Pregunta 1 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading1">
+                <button class="accordion-button fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                  ¿Cómo puedo realizar una donación desde el extranjero?
+                </button>
+              </h3>
+              <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Puedes colaborar desde cualquier parte del mundo a través de nuestra campaña oficial en <strong>GoFundMe</strong>, así como mediante transferencias directas por <strong>Zelle</strong> (<code>Izachu_5@hotmail.com</code>) o <strong>PayPal</strong> (<code>mcerpamendez87@gmail.com</code>).
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 2 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading2">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                  ¿Qué tipo de insumos o medicamentos puedo donar en los centros de acopio?
+                </button>
+              </h3>
+              <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Recibimos medicamentos esenciales (antibióticos, pediatría, analgésicos), insumos médico-quirúrgicos descartables (inyectadoras, suturas, compresas), alimentos proteicos no perecederos y artículos de primera necesidad en nuestros centros de acopio autorizados en Valencia, Guacara y Los Guayos.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 3 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading3">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                  ¿Cómo garantizan la transparencia en la entrega de las donaciones?
+                </button>
+              </h3>
+              <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Mantenemos un estricto protocolo de trazabilidad digital. Cada insumo o fondo recibido es catalogado en nuestro sistema centralizado y asignado directamente a expedientes médicos o bolsas de apoyo semanal (como en el programa <em>Nutriendo Amor</em>), reportando periódicamente el impacto real en campo.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 4 -->
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading4">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                  ¿Cómo puedo sumarme como voluntario o médico a la red?
+                </button>
+              </h3>
+              <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Ingresa al botón <strong>Registro / Inicio sesión</strong> en el menú superior para crear tu perfil operativo. Nuestro equipo validará tus datos para asignarte a las guardias, jornadas sanitarias o logística según tu disponibilidad y especialidad.
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

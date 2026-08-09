@@ -8,7 +8,7 @@
   <link rel="canonical" href="https://voluntariadocdfvzla.org/donaciones/" />
 
   <title>Donaciones y Centros de Acopio - Cadena de Favores Venezuela</title>
-  <meta name="description" content="Apoya nuestra labor humanitaria en La Guaira y Carabobia. Conoce los datos de pago móvil, Zelle, PayPal, medicamentos urgentes y centros de acopio autorizados.">
+  <meta name="description" content="Apoya nuestra labor humanitaria en La Guaira y Carabobo. Conoce los datos de pago móvil, Zelle, PayPal, medicamentos urgentes y centros de acopio autorizados.">
   <meta name="author" content="Cadena de Favores Venezuela">
 
   <!-- Open Graph -->
@@ -34,6 +34,48 @@
   }
   </script>
 
+  <!-- Schema.org FAQPage para Rich Snippets en Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Cómo puedo realizar una donación desde el extranjero?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Puedes colaborar desde el exterior a través de nuestra campaña en GoFundMe, así como por transferencias directas en Zelle (Izachu_5@hotmail.com) y PayPal (mcerpamendez87@gmail.com)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué tipo de insumos o medicamentos puedo donar en los centros de acopio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Recibimos medicamentos urgentes (antihipertensivos, antibióticos, pediatría), insumos médico-quirúrgicos descartables, alimentos no perecederos y fórmulas infantiles en nuestros centros autorizados en Carabobo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo garantizan la transparencia en la entrega de las donaciones?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Operamos bajo un sistema de trazabilidad digital donde cada donación, inventario y asignación de ayuda queda registrada y verificada por nuestro equipo de coordinación operativa."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo puedo postularme como voluntario para las jornadas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Puedes registrarte directamente en nuestro portal web en la sección 'Registro / Inicio Sesión' seleccionando tu especialidad o área de apoyo en la red."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- CSS de Bootstrap 5, FontAwesome y Animate.css -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -46,13 +88,13 @@
 <body class="bg-light d-flex flex-column min-vh-100">
 
   <!-- ================================================================= -->
-<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
+<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE (DONACIONES)            -->
 <!-- ================================================================= -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
   <div class="container-fluid px-3 px-md-4">
-    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="/index.html">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="../">
       <div id="navAvatarContainer" class="d-none"></div>
-      <img src="/assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+      <img src="../assets/logo.png" alt="Logo Cadena de Favores Venezuela" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
       <div class="d-flex flex-column">
         <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
         <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
@@ -67,43 +109,43 @@
 
     <div class="collapse navbar-collapse" id="navbarMain">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1 align-items-center">
-        <li class="nav-item"><a class="nav-link fw-semibold" href="/" data-page="index">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link fw-semibold" href="../" data-page="index">Quiénes Somos</a></li>
         
         <!-- PESTAÑA NUESTRO TRABAJO CON DESPLEGABLE EN HOVER -->
         <li class="nav-item dropdown nav-item-hover">
-          <a class="nav-link fw-semibold dropdown-toggle" href="/trabajo/" id="dropdownTrabajo" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-page="trabajo">
+          <a class="nav-link fw-semibold dropdown-toggle" href="../trabajo/" id="dropdownTrabajo" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-page="trabajo">
             Nuestro Trabajo
           </a>
           <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-0 rounded-3 mt-0" aria-labelledby="dropdownTrabajo" style="background-color: #0d1b2a;">
             <li>
-              <a class="dropdown-item py-2 fw-semibold" href="/trabajo/">
+              <a class="dropdown-item py-2 fw-semibold" href="../trabajo/">
                 <i class="fa-solid fa-briefcase text-warning me-2"></i> Ejes e Impacto Social
               </a>
             </li>
             <li><hr class="dropdown-divider border-secondary opacity-25 my-1"></li>
             <li>
-              <a class="dropdown-item py-2 small" href="/trabajo/nutriendo-amor/">
+              <a class="dropdown-item py-2 small" href="../trabajo/nutriendo-amor/">
                 <i class="fa-solid fa-bowl-food text-warning me-2"></i> Nutriendo Amor
               </a>
             </li>
             <li>
-              <a class="dropdown-item py-2 small" href="/trabajo/apoyo-hospitalario/">
+              <a class="dropdown-item py-2 small" href="../trabajo/apoyo-hospitalario/">
                 <i class="fa-solid fa-hospital text-danger me-2"></i> Apoyo Hospitalario y UCIP
               </a>
             </li>
           </ul>
         </li>
 
-        <li class="nav-item"><a class="nav-link fw-semibold" href="/jornadas/" data-page="jornadas">Jornadas</a></li>
+        <li class="nav-item"><a class="nav-link fw-semibold" href="../jornadas/" data-page="jornadas">Jornadas</a></li>
         
-        <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="/perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
-        <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="/calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
-        <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="/voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
+        <li class="nav-item nav-item-sesion d-none"><a class="nav-link fw-semibold" href="../perfil/" data-page="perfil"><i class="fa-solid fa-user-circle me-1"></i> Mi Perfil</a></li>
+        <li class="nav-item nav-item-sesion d-none" id="navItemCalendario"><a class="nav-link fw-semibold" href="../calendario/" data-page="calendario"><i class="fa-solid fa-calendar-days me-1"></i> Calendario Guardias</a></li>
+        <li class="nav-item nav-item-sesion d-none" id="navItemGestionVoluntarios"><a class="nav-link fw-semibold" href="../voluntarios/" data-page="voluntarios"><i class="fa-solid fa-users-gear me-1"></i> Gestión Personal</a></li>
         
-        <li class="nav-item"><a class="nav-link fw-semibold" href="/donaciones/" data-page="donaciones"><i class="fa-solid fa-hand-holding-heart me-1 text-warning"></i> Donaciones</a></li>
+        <li class="nav-item"><a class="nav-link fw-semibold" href="../donaciones/" data-page="donaciones"><i class="fa-solid fa-hand-holding-heart me-1 text-warning"></i> Donaciones</a></li>
         
         <li class="nav-item ms-lg-3">
-          <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="/auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
+          <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="../auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
           <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i></button>
         </li>
       </ul>
@@ -172,7 +214,7 @@
                   <div class="bg-success text-white p-2 rounded-circle">
                     <i class="fa-solid fa-building-columns fa-lg"></i>
                   </div>
-                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (Mercantil) | Lcda. Melissa Días</h3>
+                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (Mercantil) | Lcda. Melissa Díaz</h3>
                 </div>
                 <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosMercantil">
                   <li><strong>Banco:</strong> <span class="val-banco">Mercantil (0105)</span></li>
@@ -379,6 +421,83 @@
       </section>
 
     </div>
+      <!-- SECCIÓN DE PREGUNTAS FRECUENTES (SEO & UX) -->
+  <section class="py-5 bg-white border-top">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark font-monospace px-3 py-2 rounded-pill mb-2 fw-bold text-uppercase shadow-sm">
+          <i class="fa-solid fa-circle-question me-1"></i> Resuelve tus dudas
+        </span>
+        <h2 class="fw-bold text-dark">Preguntas Frecuentes</h2>
+        <p class="text-muted">Información clave sobre cómo aportamos, canalizamos y auditamos cada ayuda humanitaria.</p>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-9">
+          <div class="accordion accordion-flush shadow-sm rounded-4 border overflow-hidden" id="faqAccordion">
+            
+            <!-- Pregunta 1 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading1">
+                <button class="accordion-button fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                  ¿Cómo puedo realizar una donación desde el extranjero?
+                </button>
+              </h3>
+              <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Puedes colaborar desde cualquier parte del mundo a través de nuestra campaña oficial en <strong>GoFundMe</strong>, así como mediante transferencias directas por <strong>Zelle</strong> (<code>Izachu_5@hotmail.com</code>) o <strong>PayPal</strong> (<code>mcerpamendez87@gmail.com</code>).
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 2 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading2">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                  ¿Qué tipo de insumos o medicamentos puedo donar en los centros de acopio?
+                </button>
+              </h3>
+              <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Recibimos medicamentos esenciales (antibióticos, pediatría, analgésicos), insumos médico-quirúrgicos descartables (inyectadoras, suturas, compresas), alimentos proteicos no perecederos y artículos de primera necesidad en nuestros centros de acopio autorizados en Valencia, Guacara y Los Guayos.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 3 -->
+            <div class="accordion-item border-bottom">
+              <h3 class="accordion-header" id="faqHeading3">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                  ¿Cómo garantizan la transparencia en la entrega de las donaciones?
+                </button>
+              </h3>
+              <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Mantenemos un estricto protocolo de trazabilidad digital. Cada insumo o fondo recibido es catalogado en nuestro sistema centralizado y asignado directamente a expedientes médicos o bolsas de apoyo semanal (como en el programa <em>Nutriendo Amor</em>), reportando periódicamente el impacto real en campo.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pregunta 4 -->
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading4">
+                <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                  ¿Cómo puedo sumarme como voluntario o médico a la red?
+                </button>
+              </h3>
+              <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                  Ingresa al botón <strong>Registro / Inicio sesión</strong> en el menú superior para crear tu perfil operativo. Nuestro equipo validará tus datos para asignarte a las guardias, jornadas sanitarias o logística según tu disponibilidad y especialidad.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   </main>
 
   <!-- ================================================================= -->
