@@ -1,11 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- 1. Configuración Básica -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acceso y Registro - Cadena de Favores Venezuela</title>
-
+  
+  <!-- SEO: Control de Indexación y Canónico -->
+  <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://voluntariadocdfvzla.org/auth/" />
+
+  <!-- SEO Principal -->
+  <title>Portal de Acceso y Registro - Cadena de Favores Venezuela</title>
+  <meta name="description" content="Inicia sesión o regístrate en la Red Operativa de Cadena de Favores Venezuela para postularte a jornadas humanitarias y de salud.">
+  <meta name="author" content="Cadena de Favores Venezuela">
+
+  <!-- Open Graph / Redes Sociales / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://voluntariadocdfvzla.org/auth/">
+  <meta property="og:title" content="Portal de Acceso - Cadena de Favores Venezuela">
+  <meta property="og:description" content="Identifícate en la plataforma de gestión humanitaria y voluntariado social.">
+  <meta property="og:image" content="https://voluntariadocdfvzla.org/assets/logo.jpg">
+  <meta property="og:site_name" content="Cadena de Favores Venezuela">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Portal de Acceso - Cadena de Favores Venezuela">
+  <meta name="twitter:description" content="Acceso seguro al sistema operativo de voluntariado.">
+  <meta name="twitter:image" content="https://voluntariadocdfvzla.org/assets/logo.jpg">
 
   <!-- CSS de Bootstrap 5, FontAwesome y Animate.css -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,7 +46,7 @@
     <div class="container-fluid px-3 px-md-4">
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-warning text-decoration-none brand-link-dinamico" href="/index.html">
         <div id="navAvatarContainer" class="d-none"></div>
-        <img src="/assets/logo.png" alt="Logo" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
+        <img src="/assets/logo.png" alt="Logo Cadena de Favores Venezuela" class="brand-logo" id="navDefaultIcon" style="width: 38px; height: 38px; object-fit: cover;">
         <div class="d-flex flex-column">
           <span class="text-white fs-6 fw-bold lh-1">Cadena de Favores <span class="text-warning">Venezuela</span></span>
           <span class="text-white-50 fw-light" style="font-size: 0.7rem;">Red Operativa</span>
@@ -240,28 +261,24 @@
   <script src="../js/auth.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // 1. Sincronizar Header Global (lee el estado de la sesión)
+      // 1. Sincronizar Header Global
       if (typeof sincronizarHeaderGlobal === 'function') {
         sincronizarHeaderGlobal();
       }
 
-      // 2. PROTECCIÓN DE RUTA: Si ya hay una sesión activa, redirigir al Landing Page
-      // Verificamos las llaves comunes que utiliza tu motor de autenticación
-      const sesionActiva = localStorage.getItem('cdf_usuario_token') || 
-                           sessionStorage.getItem('cdf_usuario_token') || 
-                           localStorage.getItem('usuarioLogueado') ||
-                           sessionStorage.getItem('usuarioLogueado');
+      // 2. PROTECCIÓN DE RUTA ROBUSTA: Validar tanto almacenamiento local como el estado en memoria
+      refrescarSesionLocal(); // Función nativa de config.js
 
-      // Opcional: También puedes verificar si el header ya pintó el botón de logout o el avatar
-      const btnLogoutVisible = document.getElementById('navBtnLogout') && !document.getElementById('navBtnLogout').classList.contains('d-none');
+      const sesionActivaStorage = localStorage.getItem('userProfile') || sessionStorage.getItem('userProfile') ||
+                                  localStorage.getItem('cdf_usuario_token') || sessionStorage.getItem('cdf_usuario_token');
 
-      if (sesionActiva || btnLogoutVisible) {
-        // Redirección inmediata al panel de perfil operativo
+      if (window.sesionUsuario || sesionActivaStorage) {
+        // Redirección inmediata al perfil operativo si ya está autenticado
         window.location.replace('../perfil/');
         return;
       }
       
-      // 3. Inyección dinámica del enlace de WhatsApp con alcance 'flotante' y 'footer'
+      // 3. Inyección dinámica del enlace de WhatsApp...
       const btnFlotante = document.getElementById('btnWhatsappFlotante');
       if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
         btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
