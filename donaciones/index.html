@@ -45,7 +45,7 @@
         "name": "¿Cómo puedo realizar una donación desde el extranjero?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Puedes colaborar desde el exterior a través de nuestra campaña en GoFundMe, así como por transferencias directas en Zelle (Izachu_5@hotmail.com) y PayPal (mcerpamendez87@gmail.com)."
+          "text": "Puedes colaborar desde el exterior a través de nuestra campaña en GoFundMe, así como por transferencias directas en Zelle (mcerpamendez87@gmail.com) y PayPal (mcerpamendez87@gmail.com)."
         }
       },
       {
@@ -181,12 +181,17 @@
           
           <!-- Pago Móvil Banco Venezuela -->
           <div class="col-12 col-md-4">
+            
             <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
-              <div>
+              <div class="alert alert-success py-2 small mb-0 text-center">
+                <i class="fa-solid fa-shield-check me-1"></i> Compra de Insumos y medicamentos.
+              </div>
+
+              <div class="gap-2 mt-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                  <div class="bg-primary text-white p-2 rounded-circle">
+                  <!-- <div class="bg-primary text-white p-2 rounded-circle">
                     <i class="fa-solid fa-mobile-screen-button fa-lg"></i>
-                  </div>
+                  </div> -->
                   <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | María José Cerpa</h3>
                 </div>
                 <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosBDV">
@@ -195,6 +200,7 @@
                   <li><strong>Cédula:</strong> <span class="val-cedula">18.858.887</span></li>
                 </ul>
               </div>
+              
               <div class="d-flex flex-column gap-2 mt-3">
                 <button class="btn btn-outline-primary btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosBDV', this)">
                   <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
@@ -206,22 +212,26 @@
             </div>
           </div>
 
-          <!-- Pago Móvil Mercantil -->
+          <!-- Pago Móvil Venezuela Logistico -->
           <div class="col-12 col-md-4">
             <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
-              <div>
+              <div class="alert alert-info py-2 small mb-0 text-center">
+                <i class="fa-solid fa-circle-info me-1"></i> Destinado a sostenimiento logístico.
+              </div>
+              <div class="gap-2 mt-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                  <div class="bg-success text-white p-2 rounded-circle">
+                  <!--<div class="bg-success text-white p-2 rounded-circle">
                     <i class="fa-solid fa-building-columns fa-lg"></i>
-                  </div>
-                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (Mercantil) | Lcda. Melissa Díaz</h3>
+                  </div>-->
+                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | Lcda. Melissa Díaz</h3>
                 </div>
                 <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosMercantil">
-                  <li><strong>Banco:</strong> <span class="val-banco">Mercantil (0105)</span></li>
+                  <li><strong>Banco:</strong> <span class="val-banco">Banco de Venezuela (0102)</span></li>
                   <li><strong>Teléfono:</strong> <span class="val-telf">0424-4499538</span></li>
                   <li><strong>Cédula:</strong> <span class="val-cedula">17.903.919</span></li>
                 </ul>
               </div>
+              
               <div class="d-flex flex-column gap-2 mt-3">
                 <button class="btn btn-outline-success btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosMercantil', this)">
                   <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
@@ -245,8 +255,8 @@
                 </div>
                 <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-2">
                   <li class="d-flex justify-content-between align-items-center">
-                    <span><strong>Zelle:</strong> <span id="txtZelle">Izachu_5@hotmail.com</span></span>
-                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('Izachu_5@hotmail.com', this)" title="Copiar Zelle"><i class="fa-solid fa-copy"></i></button>
+                    <span><strong>Zelle:</strong> <span id="txtZelle">mcerpamendez87@gmail.com</span></span>
+                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('mcerpamendez87@gmail.com', this)" title="Copiar Zelle"><i class="fa-solid fa-copy"></i></button>
                   </li>
                   <li class="d-flex justify-content-between align-items-center">
                     <span><strong>PayPal:</strong> <span id="txtPayPal">mcerpamendez87@gmail.com</span></span>
@@ -445,7 +455,7 @@
               </h3>
               <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
                 <div class="accordion-body text-secondary small" style="line-height: 1.7;">
-                  Puedes colaborar desde cualquier parte del mundo a través de nuestra campaña oficial en <strong>GoFundMe</strong>, así como mediante transferencias directas por <strong>Zelle</strong> (<code>Izachu_5@hotmail.com</code>) o <strong>PayPal</strong> (<code>mcerpamendez87@gmail.com</code>).
+                  Puedes colaborar desde cualquier parte del mundo a través de nuestra campaña oficial en <strong>GoFundMe</strong>, así como mediante transferencias directas por <strong>Zelle</strong> (<code>mcerpamendez87@gmail.com</code>) o <strong>PayPal</strong> (<code>mcerpamendez87@gmail.com</code>).
                 </div>
               </div>
             </div>
