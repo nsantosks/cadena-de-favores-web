@@ -112,9 +112,19 @@
         <li class="nav-item"><a class="nav-link fw-semibold" href="../donaciones/" data-page="donaciones"><i class="fa-solid fa-hand-holding-heart me-1 text-warning"></i> Donaciones</a></li>
         
         <li class="nav-item ms-lg-3">
-          <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="../auth/"><i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión</a>
-          <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i></button>
+          <!-- Botón Registro / Inicio sesión -->
+          <a id="navBtnAuth" class="btn btn-involucrate-nav shadow-sm text-white d-none" href="../auth/">
+            <i class="fa-solid fa-user-lock me-1"></i> Registro / Inicio sesión
+          </a>
+
+          <!-- Botón Cerrar Sesión Responsivo -->
+          <button id="navBtnLogout" class="btn btn-outline-danger btn-sm px-3 w-100 w-lg-auto text-start text-lg-center mt-2 mt-lg-0" onclick="cerrarSesion()">
+            <i class="fa-solid fa-right-from-bracket me-1"></i>
+            <!-- El texto solo es visible en pantallas pequeñas/móviles y se oculta en escritorio -->
+            <span class="d-inline d-lg-none fw-semibold">Cerrar sesión</span>
+          </button>
         </li>
+        
       </ul>
     </div>
   </div>
