@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
     initCalendar();
     cargarDatos();
     sincronizarDirectorioCalendario();
+    verificarDesplieguePanelCoordinador();
   }
 });
 
@@ -45,6 +46,7 @@ window.inicializarCalendarioView = function() {
   initCalendar();
   cargarDatos();
   sincronizarDirectorioCalendario();
+  verificarDesplieguePanelCoordinador();
 };
 
 /**
@@ -1117,36 +1119,7 @@ async function ejecutarDespachoMasivoFinal(idGuardia) {
    }
 }
 
-async function abrirInformeConvocadosHoy(btn) {
-    let originalText = "";
-    if (btn) {
-        btn.disabled = true;
-        originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generando...';
-    }
 
-    try {
-        const res = await callBackend('obtenerConvocadosHoy', {});
-        
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-
-        if (res && res.status === "SUCCESS") {
-            alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
-        } else {
-            alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
-        }
-    } catch (e) {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-        console.error("Error al obtener reporte de convocados:", e);
-        alert("No se pudo conectar con el servidor para generar el reporte.");
-    }
-} 
 
 /**
  * Envía los parámetros a la Web App de Apps Script mediante un formulario dinámico GET
@@ -1213,3 +1186,129 @@ async function sincronizarDirectorioCalendario() {
     console.warn("No se pudo precargar el directorio de voluntarios para las fichas:", e);
   }
 }
+
+/**
+ * Muestra el panel de coordinación si el usuario activo posee el rol
+ */
+function verificarDesplieguePanelCoordinador() {
+  const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+  const esRolCoordinador = Boolean(
+    cuentaActiva.esCoordinador || 
+    cuentaActiva.coordinador === true || 
+    cuentaActiva.isCoordinador === true ||
+    cuentaActiva.rolActivo === "coordinador" || 
+    cuentaActiva.role === "coordinador"
+  );
+
+  const panelAcc = document.getElementById('panelAccionesCoordinador');
+  if (panelAcc && esRolCoordinador) {
+    panelAcc.classList.remove('d-none');
+    sincronizarCuotaDeEnvios();
+    actualizarContadorAptosLocal();
+  }
+}
+
+/**
+ * Consulta la cuota diaria disponible de correo en Apps Script
+ */
+async function sincronizarCuotaDeEnvios(btn) {
+  let originalText = "";
+  if (btn) {
+    btn.disabled = true;
+    originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>...';
+  }
+  
+  const lbl = document.getElementById('lblCuotaDisponible');
+  if (lbl) {
+    lbl.innerText = "...";
+    lbl.className = "badge bg-secondary font-monospace mt-1";
+  }
+
+  const res = await callBackend('obtenerCuotaDisponible', {});
+
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+
+  if (lbl) {
+    const cuotaVal = (res && typeof res.cuota !== 'undefined') ? parseInt(res.cuota, 10) : -1;
+
+    if (res && res.status === "SUCCESS" && cuotaVal >= 0) {
+      lbl.innerText = cuotaVal;
+      lbl.className = cuotaVal > 150 
+        ? "badge bg-success font-monospace mt-1" 
+        : "badge bg-warning text-dark font-monospace mt-1";
+    } else {
+      lbl.innerText = "N/D";
+      lbl.className = "badge bg-secondary font-monospace mt-1";
+    }
+  }
+}
+
+/**
+ * Calcula en tiempo real la cantidad de personal apto para recibir convocatorias
+ */
+function actualizarContadorAptosLocal() {
+  const lblAptos = document.getElementById('lblVoluntariosDisponibles');
+  if (!lblAptos) return;
+
+  const pool = (typeof poolVoluntariosModulo !== "undefined" && poolVoluntariosModulo.length > 0) 
+    ? poolVoluntariosModulo 
+    : ((typeof poolVoluntarios !== "undefined") ? poolVoluntarios : (window.poolVoluntarios || []));
+
+  let aptosCount = 0;
+  const ahora = Date.now();
+  
+  if (pool && pool.length > 0) {
+    pool.forEach(vol => {
+      const lastAdviseTime = vol.lastAdvise ? parseInt(vol.lastAdvise) : 0;
+      const horasDiff = lastAdviseTime > 0 ? (ahora - lastAdviseTime) / (1000 * 60 * 60) : 999;
+      
+      const esVerificado = (vol.verificado === true || vol.verificado === "Verificado" || vol.verificado === "TRUE");
+      
+      if (esVerificado && !vol.banned && vol.masiveAdvise !== "FALSE" && !vol.esCoordinador && horasDiff > 48) {
+        aptosCount++;
+      }
+    });
+  }
+  
+  lblAptos.innerText = aptosCount;
+  lblAptos.className = aptosCount > 0 ? "badge bg-primary font-monospace" : "badge bg-secondary font-monospace";
+}
+
+/**
+ * Genera y descarga/muestra el reporte de convocados para la jornada de hoy
+ */
+async function abrirInformeConvocadosHoy(btn) {
+  let originalText = "";
+  if (btn) {
+    btn.disabled = true;
+    originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>...';
+  }
+
+  try {
+    const res = await callBackend('obtenerConvocadosHoy', {});
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+
+    if (res && res.status === "SUCCESS") {
+      alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
+    } else {
+      alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
+    }
+  } catch (e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+    console.error("Error al obtener reporte de convocados:", e);
+    alert("No se pudo conectar con el servidor para generar el reporte.");
+  }
+}
+

@@ -343,6 +343,25 @@ main {
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
 }
 
+/* ==========================================================================
+   EFECTO PARALAJE EN HERO LANDING (CSS PURO)
+   ========================================================================== */
+.hero-landing {
+  background: linear-gradient(rgba(13, 27, 42, 0.88), rgba(13, 27, 42, 0.94)), 
+              url('../assets/banner01.jpeg') center/cover no-repeat;
+  /* Fija la imagen de fondo para generar el efecto de desplazamiento */
+  background-attachment: fixed;
+}
+
+/* Manejo defensivo para dispositivos móviles (evita tirones en Safari/iOS) */
+@media (max-width: 768px) {
+  .hero-landing {
+    /* En móviles se desactiva el 'fixed' para garantizar máxima fluidez de renderizado */
+    background-attachment: scroll;
+  }
+}
+
+
 /* ========================================================================== */
 /* TARJETAS INTERACTIVAS CON HOVER                                            */
 /* ========================================================================== */
@@ -608,10 +627,19 @@ main {
 
 .hero-donaciones {
   background: linear-gradient(rgba(13, 27, 42, 0.85), rgba(13, 27, 42, 0.9)), url('../assets/esperanza-cdf.jpg');
+  background-attachment: fixed;
   background-size: cover;
   background-position: center;
   padding-top: 9rem !important;
   padding-bottom: 5rem !important;
+}
+
+/* Manejo defensivo para dispositivos móviles (evita tirones en Safari/iOS) */
+@media (max-width: 768px) {
+  .hero-donaciones {
+    /* En móviles se desactiva el 'fixed' para garantizar máxima fluidez de renderizado */
+    background-attachment: scroll;
+  }
 }
 
 .donation-card {

@@ -532,17 +532,19 @@
   </main>
 
   <!-- ================================================================= -->
-  <!-- FOOTER INSTITUCIONAL                                              -->
+  <!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL               -->
   <!-- ================================================================= -->
   <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
     <div class="container py-3">
-      <div class="row g-4 justify-content-between">
-        <div class="col-12 col-md-3">
+      <div class="row g-4 text-center text-md-start justify-content-between">
+        
+        <!-- Columna 1: Marca e Identidad -->
+        <div class="col-12 col-md-3 d-flex flex-column align-items-center align-items-md-start">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+            <img src="assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
             <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
           </div>
-          <p class="small text-white-50 mb-3" style="line-height: 1.6;">
+          <p class="small text-white-50 mb-3" style="line-height: 1.6; max-width: 320px;">
             Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
           </p>
           <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
@@ -550,32 +552,40 @@
           </span>
         </div>
 
-        <div class="col-6 col-md-2">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">Contáctanos</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
+        <!-- Columna 2: Contacto y Enlaces Formales -->
+        <div class="col-12 col-md-2">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
             <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
-            <li><a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652</a></li>
-            <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+            <li>
+              <a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning">
+                <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652
+              </a>
+            </li>
+            <li><a href="auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
           </ul>
         </div>
 
-        <div class="col-6 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">Legales</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
+        <!-- Columna 3: Legales -->
+        <div class="col-12 col-md-3">
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
             <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
             <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
-            <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+            <li><a href="politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
           </ul>
         </div>
 
+        <!-- Columna 4: Redes Sociales -->
         <div class="col-12 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider">¡Síguenos en redes!</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
-            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger"></i>Instagram</a></li>
-            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2"></i>TikTok</a></li>
-            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>Canal Oficial WhatsApp</a></li>
+          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
+          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
+            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
+            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
           </ul>
         </div>
+
       </div>
 
       <hr class="border-secondary my-4 opacity-25">
@@ -591,24 +601,38 @@
     </div>
   </footer>
 
-  <!-- MODAL POLÍTICAS -->
-  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-dark text-white border-bottom border-secondary">
-          <h5 class="modal-title"><i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-0" style="height: 75vh;">
-          <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;"></iframe>
-        </div>
-        <div class="modal-footer bg-light border-top">
-          <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva</a>
-          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+  <!-- Script para inyectar dinámicamente el enlace formal de WhatsApp en el Footer -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const linkFooter = document.getElementById('linkWhatsappFooter');
+      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+        linkFooter.href = obtenerEnlaceWhatsApp('footer');
+      }
+    });
+  </script>
+
+    <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+    <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-dark text-white border-bottom border-secondary">
+            <h5 class="modal-title" id="modalPoliticasLabel">
+              <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body p-0" style="height: 75vh;">
+            <iframe src="politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+          </div>
+          <div class="modal-footer bg-light border-top">
+            <a href="politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+              <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+            </a>
+            <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
   <!-- BOTONES FLOTANTES -->
   <div class="floating-buttons-container">

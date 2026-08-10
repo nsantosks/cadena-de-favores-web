@@ -29,7 +29,7 @@
   <meta name="twitter:description" content="Programas continuos de impacto social y asistencia humanitaria integral en Venezuela.">
   <meta name="twitter:image" content="https://voluntariadocdfvzla.org/assets/banner-trabajo.jpeg">
 
-  <!-- Schema.org (Datos estructurados para motores de búsqueda e IA) -->
+  <!-- Schema.org -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -50,14 +50,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   
-  <!-- Estilos Personalizados (Un nivel arriba) -->
+  <!-- Estilos Personalizados -->
   <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100">
 
-  <!-- ================================================================= -->
-<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE (DONACIONES)            -->
+<!-- ================================================================= -->
+<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
 <!-- ================================================================= -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
   <div class="container-fluid px-3 px-md-4">
@@ -122,276 +122,287 @@
   </div>
 </nav>
 
-  <!-- ================================================================= -->
-  <!-- CONTENIDO CENTRAL: NUESTRO TRABAJO E IMPACTO SOCIAL               -->
-  <!-- ================================================================= -->
-  <main class="flex-grow-1">
-    
-    <section class="hero-trabajo text-white position-relative overflow-hidden" style="padding-top: 9rem !important; padding-bottom: 5rem !important; min-height: 420px; display: flex; align-items: center; background-image: url('../assets/nuestra-labor-cdf.jpeg');">
-      <div class="container py-4 text-center animate__animated animate__fadeIn">
-        <span class="badge font-monospace px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase shadow-sm" style="letter-spacing: 1px;">
-          <i class="fa-solid fa-hands-holding-child me-1"></i> Acción Humanitaria Integral
+<!-- ================================================================= -->
+<!-- CONTENIDO CENTRAL: HERO TRABAJO RESTRUCTURADO                      -->
+<!-- ================================================================= -->
+<main class="flex-grow-1">
+  
+  <header class="hero-landing position-relative overflow-hidden text-white d-flex align-items-center" 
+          style="background: linear-gradient(rgba(13, 27, 42, 0.88), rgba(13, 27, 42, 0.94)), url('../assets/nuestra-labor-cdf.jpeg') center/cover no-repeat; padding-top: 9rem !important; padding-bottom: 5rem !important; min-height: 50vh;">
+    <div class="container px-3 px-md-4 text-center position-relative" style="z-index: 2;">
+      
+      <!-- Badge Institucional -->
+      <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-25 px-3 py-1 rounded-pill mb-3 animate__animated animate__fadeInDown">
+        <i class="fa-solid fa-hands-holding-child text-warning fs-6"></i>
+        <span class="small fw-bold text-warning text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.8px;">
+          Acción Humanitaria Integral
         </span>
-        <h1 class="display-4 fw-bold mb-3 text-white">Nuestros Ejes de Trabajo</h1>
-        <p class="lead mb-4">Transformamos la solidaridad en resultados medibles, llevando apoyo médico pediátrico, nutricional y logístico a comunidades vulnerables de Venezuela.</p>
       </div>
-    </section>
 
-    <!-- Tarjetas de Programas y Ejes Operativos (Con efecto hover e imagen de fondo) -->
-    <section class="container py-5">
-      <div class="row g-4 justify-content-center">
-        
-        <!-- Eje 1: Atención Médica Pediátrica -->
-        <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp">
-          <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/atencion-medica.jpeg'); min-height: 340px;">
-            <div class="card-body card-body-content p-4 text-center rounded-4">
-              <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                <i class="fa-solid fa-user-doctor fs-3"></i>
-              </div>
-              <h4 class="fw-bold text-dark mb-3">Atención Médica Pediátrica</h4>
-              <p class="text-muted small mb-4" style="line-height: 1.6;">
-                Despliegue de operativos de salud integral, despistaje clínico y entrega de tratamientos farmacéuticos esenciales para niños en situación de vulnerabilidad.
-              </p>
-              <a href="../jornadas/" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-semibold">
-                Ver Jornadas Médicas <i class="fa-solid fa-arrow-right ms-1"></i>
-              </a>
+      <!-- Título Principal -->
+      <h1 class="display-4 fw-extrabold text-white mb-3 text-balance animate__animated animate__fadeInUp" style="line-height: 1.15; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+        Nuestros Ejes de <span class="text-warning">Trabajo</span>
+      </h1>
+
+      <!-- Párrafo Descriptivo con Alto Contraste -->
+      <p class="lead text-white fs-6 fs-md-5 fw-normal mb-0 mx-auto animate__animated animate__fadeInUp" style="max-width: 760px; line-height: 1.6; text-shadow: 0 1px 4px rgba(0,0,0,0.8); opacity: 0.95;">
+        Transformamos la solidaridad en resultados medibles, llevando apoyo médico pediátrico, asistencia nutricional y soporte logístico a comunidades vulnerables de Venezuela.
+      </p>
+
+    </div>
+  </header>
+
+  <!-- Tarjetas de Programas y Ejes Operativos -->
+  <section class="container py-5">
+    <div class="row g-4 justify-content-center">
+      
+      <!-- Eje 1: Atención Médica Pediátrica -->
+      <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp">
+        <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/atencion-medica.jpeg'); min-height: 340px;">
+          <div class="card-body card-body-content p-4 text-center rounded-4">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+              <i class="fa-solid fa-user-doctor fs-3"></i>
             </div>
-          </article>
-        </div>
-
-        <!-- Eje 2: Asistencia Nutricional -->
-        <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-          <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/asistencia-nutricional.jpeg'); min-height: 340px;">
-            <div class="card-body card-body-content p-4 text-center rounded-4">
-              <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                <i class="fa-solid fa-bowl-food fs-3"></i>
-              </div>
-              <h4 class="fw-bold text-dark mb-3">Soporte Nutricional</h4>
-              <p class="text-muted small mb-4" style="line-height: 1.6;">
-                Programas de alimentación comunitaria y entrega de suplementos nutricionales orientados a combatir los índices de desnutrición infantil.
-              </p>
-              <a href="../jornadas/" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-semibold">
-                Calendario de Misiones <i class="fa-solid fa-arrow-right ms-1"></i>
-              </a>
-            </div>
-          </article>
-        </div>
-
-        <!-- Eje 3: Logística y Despacho Operativo -->
-        <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-          <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/asistencia-logistica.jpeg'); min-height: 340px;">
-            <div class="card-body card-body-content p-4 text-center rounded-4">
-              <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
-                <i class="fa-solid fa-truck-medical fs-3"></i>
-              </div>
-              <h4 class="fw-bold text-dark mb-3">Logística y Despacho</h4>
-              <p class="text-muted small mb-4" style="line-height: 1.6;">
-                Coordinación de transporte, puntos de recogida y movilización segura de insumos humanitarios y voluntarios hacia zonas de difícil acceso.
-              </p>
-              <a href="../auth/" class="btn btn-outline-dark btn-sm rounded-pill px-4 fw-semibold">
-                Únete como Voluntario <i class="fa-solid fa-arrow-right ms-1"></i>
-              </a>
-            </div>
-          </article>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Sección de Impacto y Transparencia -->
-    <section class="bg-white py-5 border-top border-bottom">
-      <div class="container py-4">
-        <div class="row align-items-center g-5">
-          <div class="col-12 col-lg-6">
-            <h2 class="fw-bold text-dark mb-3">Gestión Basada en Datos y Eficiencia</h2>
-            <p class="text-muted mb-4" style="line-height: 1.7;">
-              En Cadena de Favores Venezuela no solo actuamos con vocación, sino con rigor operativo. Cada misión es planificada mediante un control centralizado de inventarios, asignación de turnos y validación de personal, garantizando un impacto rápido, transparente y directo en quienes más lo necesitan.
+            <h4 class="fw-bold text-dark mb-3">Atención Médica Pediátrica</h4>
+            <p class="text-muted small mb-4" style="line-height: 1.6;">
+              Despliegue de operativos de salud integral, despistaje clínico y entrega de tratamientos farmacéuticos esenciales para niños en situación de vulnerabilidad.
             </p>
-            <div class="d-flex gap-3">
-              <a href="../auth/" class="btn btn-primary px-4 fw-bold shadow-sm">
-                <i class="fa-solid fa-user-plus me-1"></i> Postularme Ahora
-              </a>
-              <a href="../jornadas/" class="btn btn-outline-secondary px-4 fw-semibold">
-                Ver Jornadas
-              </a>
-            </div>
+            <a href="apoyo-hospitalario/" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-semibold">
+              Ver Apoyo Hospitalario <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
           </div>
-          <div class="col-12 col-lg-6">
-            <div class="p-4 bg-light rounded-4 shadow-sm border">
-              <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-shield-halved text-success me-2"></i> Pilares de Nuestra Red</h5>
-              <ul class="list-unstyled d-flex flex-column gap-3 mb-0 small text-secondary">
-                <li class="d-flex align-items-start gap-2">
-                  <i class="fa-solid fa-check text-success mt-1"></i>
-                  <span><strong>Trazabilidad Operativa:</strong> Registro digital de cada eslabón y voluntario participante.</span>
-                </li>
-                <li class="d-flex align-items-start gap-2">
-                  <i class="fa-solid fa-check text-success mt-1"></i>
-                  <span><strong>Seguridad y Verificación:</strong> Filtros rigurosos y control de credenciales en Google Drive.</span>
-                </li>
-                <li class="d-flex align-items-start gap-2">
-                  <i class="fa-solid fa-check text-success mt-1"></i>
-                  <span><strong>Optimización Logística:</strong> Asignación inteligente de rutas, transporte y requerimientos por especialidad.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        </article>
       </div>
-    </section>
 
-  </main>
-
-  <!-- ================================================================= -->
-  <!-- FOOTER INSTITUCIONAL REDISEÑADO                                   -->
-  <!-- ================================================================= -->
-  <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
-    <div class="container py-3">
-      <div class="row g-4 justify-content-between">
-        
-        <div class="col-12 col-md-3">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
-            <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
+      <!-- Eje 2: Asistencia Nutricional -->
+      <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/asistencia-nutricional.jpeg'); min-height: 340px;">
+          <div class="card-body card-body-content p-4 text-center rounded-4">
+            <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+              <i class="fa-solid fa-bowl-food fs-3"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-3">Soporte Nutricional</h4>
+            <p class="text-muted small mb-4" style="line-height: 1.6;">
+              Programas de alimentación comunitaria y entrega de suplementos nutricionales orientados a combatir los índices de desnutrición infantil.
+            </p>
+            <a href="nutriendo-amor/" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-semibold">
+              Ver Nutriendo Amor <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
           </div>
-          <p class="small text-white-50 mb-3" style="line-height: 1.6;">
-            Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+        </article>
+      </div>
+
+      <!-- Eje 3: Logística y Despacho Operativo -->
+      <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <article class="card h-100 border-0 shadow-sm card-trabajo-hover rounded-4" style="background-image: url('../assets/asistencia-logistica.jpeg'); min-height: 340px;">
+          <div class="card-body card-body-content p-4 text-center rounded-4">
+            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+              <i class="fa-solid fa-truck-medical fs-3"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-3">Logística y Despacho</h4>
+            <p class="text-muted small mb-4" style="line-height: 1.6;">
+              Coordinación de transporte, puntos de recogida y movilización segura de insumos humanitarios y voluntarios hacia zonas de difícil acceso.
+            </p>
+            <a href="../auth/" class="btn btn-outline-dark btn-sm rounded-pill px-4 fw-semibold">
+              Únete como Voluntario <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sección de Impacto y Transparencia -->
+  <section class="bg-white py-5 border-top border-bottom">
+    <div class="container py-4">
+      <div class="row align-items-center g-5">
+        <div class="col-12 col-lg-6">
+          <h2 class="fw-bold text-dark mb-3">Gestión Basada en Datos y Eficiencia</h2>
+          <p class="text-muted mb-4" style="line-height: 1.7;">
+            En Cadena de Favores Venezuela no solo actuamos con vocación, sino con rigor operativo. Cada misión es planificada mediante un control centralizado de inventarios, asignación de turnos y validación de personal, garantizando un impacto rápido, transparente y directo en quienes más lo necesitan.
           </p>
-          <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
-            <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
-          </span>
+          <div class="d-flex gap-3">
+            <a href="../auth/" class="btn btn-primary px-4 fw-bold shadow-sm">
+              <i class="fa-solid fa-user-plus me-1"></i> Postularme Ahora
+            </a>
+            <a href="../jornadas/" class="btn btn-outline-secondary px-4 fw-semibold">
+              Ver Jornadas
+            </a>
+          </div>
         </div>
-
-        <div class="col-6 col-md-2">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
-            <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
-            <li><a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652</a></li>
-            <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
-            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
-            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
-            <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
-          </ul>
-        </div>
-
-        <div class="col-12 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2">
-            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
-            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
-            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
-          </ul>
-        </div>
-
-      </div>
-
-      <hr class="border-secondary my-4 opacity-25">
-
-      <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
-        <div class="col-12 col-md-6 text-white-50 small">
-          <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
-        </div>
-        <div class="col-12 col-md-6 text-md-end text-white-50 small">
-          <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
+        <div class="col-12 col-lg-6">
+          <div class="p-4 bg-light rounded-4 shadow-sm border">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-shield-halved text-success me-2"></i> Pilares de Nuestra Red</h5>
+            <ul class="list-unstyled d-flex flex-column gap-3 mb-0 small text-secondary">
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Trazabilidad Operativa:</strong> Registro digital de cada eslabón y voluntario participante.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Seguridad y Verificación:</strong> Filtros rigurosos y control de credenciales en Google Drive.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Optimización Logística:</strong> Asignación inteligente de rutas, transporte y requerimientos por especialidad.</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
-  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-dark text-white border-bottom border-secondary">
-          <h5 class="modal-title" id="modalPoliticasLabel">
-            <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+</main>
+
+<!-- ================================================================= -->
+<!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL                -->
+<!-- ================================================================= -->
+<footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
+  <div class="container py-3">
+    <div class="row g-4 text-center text-md-start justify-content-between">
+      
+      <!-- Columna 1: Marca e Identidad -->
+      <div class="col-12 col-md-3 d-flex flex-column align-items-center align-items-md-start">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+          <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
         </div>
-        <div class="modal-body p-0" style="height: 75vh;">
-          <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
-        </div>
-        <div class="modal-footer bg-light border-top">
-          <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
-            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
-          </a>
-          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
-        </div>
+        <p class="small text-white-50 mb-3" style="line-height: 1.6; max-width: 320px;">
+          Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+        </p>
+        <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
+          <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
+        </span>
+      </div>
+
+      <!-- Columna 2: Contacto y Enlaces Formales -->
+      <div class="col-12 col-md-2">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
+          <li>
+            <a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning">
+              <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652
+            </a>
+          </li>
+          <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3: Legales -->
+      <div class="col-12 col-md-3">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
+          <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 4: Redes Sociales -->
+      <div class="col-12 col-md-3">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
+          <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <hr class="border-secondary my-4 opacity-25">
+
+    <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
+      <div class="col-12 col-md-6 text-white-50 small">
+        <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
+      </div>
+      <div class="col-12 col-md-6 text-md-end text-white-50 small">
+        <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
       </div>
     </div>
   </div>
+</footer>
 
-  <!-- CONTENEDOR DE BOTONES FLOTANTES (WhatsApp y Subir) -->
-  <div class="floating-buttons-container">
-  <!-- Botón Flotante de Donar con expansión de texto en hover -->
-  <a href="/donaciones/" 
-     class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" 
-     title="Haz tu donación">
+<!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+<div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-bottom border-secondary">
+        <h5 class="modal-title" id="modalPoliticasLabel">
+          <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-0" style="height: 75vh;">
+        <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+      </div>
+      <div class="modal-footer bg-light border-top">
+        <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+          <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENEDOR DE BOTONES FLOTANTES -->
+<div class="floating-buttons-container">
+  <a href="../donaciones/" class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" title="Haz tu donación">
     <i class="fa-solid fa-hand-holding-heart fs-5"></i>
     <span class="btn-text">Donaciones</span>
   </a>
 
-  <!-- Botón de WhatsApp -->
-  <a id="btnWhatsappFlotante" 
-     target="_blank" 
-     rel="noopener noreferrer" 
-     class="btn-float-whatsapp animate__animated animate__fadeInUp" 
-     style="bottom: 85px;"
-     title="Soporte y Atención por WhatsApp">
+  <a id="btnWhatsappFlotante" target="_blank" rel="noopener noreferrer" class="btn-float-whatsapp animate__animated animate__fadeInUp" style="bottom: 85px;" title="Soporte y Atención por WhatsApp">
     <i class="fa-brands fa-whatsapp"></i>
   </a>
 
-  <!-- Botón de Subir -->
   <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
     <i class="fa-solid fa-chevron-up"></i>
   </button>
 </div>
 
-  <!-- DEPENDENCIAS JS Y SCRIPTS DE CONTROL -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // 1. Sincronizar Header Global
-      if (typeof sincronizarHeaderGlobal === 'function') {
-        sincronizarHeaderGlobal();
-      }
-      
-      // 2. Inyección dinámica del enlace de WhatsApp
-      const btnFlotante = document.getElementById('btnWhatsappFlotante');
-      if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
-        btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
-      }
-      const linkFooter = document.getElementById('linkWhatsappFooter');
-      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
-        linkFooter.href = obtenerEnlaceWhatsApp('footer');
-      }
-    });
-
-    // Control de visibilidad del botón "Ir Arriba"
-    window.addEventListener('scroll', function() {
-      const btnTop = document.getElementById('btnScrollTop');
-      if (btnTop) {
-        if (window.scrollY > 300) {
-          btnTop.classList.add('show');
-        } else {
-          btnTop.classList.remove('show');
-        }
-      }
-    });
-
-    function irArriba() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+<!-- DEPENDENCIAS JS Y SCRIPTS DE CONTROL -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof sincronizarHeaderGlobal === 'function') {
+      sincronizarHeaderGlobal();
     }
-  </script>
+    
+    const btnFlotante = document.getElementById('btnWhatsappFlotante');
+    if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
+      btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
+    }
+    const linkFooter = document.getElementById('linkWhatsappFooter');
+    if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+      linkFooter.href = obtenerEnlaceWhatsApp('footer');
+    }
+  });
+
+  window.addEventListener('scroll', function() {
+    const btnTop = document.getElementById('btnScrollTop');
+    if (btnTop) {
+      if (window.scrollY > 300) {
+        btnTop.classList.add('show');
+      } else {
+        btnTop.classList.remove('show');
+      }
+    }
+  });
+
+  function irArriba() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+</script>
+
 </body>
 </html>
