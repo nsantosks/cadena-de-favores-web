@@ -10,7 +10,7 @@ var poolVoluntariosModulo = []; // Buffer local en memoria
 // ==========================================================================
 const VOLUNTEERS_CACHE_KEY = 'cdf_voluntarios_cache';
 const VOLUNTEERS_CACHE_TIME_KEY = 'cdf_voluntarios_cache_time';
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+const VOLUNTEERS_CACHE_TTL_MS = 5 * 60 * 1000;// 5 minutos
 
 /**
  * Invalida la caché del directorio de voluntarios para forzar la consulta a Apps Script
@@ -39,7 +39,7 @@ async function cargarVoluntariosServidor(forzarRecarga = false) {
   const cacheTiempo = sessionStorage.getItem(VOLUNTEERS_CACHE_TIME_KEY);
 
   // 1. VERIFICAR CACHÉ VÁLIDA (Menos de 5 min y sin forzado)
-  if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CACHE_TTL_MS)) {
+  if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < VOLUNTEERS_CACHE_TTL_MS)) {
     try {
       poolVoluntariosModulo = JSON.parse(cacheGuardado);
       ejecutarFiltroAgenda();
@@ -75,6 +75,9 @@ async function cargarVoluntariosServidor(forzarRecarga = false) {
     }
     return;
   }
+
+  // SINCRONIZACIÓN GLOBAL ASEGURADA
+  window.poolVoluntarios = poolVoluntariosModulo;
 
   // Guardar en la caché local
   sessionStorage.setItem(VOLUNTEERS_CACHE_KEY, JSON.stringify(poolVoluntariosModulo));
@@ -112,7 +115,7 @@ function renderizarAgendaTarjetas(lista) {
     const card = document.createElement('div');
     card.className = "col-12 col-sm-6 col-lg-4 animate__animated animate__fadeInUp";
     card.innerHTML = `
-      <div class="card border-0 shadow-sm h-100 bg-white">
+      <div class="card border-0 shadow-sm h-100 bg-white" style="cursor: pointer;" onclick="abrirFichaVoluntario('${vol.id}')" title="Hacer clic para ver ficha detallada">
         <div class="card-body p-3 d-flex flex-column justify-content-between">
           <div class="d-flex align-items-start gap-3">
             <img src="${avatarSrc}" class="rounded-circle border border-2 border-light shadow-sm" 
@@ -130,7 +133,7 @@ function renderizarAgendaTarjetas(lista) {
             </div>
           </div>
           
-          <div class="border-top pt-2 mt-3">
+          <div class="border-top pt-2 mt-3" onclick="event.stopPropagation()">
             <div class="d-flex justify-content-between align-items-center mb-2">
               ${badgeVerificacion}
               <div class="form-check form-switch m-0">

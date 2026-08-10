@@ -5,28 +5,81 @@
 /**
  * Abre la ficha lateral cargando la foto de perfil en Base64 y su historial de documentos
  */
-async function abrirFichaVoluntario(idVoluntario) {
-  // Búsqueda en el buffer local (soporta poolVoluntariosModulo o poolVoluntarios)
-  const pool = (typeof poolVoluntariosModulo !== "undefined" && poolVoluntariosModulo.length > 0) 
-    ? poolVoluntariosModulo 
-    : ((typeof poolVoluntarios !== "undefined") ? poolVoluntarios : []);
 
-  const vol = pool.find(v => (v.id === idVoluntario || v.Correo === idVoluntario || v.email === idVoluntario));
-  if (!vol) {
-    alert("No se encontró la información del voluntario seleccionado.");
+// Asegurar que el HTML del Offcanvas exista en la página al cargar el módulo
+document.addEventListener("DOMContentLoaded", function() {
+  if (!document.getElementById('modalDetalleVoluntario')) {
+    const offcanvasHTML = `
+      <div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="modalDetalleVoluntario" style="z-index: 1080; width: 380px;">
+        <div class="offcanvas-header bg-dark text-white border-bottom shadow-sm" style="background-color: #0d1b2a !important;">
+          <h5 class="offcanvas-title mb-0"><i class="fa-solid fa-address-card me-2 text-warning"></i>Ficha de Personal</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body text-center custom-scroll-list" id="modalDetalleBody">
+          <!-- Contenido inyectado dinámicamente -->
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', offcanvasHTML);
+  }
+});
+
+/**
+ * Abre la ficha lateral cargando la foto de perfil en Base64 y su historial de documentos
+ */
+async function abrirFichaVoluntario(idVoluntario) {
+  if (!idVoluntario) return;
+
+  // 1. Consolidar todos los posibles pools de memoria activa
+  const pool = (typeof poolVoluntariosModulo !== "undefined" && Array.isArray(poolVoluntariosModulo) && poolVoluntariosModulo.length > 0) 
+    ? poolVoluntariosModulo 
+    : ((typeof poolVoluntarios !== "undefined" && Array.isArray(poolVoluntarios)) ? poolVoluntarios : (window.poolVoluntarios || []));
+
+  // Si el pool está vacío, forzar recarga/espera o avisar
+  if (!pool || pool.length === 0) {
+    alert("El directorio de personal se está sincronizando. Por favor reintente en un momento.");
     return;
+  }
+
+  // 2. Búsqueda insensible a mayúsculas/minúsculas y tipos
+  const target = String(idVoluntario).trim().toLowerCase();
+  const vol = pool.find(v => {
+    const vId = v.id ? String(v.id).trim().toLowerCase() : "";
+    const vEmail = v.email ? String(v.email).trim().toLowerCase() : (v.Correo ? String(v.Correo).trim().toLowerCase() : "");
+    const vCedula = v.cedula ? String(v.cedula).trim().toLowerCase() : "";
+    return vId === target || vEmail === target || vCedula === target;
+  });
+
+  if (!vol) {
+    alert("No se encontró la información del voluntario en el directorio activo (" + idVoluntario + ").");
+    return;
+  }
+
+  // 3. Verificar que el contenedor Offcanvas exista en el DOM
+  let modalElem = document.getElementById('modalDetalleVoluntario');
+  if (!modalElem) {
+    // Inyección de emergencia si no se ha creado
+    const offcanvasHTML = `
+      <div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="modalDetalleVoluntario" style="z-index: 1080; width: 380px;">
+        <div class="offcanvas-header bg-dark text-white border-bottom shadow-sm" style="background-color: #0d1b2a !important;">
+          <h5 class="offcanvas-title mb-0"><i class="fa-solid fa-address-card me-2 text-warning"></i>Ficha de Personal</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body text-center custom-scroll-list" id="modalDetalleBody"></div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', offcanvasHTML);
+    modalElem = document.getElementById('modalDetalleVoluntario');
   }
 
   const body = document.getElementById('modalDetalleBody');
   if (!body) return;
   
-  // Placeholder inicial (mientras carga la imagen de Drive/URL)
+  // Placeholder inicial de avatar
   const avatarFallback = "https://ui-avatars.com/api/?name=" + encodeURIComponent(vol.nombre || "V") + "&background=f1f5f9&color=1e3a8a&size=120";
   const estatusStr = vol.verificado 
     ? '<span class="text-success"><i class="fa-solid fa-circle-check"></i> Verificado</span>' 
     : '<span class="text-warning"><i class="fa-solid fa-clock"></i> Pendiente</span>';
 
-  // Estructura del panel
+  // Renderizar la estructura interna de la ficha
   body.innerHTML = `
       <div class="position-relative d-inline-block mb-3 mt-2">
         <div id="spinnerFicha_${vol.id}" class="position-absolute top-50 start-50 translate-middle" style="z-index: 5; ${!vol.imagen_profile ? 'display:none;' : ''}">
@@ -90,17 +143,12 @@ async function abrirFichaVoluntario(idVoluntario) {
       </div>
   `;
 
-  // Despliegue del Offcanvas de Bootstrap
-  const modalElem = document.getElementById('modalDetalleVoluntario');
-  if (modalElem) {
-    const panelLateral = bootstrap.Offcanvas.getOrCreateInstance(modalElem);
-    panelLateral.show();
-  }
+  // Desplegar Offcanvas
+  const panelLateral = bootstrap.Offcanvas.getOrCreateInstance(modalElem);
+  panelLateral.show();
 
-  // Carga asíncrona de los documentos anexos desde la API
+  // Cargar asíncronamente documentos e imagen
   cargarDocumentosFichaAsincrono(vol.id);
-
-  // Carga asíncrona de la imagen de perfil
   if (vol.imagen_profile && vol.imagen_profile.trim() !== "") {
     cargarImagenFichaAsincrono(vol.id, vol.imagen_profile);
   }
@@ -141,35 +189,54 @@ async function cargarDocumentosFichaAsincrono(idVoluntario) {
 }
 
 /**
- * Carga de forma asíncrona la imagen en Base64 o URL directa
+ * Carga de forma asíncrona la imagen, priorizando caché de Base64 local
  */
 async function cargarImagenFichaAsincrono(idVoluntario, imgUrlOrId) {
   const imgElem = document.getElementById(`imgFicha_${idVoluntario}`);
   const spinner = document.getElementById(`spinnerFicha_${idVoluntario}`);
 
-  // Si ya viene como URL directa o Data URI
-  if (imgUrlOrId.startsWith("http") || imgUrlOrId.startsWith("data:")) {
-    if (imgElem) {
-      imgElem.src = imgUrlOrId;
-      imgElem.style.opacity = '1';
-    }
+  if (!imgElem) return;
+
+  // 1. Definir claves de caché local
+  const cacheKey = `cdf_avatar_b64_${idVoluntario}`;
+  const base64Cached = sessionStorage.getItem(cacheKey);
+
+  // 2. Si tenemos la imagen en caché de sesión, la usamos de inmediato
+  if (base64Cached) {
+    imgElem.src = base64Cached;
+    imgElem.style.opacity = '1';
     if (spinner) spinner.style.display = 'none';
     return;
   }
 
-  // Si requiere resolverse a Base64 mediante el backend
-  const res = await callBackend('obtenerImagenBase64', { idFile: imgUrlOrId });
+  // 3. Si no hay caché, intentamos obtenerla del backend
+  try {
+    // Si ya es un data URI o URL web, la usamos
+    if (imgUrlOrId.startsWith("data:") || (imgUrlOrId.startsWith("http") && !imgUrlOrId.includes("drive.google.com"))) {
+      imgElem.src = imgUrlOrId;
+      imgElem.style.opacity = '1';
+      if (spinner) spinner.style.display = 'none';
+      return;
+    }
 
-  if (res && (res.base64 || res.status === "SUCCESS")) {
-    if (imgElem) {
-      imgElem.src = res.base64 || res.url;
+    // Si es ID de Drive, consultamos al backend el Base64
+    const res = await callBackend('obtenerImagenBase64', { idFile: imgUrlOrId });
+
+    if (res && res.base64) {
+      imgElem.src = res.base64;
+      imgElem.style.opacity = '1';
+      // Guardamos en caché para no volver a consultar en 5 min
+      sessionStorage.setItem(cacheKey, res.base64);
+    } else {
+      // Si falla, mostramos opacidad total y dejamos el fallback de ui-avatars que ya configuraste
       imgElem.style.opacity = '1';
     }
-  } else {
-    if (imgElem) imgElem.style.opacity = '1';
+  } catch (e) {
+    console.warn("Fallo al resolver imagen de perfil:", e);
+    imgElem.style.opacity = '1';
+  } finally {
+    if (spinner) spinner.style.display = 'none';
   }
-
-  if (spinner) spinner.style.display = 'none';
 }
 
 /**

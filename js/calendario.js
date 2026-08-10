@@ -4,17 +4,23 @@
 // ==========================================================================
 
 let currentDate = new Date(); // Inicia automáticamente en el mes y año real (Agosto 2026)
-let guardiasData = [];                  // Almacén en memoria
-let catalogoChoferes = null;           // Cache de choferes
-let catalogoPuntos = null;             // Cache de puntos
-let cacheEspecialidadesGuardia = null; // Cache especialidades
+let guardiasData = [];                      // Almacén en memoria
+let catalogoChoferes = null;               // Cache de choferes
+let catalogoPuntos = null;                 // Cache de puntos
+let cacheEspecialidadesGuardia = null;     // Cache especialidades
+
+// Variables globales unificadas para alimentar la Ficha Lateral
+if (typeof window.poolVoluntarios === 'undefined') {
+    var poolVoluntarios = [];
+    var poolVoluntariosModulo = [];
+}
 
 // ==========================================================================
 // CONFIGURACIÓN DE CACHÉ LOCAL (TTL: 5 MINUTOS)
 // ==========================================================================
 const CALENDAR_CACHE_KEY = 'cdf_guardias_cache';
 const CALENDAR_CACHE_TIME_KEY = 'cdf_guardias_cache_time';
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos en milisegundos
+const CALENDAR_CACHE_TTL_MS = 5 * 60 * 1000; // Renombrada para evitar colisión
 
 /**
  * Invalida la caché del calendario para forzar una sincronización limpia desde el servidor
@@ -28,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (document.getElementById('calendarGrid')) {
     initCalendar();
     cargarDatos();
+    sincronizarDirectorioCalendario();
   }
 });
 
@@ -37,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
 window.inicializarCalendarioView = function() {
   initCalendar();
   cargarDatos();
+  sincronizarDirectorioCalendario();
 };
 
 /**
@@ -52,7 +60,7 @@ async function cargarDatos(forzarRecarga = false) {
   const cacheTiempo = sessionStorage.getItem(CALENDAR_CACHE_TIME_KEY);
 
   // 1. VERIFICAR CACHÉ VÁLIDA
-  if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CACHE_TTL_MS)) {
+  if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CALENDAR_CACHE_TTL_MS)) {
     try {
       guardiasData = JSON.parse(cacheGuardado);
       renderCalendar(currentDate);
@@ -994,15 +1002,43 @@ async function poblarEspecialidadesGuardia() {
 }
 
 function abrirFichaDesdeGuardia(email) {
-  if (typeof poolVoluntarios === 'undefined' || poolVoluntarios.length === 0) {
-      alert("El directorio se está sincronizando en segundo plano. Por favor, intente en unos segundos.");
+  // 1. Intentar rescatar el pool de cualquier fuente disponible en memoria o caché
+  let pool = (typeof poolVoluntarios !== 'undefined' && poolVoluntarios.length > 0) ? poolVoluntarios : 
+             ((typeof poolVoluntariosModulo !== 'undefined' && poolVoluntariosModulo.length > 0) ? poolVoluntariosModulo : []);
+
+  if (pool.length === 0) {
+    // Intento de rescate desde la caché de voluntarios de Netlify/SessionStorage
+    const cacheVol = sessionStorage.getItem('cdf_voluntarios_cache');
+    if (cacheVol) {
+      try {
+        pool = JSON.parse(cacheVol);
+        window.poolVoluntarios = pool;
+      } catch (e) {
+        console.warn("No se pudo parsear la caché de voluntarios");
+      }
+    }
+  }
+
+  // 2. Si aun así sigue vacío, disparamos la función de la ficha directamente con el correo o id de respaldo
+  if (pool.length === 0) {
+    if (typeof abrirFichaVoluntario === 'function') {
+      abrirFichaVoluntario(email); // Intentar abrir directamente con el parámetro de correo
       return;
+    }
+    alert("El directorio de personal se está sincronizando. Por favor, intente de nuevo en un momento.");
+    return;
   }
   
-  const vol = poolVoluntarios.find(v => v.email && v.email.toLowerCase() === email.toLowerCase());
+  const vol = pool.find(v => {
+    const vEmail = v.email ? v.email.toLowerCase().trim() : (v.Correo ? v.Correo.toLowerCase().trim() : "");
+    return vEmail === email.toLowerCase().trim();
+  });
   
   if (vol && typeof abrirFichaVoluntario === 'function') {
-      abrirFichaVoluntario(vol.id);
+      abrirFichaVoluntario(vol.id || vol.email);
+  } else if (typeof abrirFichaVoluntario === 'function') {
+      // Fallback extremo si no hace match exacto en el find
+      abrirFichaVoluntario(email);
   } else {
       alert("No se encontró el perfil detallado de este voluntario.");
   }
@@ -1159,4 +1195,21 @@ function generarManifiestoNativo(idGuardia) {
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
+}
+
+/**
+ * Carga silenciosamente el directorio de voluntarios para que la ficha lateral funcione desde las guardias
+ */
+async function sincronizarDirectorioCalendario() {
+  try {
+    const res = await callBackend('obtenerVoluntarios', {});
+    if (res && (res.voluntarios || Array.isArray(res))) {
+      const lista = res.voluntarios || res;
+      poolVoluntarios = lista;
+      poolVoluntariosModulo = lista;
+      window.poolVoluntarios = lista;
+    }
+  } catch (e) {
+    console.warn("No se pudo precargar el directorio de voluntarios para las fichas:", e);
+  }
 }
