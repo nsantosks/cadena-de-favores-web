@@ -87,8 +87,8 @@
 
 <body class="bg-light d-flex flex-column min-vh-100">
 
-  <!-- ================================================================= -->
-<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE (DONACIONES)            -->
+<!-- ================================================================= -->
+<!-- NAVBAR INSTITUCIONAL UNIFICADO Y FLOTANTE                         -->
 <!-- ================================================================= -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-institucional fixed-top">
   <div class="container-fluid px-3 px-md-4">
@@ -153,306 +153,299 @@
   </div>
 </nav>
 
-  <!-- HERO SECTION -->
-  <header class="hero-donaciones text-white position-relative overflow-hidden text-center">
-    <div class="container py-4 animate__animated animate__fadeIn">
-      <span class="badge bg-warning text-dark font-monospace px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase shadow-sm">
-        <i class="fa-solid fa-heart-pulse me-1"></i> Fondo de Asistencia Humanitaria
-      </span>
-      <h1 class="display-4 fw-bold mb-3 text-white">¿Cómo Donar y Apoyar Nuestra Labor?</h1>
-      <p class="lead mb-4 mx-auto" style="max-width: 700px;">
-        Tu aporte económico, insumo médico o víveres permite sostener nuestras misiones continuas en La Guaira y comunidades vulnerables de Carabobo. ¡Dona 1$ o más y haz la diferencia!
-      </p>
-    </div>
-  </header>
+<!-- HERO SECTION CONSERVADO -->
+<header class="hero-donaciones text-white position-relative overflow-hidden text-center">
+  <div class="container py-4 animate__animated animate__fadeIn">
+    <span class="badge bg-warning text-dark font-monospace px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase shadow-sm">
+      <i class="fa-solid fa-heart-pulse me-1"></i> Fondo de Asistencia Humanitaria
+    </span>
+    <h1 class="display-4 fw-bold mb-3 text-white">¿Cómo Donar y Apoyar Nuestra Labor?</h1>
+    <p class="lead mb-4 mx-auto" style="max-width: 700px;">
+      Tu aporte económico, insumo médico o víveres permite sostener nuestras misiones continuas en La Guaira y comunidades vulnerables de Carabobo. ¡Dona 1$ o más y haz la diferencia!
+    </p>
+  </div>
+</header>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-grow-1 py-5">
-    <div class="container">
+<!-- CONTENIDO PRINCIPAL -->
+<main class="flex-grow-1 py-5">
+  <div class="container">
 
-      <!-- SECCIÓN 1: APORTES ECONÓMICOS / DATOS DE PAGO -->
-      <section class="mb-5 animate__animated animate__fadeIn">
-        <div class="text-center mb-4">
-          <h2 class="fw-bold text-dark"><i class="fa-solid fa-wallet text-primary me-2"></i> Aportes Económicos (Nacionales e Internacionales)</h2>
-          <p class="text-muted">Canales oficiales y seguros para transferencias y pagos móviles orientados a logística y transporte.</p>
-        </div>
+    <!-- SECCIÓN 1: APORTES ECONÓMICOS / DATOS DE PAGO -->
+    <section class="mb-5 animate__animated animate__fadeIn">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-wallet text-primary me-2"></i> Aportes Económicos (Nacionales e Internacionales)</h2>
+        <p class="text-muted">Canales oficiales y seguros para transferencias y pagos móviles orientados a logística y transporte.</p>
+      </div>
 
-        <div class="row g-4 justify-content-center">
-          
-          <!-- Pago Móvil Banco Venezuela -->
-          <div class="col-12 col-md-4">
+      <div class="row g-4 justify-content-center">
+        
+        <!-- Pago Móvil Banco Venezuela -->
+        <div class="col-12 col-md-4">
+          <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
+            <div class="alert alert-success py-2 small mb-0 text-center">
+              <i class="fa-solid fa-shield-check me-1"></i> Compra de Insumos y medicamentos.
+            </div>
+
+            <div class="gap-2 mt-3">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | María José Cerpa</h3>
+              </div>
+              <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosBDV">
+                <li><strong>Banco:</strong> <span class="val-banco">Banco de Venezuela (0102)</span></li>
+                <li><strong>Teléfono:</strong> <span class="val-telf">0424-4626652</span></li>
+                <li><strong>Cédula:</strong> <span class="val-cedula">18.858.887</span></li>
+              </ul>
+            </div>
             
-            <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
-              <div class="alert alert-success py-2 small mb-0 text-center">
-                <i class="fa-solid fa-shield-check me-1"></i> Compra de Insumos y medicamentos.
-              </div>
+            <div class="d-flex flex-column gap-2 mt-3">
+              <button class="btn btn-outline-donacion btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosBDV', this)">
+                <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
+              </button>
+              <a href="https://wa.me/584244626652?text=Hola,%20les%20escribo%20para%20reportar%20una%20donación%20por%20Pago%20Móvil%20(BDV)." target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm fw-bold rounded-pill">
+                <i class="fa-brands fa-whatsapp me-1"></i> Reportar Donación
+              </a>
+            </div>
+          </div>
+        </div>
 
-              <div class="gap-2 mt-3">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                  <!-- <div class="bg-primary text-white p-2 rounded-circle">
-                    <i class="fa-solid fa-mobile-screen-button fa-lg"></i>
-                  </div> -->
-                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | María José Cerpa</h3>
+        <!-- Pago Móvil Venezuela Logístico -->
+        <div class="col-12 col-md-4">
+          <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
+            <div class="alert alert-info py-2 small mb-0 text-center">
+              <i class="fa-solid fa-circle-info me-1"></i> Destinado a sostenimiento logístico.
+            </div>
+            <div class="gap-2 mt-3">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | Lcda. Melissa Díaz</h3>
+              </div>
+              <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosMercantil">
+                <li><strong>Banco:</strong> <span class="val-banco">Banco de Venezuela (0102)</span></li>
+                <li><strong>Teléfono:</strong> <span class="val-telf">0424-4499538</span></li>
+                <li><strong>Cédula:</strong> <span class="val-cedula">17.903.919</span></li>
+              </ul>
+            </div>
+            
+            <div class="d-flex flex-column gap-2 mt-3">
+              <button class="btn btn-outline-donacion btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosMercantil', this)">
+                <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
+              </button>
+              <a href="https://wa.me/58424499538?text=Hola,%20les%20escribo%20para%20reportar%20una%20donación%20por%20Pago%20Móvil%20(Mercantil)." target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm fw-bold rounded-pill">
+                <i class="fa-brands fa-whatsapp me-1"></i> Reportar Donación
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zelle, PayPal y GoFundMe -->
+        <div class="col-12 col-md-4">
+          <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between h-100">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="bg-warning text-dark p-2 rounded-circle">
+                  <i class="fa-solid fa-globe fa-lg"></i>
                 </div>
-                <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosBDV">
-                  <li><strong>Banco:</strong> <span class="val-banco">Banco de Venezuela (0102)</span></li>
-                  <li><strong>Teléfono:</strong> <span class="val-telf">0424-4626652</span></li>
-                  <li><strong>Cédula:</strong> <span class="val-cedula">18.858.887</span></li>
-                </ul>
+                <h3 class="h5 fw-bold mb-0 text-dark">Aportes Internacionales</h3>
               </div>
-              
-              <div class="d-flex flex-column gap-2 mt-3">
-                <button class="btn btn-outline-donacion btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosBDV', this)">
-                  <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
-                </button>
-                <a href="https://wa.me/584244626652?text=Hola,%20les%20escribo%20para%20reportar%20una%20donación%20por%20Pago%20Móvil%20(BDV)." target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm fw-bold rounded-pill">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Reportar Donación
-                </a>
-              </div>
-            </div>
-          </div>
 
-          <!-- Pago Móvil Venezuela Logistico -->
-          <div class="col-12 col-md-4">
-            <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between">
-              <div class="alert alert-info py-2 small mb-0 text-center">
-                <i class="fa-solid fa-circle-info me-1"></i> Destinado a sostenimiento logístico.
-              </div>
-              <div class="gap-2 mt-3">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                  <!--<div class="bg-success text-white p-2 rounded-circle">
-                    <i class="fa-solid fa-building-columns fa-lg"></i>
-                  </div>-->
-                  <h3 class="h5 fw-bold mb-0 text-dark">Pago Móvil (BDV) | Lcda. Melissa Díaz</h3>
+              <!-- Tarjeta Destacada de GoFundMe -->
+              <div class="card border-0 text-white rounded-4 p-3 mb-3" style="background-color: #0d1b2a !important;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="fa-solid fa-hand-holding-heart text-warning fs-5"></i>
+                  <span class="small fw-bold text-uppercase text-warning">Campaña Oficial</span>
                 </div>
-                <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-1" id="datosMercantil">
-                  <li><strong>Banco:</strong> <span class="val-banco">Banco de Venezuela (0102)</span></li>
-                  <li><strong>Teléfono:</strong> <span class="val-telf">0424-4499538</span></li>
-                  <li><strong>Cédula:</strong> <span class="val-cedula">17.903.919</span></li>
-                </ul>
-              </div>
-              
-              <div class="d-flex flex-column gap-2 mt-3">
-                <button class="btn btn-outline-donacion btn-sm fw-bold rounded-pill" onclick="copiarPagoMovil('datosMercantil', this)">
-                  <i class="fa-solid fa-copy me-1"></i> Copiar Datos de Pago
-                </button>
-                <a href="https://wa.me/58424499538?text=Hola,%20les%20escribo%20para%20reportar%20una%20donación%20por%20Pago%20Móvil%20(Mercantil)." target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm fw-bold rounded-pill">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Reportar Donación
+                <p class="small text-white-50 mb-3" style="line-height: 1.5;">
+                  Apoya nuestros programas de alimentación y salud desde cualquier lugar del mundo de forma segura.
+                </p>
+                <a href="https://www.gofundme.com/f/cadena-de-favores-vzla/" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn btn-outline-donacion w-100 fw-bold rounded-pill py-2 shadow-sm">
+                  <i class="fa-solid fa-heart me-1"></i> Ir a la Campaña en GoFundMe
                 </a>
               </div>
+
+              <!-- Cuentas Directas (Zelle / PayPal) -->
+              <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-2">
+                <li class="d-flex justify-content-between align-items-center">
+                  <span><strong>Zelle:</strong> <span id="txtZelle">vanessa.arellano@gmail.com</span></span>
+                  <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('vanessa.arellano@gmail.com', this)" title="Copiar Zelle"><i class="fa-solid fa-copy"></i></button>
+                </li>
+                <li class="d-flex justify-content-between align-items-center">
+                  <span><strong>PayPal:</strong> <span id="txtPayPal">mcerpamendez87@gmail.com</span></span>
+                  <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('mcerpamendez87@gmail.com', this)" title="Copiar PayPal"><i class="fa-solid fa-copy"></i></button>
+                </li>                  
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <a href="mailto:mcerpamendez87@gmail.com?subject=Reporte%20de%20Donación%20Internacional" class="btn btn-outline-dark btn-sm fw-bold rounded-pill w-100">
+                <i class="fa-solid fa-envelope me-1"></i> Reportar por Correo
+              </a>
             </div>
           </div>
-
-          <!-- GoFoundMe, Zelle y PayPal -->
-          <!-- Zelle, PayPal y GoFundMe -->
-          <div class="col-12 col-md-4">
-            <div class="payment-method-box shadow-sm d-flex flex-column justify-content-between h-100">
-              <div>
-                <div class="d-flex align-items-center gap-2 mb-3">
-                  <div class="bg-warning text-dark p-2 rounded-circle">
-                    <i class="fa-solid fa-globe fa-lg"></i>
-                  </div>
-                  <h3 class="h5 fw-bold mb-0 text-dark">Aportes Internacionales</h3>
-                </div>
-
-                <!-- Tarjeta Destacada de GoFundMe -->
-                <div class="card border-0 text-white rounded-4 p-3 mb-3" style="background-color: #0d1b2a !important;">
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <i class="fa-solid fa-hand-holding-heart text-warning fs-5"></i>
-                    <span class="small fw-bold text-uppercase text-warning">Campaña Oficial</span>
-                  </div>
-                  <p class="small text-white-50 mb-3" style="line-height: 1.5;">
-                    Apoya nuestros programas de alimentación y salud desde cualquier lugar del mundo de forma segura.
-                  </p>
-                  <a href="https://www.gofundme.com/f/cadena-de-favores-vzla/" 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     class="btn btn-outline-donacion w-100 fw-bold rounded-pill py-2 shadow-sm">
-                    <i class="fa-solid fa-heart me-1"></i> Ir a la Campaña en GoFundMe
-                  </a>
-                </div>
-
-                <!-- Cuentas Directas (Zelle / PayPal) -->
-                <ul class="list-unstyled small text-secondary mb-3 d-flex flex-column gap-2">
-                  <li class="d-flex justify-content-between align-items-center">
-                    <span><strong>Zelle:</strong> <span id="txtZelle">vanessa.arellano@gmail.com</span></span>
-                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('vanessa.arellano@gmail.com', this)" title="Copiar Zelle"><i class="fa-solid fa-copy"></i></button>
-                  </li>
-                  <li class="d-flex justify-content-between align-items-center">
-                    <span><strong>PayPal:</strong> <span id="txtPayPal">mcerpamendez87@gmail.com</span></span>
-                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="copiarTextoSimple('mcerpamendez87@gmail.com', this)" title="Copiar PayPal"><i class="fa-solid fa-copy"></i></button>
-                  </li>                  
-                </ul>
-              </div>
-              
-              <div class="mt-3">
-                <a href="mailto:mcerpamendez87@gmail.com?subject=Reporte%20de%20Donación%20Internacional" class="btn btn-outline-dark btn-sm fw-bold rounded-pill w-100">
-                  <i class="fa-solid fa-envelope me-1"></i> Reportar por Correo
-                </a>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- SECCIÓN 2: QUÉ PUEDES APORTAR (MEDICAMENTOS, INSUMOS Y VÍVERES) -->
-      <section class="mb-5 py-4 bg-white rounded-4 shadow-sm p-4 p-md-5">
-        <div class="text-center mb-4">
-          <h2 class="fw-bold text-dark"><i class="fa-solid fa-box-open text-success me-2"></i> Insumos, Medicamentos y Ayudas Materiales</h2>
-          <p class="text-muted">Listado prioritario de requerimientos solicitados por nuestros voluntarios en campo para la atención médica y bienestar social.</p>
         </div>
 
-        <div class="row g-4">
-          
-          <!-- Columna 1: Medicamentos Urgentes -->
-          <div class="col-12 col-lg-4">
-            <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-danger shadow-sm" style="background-image: url('../assets/apoyo-medico.jpeg');">
-              <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-pills text-danger me-2"></i> Medicamentos Urgentes</h3>
-              <div class="d-flex flex-wrap gap-1 mb-3">
-                <span class="badge-supply">Antihipertensivos</span>
-                <span class="badge-supply">Anticonvulsivos</span>
-                <span class="badge-supply">Amoxicilina c/ Ácido Clavulánico</span>
-                <span class="badge-supply">Atorvastatina</span>
-                <span class="badge-supply">Amlodipina</span>
-                <span class="badge-supply">Losartán potásico</span>
-                <span class="badge-supply">Antibióticos</span>
-                <span class="badge-supply">Antialérgicos</span>
-                <span class="badge-supply">Montelukast</span>
-                <span class="badge-supply">Sueros orales</span>
-                <span class="badge-supply">Oxitocina</span>
-                <span class="badge-supply">Solución 0,9%</span>
-              </div>
-              <p class="small text-secondary mb-0 fw-medium">También requerimos analgésicos, protectores gástricos y tratamientos para afecciones respiratorias y digestivas.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: QUÉ PUEDES APORTAR -->
+    <section class="mb-5 py-4 bg-white rounded-4 shadow-sm p-4 p-md-5">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-box-open text-success me-2"></i> Insumos, Medicamentos y Ayudas Materiales</h2>
+        <p class="text-muted">Listado prioritario de requerimientos solicitados por nuestros voluntarios en campo para la atención médica y bienestar social.</p>
+      </div>
+
+      <div class="row g-4">
+        
+        <!-- Columna 1: Medicamentos Urgentes -->
+        <div class="col-12 col-lg-4">
+          <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-danger shadow-sm" style="background-image: url('../assets/apoyo-medico.jpeg');">
+            <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-pills text-danger me-2"></i> Medicamentos Urgentes</h3>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge-supply">Antihipertensivos</span>
+              <span class="badge-supply">Anticonvulsivos</span>
+              <span class="badge-supply">Amoxicilina c/ Ácido Clavulánico</span>
+              <span class="badge-supply">Atorvastatina</span>
+              <span class="badge-supply">Amlodipina</span>
+              <span class="badge-supply">Losartán potásico</span>
+              <span class="badge-supply">Antibióticos</span>
+              <span class="badge-supply">Antialérgicos</span>
+              <span class="badge-supply">Montelukast</span>
+              <span class="badge-supply">Sueros orales</span>
+              <span class="badge-supply">Oxitocina</span>
+              <span class="badge-supply">Solución 0,9%</span>
             </div>
+            <p class="small text-secondary mb-0 fw-medium">También requerimos analgésicos, protectores gástricos y tratamientos para afecciones respiratorias y digestivas.</p>
           </div>
-
-          <!-- Columna 2: Insumos Médico-Quirúrgicos -->
-          <div class="col-12 col-lg-4">
-            <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-primary shadow-sm" style="background-image: url('../assets/asistencia-logistica.jpeg');">
-              <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-kit-medical text-primary me-2"></i> Insumos Médico-Quirúrgicos</h3>
-              <div class="d-flex flex-wrap gap-1 mb-3">
-                <span class="badge-supply">Inyectadoras</span>
-                <span class="badge-supply">Macrogoteros</span>
-                <span class="badge-supply">Inhaladores</span>
-                <span class="badge-supply">Gotas para nebulizar</span>
-                <span class="badge-supply">Scalps / Mariposas</span>
-                <span class="badge-supply">Suturas aguja recta</span>
-                <span class="badge-supply">Agua oxigenada</span>
-                <span class="badge-supply">Betadine</span>
-                <span class="badge-supply">Gasa y Compresas</span>
-                <span class="badge-supply">Vendas / Vendajes</span>
-                <span class="badge-supply">Guantes descartables</span>
-              </div>
-              <p class="small text-secondary mb-0 fw-medium">Materiales indispensables para curas, emergencias y soporte en zonas de difícil acceso.</p>
-            </div>
-          </div>
-
-          <!-- Columna 3: Alimentos, Aseo y Varios -->
-          <div class="col-12 col-lg-4">
-            <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-success shadow-sm" style="background-image: url('../assets/asistencia-nutricional.jpeg');">
-              <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-basket-shopping text-success me-2"></i> Alimentos, Aseo y Varios</h3>
-              <div class="d-flex flex-wrap gap-1 mb-3">
-                <span class="badge-supply">Agua potable</span>
-                <span class="badge-supply">Comida no perecedera</span>
-                <span class="badge-supply">Sábanas y Toallas</span>
-                <span class="badge-supply">Ropa en buen estado</span>
-                <span class="badge-supply">Mosquiteros</span>
-                <span class="badge-supply">Pañales niños y adultos</span>
-                <span class="badge-supply">Toallas sanitarias</span>
-                <span class="badge-supply">Papel sanitario</span>
-                <span class="badge-supply">Comida perros y gatos</span>
-                <span class="badge-supply">Bebidas energéticas</span>
-              </div>
-              <p class="small text-secondary mb-0 fw-medium">Aportes para la subsistencia de familias afectadas y soporte de la brigada veterinaria y de campo.</p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- SECCIÓN 3: CENTROS DE ACOPIO AUTORIZADOS -->
-      <section class="mb-4 animate__animated animate__fadeIn">
-        <div class="text-center mb-4">
-          <h2 class="fw-bold text-dark"><i class="fa-solid fa-map-location-dot text-danger me-2"></i> Centros de Acopio Autorizados (Carabobo)</h2>
-          <p class="text-muted">Ubica el punto de recolección más cercano y contacta directamente vía WhatsApp para entregar tus donaciones materiales.</p>
         </div>
 
-        <div class="row g-4">
-          
-          <!-- San Blas Valencia -->
-          <div class="col-12 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
-              <div class="card-body">
-                <h4 class="h5 fw-bold text-dark mb-2">San Blas (Valencia)</h4>
-                <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Susleni Villamizar</p>
-                <a href="https://wa.me/584144025821?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20de%20San%20Blas." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
-                </a>
-              </div>
+        <!-- Columna 2: Insumos Médico-Quirúrgicos -->
+        <div class="col-12 col-lg-4">
+          <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-primary shadow-sm" style="background-image: url('../assets/asistencia-logistica.jpeg');">
+            <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-kit-medical text-primary me-2"></i> Insumos Médico-Quirúrgicos</h3>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge-supply">Inyectadoras</span>
+              <span class="badge-supply">Macrogoteros</span>
+              <span class="badge-supply">Inhaladores</span>
+              <span class="badge-supply">Gotas para nebulizar</span>
+              <span class="badge-supply">Scalps / Mariposas</span>
+              <span class="badge-supply">Suturas aguja recta</span>
+              <span class="badge-supply">Agua oxigenada</span>
+              <span class="badge-supply">Betadine</span>
+              <span class="badge-supply">Gasa y Compresas</span>
+              <span class="badge-supply">Vendas / Vendajes</span>
+              <span class="badge-supply">Guantes descartables</span>
             </div>
+            <p class="small text-secondary mb-0 fw-medium">Materiales indispensables para curas, emergencias y soporte en zonas de difícil acceso.</p>
           </div>
-
-          <!-- Ciudad Alianza -->
-          <div class="col-12 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
-              <div class="card-body">
-                <h4 class="h5 fw-bold text-dark mb-2">Ciudad Alianza</h4>
-                <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Erika Velasquez</p>
-                <a href="https://wa.me/584128564509?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20de%20Ciudad%20Alianza." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Unidad Médica CDF -->
-          <div class="col-12 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
-              <div class="card-body">
-                <h4 class="h5 fw-bold text-dark mb-1">Unidad Médica CDF</h4>
-                <p class="small text-secondary mb-1">Guacara Centro</p>
-                <p class="small text-muted mb-3"><i class="fa-solid fa-user me-1"></i> Yanire Rojas</p>
-                <a href="https://wa.me/584124921420?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20la%20Unidad%20Médica%20CDF." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- El Saman Guacara -->
-          <div class="col-12 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
-              <div class="card-body">
-                <h4 class="h5 fw-bold text-dark mb-2">El Samán (Guacara)</h4>
-                <p class="small text-muted mb-1"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Jessika Larez de Santos</p>
-                <p class="small text-muted mb-3"><i class="fa-solid fa-user me-1"></i> Nestor Santos</p>
-                <a href="https://wa.me/584124518035?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20El%20Samán." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Buenaventura Los Guayos -->
-          <div class="col-12 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
-              <div class="card-body">
-                <h4 class="h5 fw-bold text-dark mb-1">Buenaventura (Los Guayos)</h4>
-                <p class="small text-secondary mb-1">Manzana 18</p>
-                <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Arlenys Pacheco</p>
-                <a href="https://wa.me/584244943124?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20Buenaventura." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
-                  <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
-                </a>
-              </div>
-            </div>
-          </div>
-
         </div>
-      </section>
 
-    </div>
-      <!-- SECCIÓN DE PREGUNTAS FRECUENTES (SEO & UX) -->
+        <!-- Columna 3: Alimentos, Aseo y Varios -->
+        <div class="col-12 col-lg-4">
+          <div class="dropzone-card dropzone-card-bg h-100 p-4 border-start border-4 border-success shadow-sm" style="background-image: url('../assets/asistencia-nutricional.jpeg');">
+            <h3 class="h5 fw-bold text-dark mb-3"><i class="fa-solid fa-basket-shopping text-success me-2"></i> Alimentos, Aseo y Varios</h3>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="badge-supply">Agua potable</span>
+              <span class="badge-supply">Comida no perecedera</span>
+              <span class="badge-supply">Sábanas y Toallas</span>
+              <span class="badge-supply">Ropa en buen estado</span>
+              <span class="badge-supply">Mosquiteros</span>
+              <span class="badge-supply">Pañales niños y adultos</span>
+              <span class="badge-supply">Toallas sanitarias</span>
+              <span class="badge-supply">Papel sanitario</span>
+              <span class="badge-supply">Comida perros y gatos</span>
+              <span class="badge-supply">Bebidas energéticas</span>
+            </div>
+            <p class="small text-secondary mb-0 fw-medium">Aportes para la subsistencia de familias afectadas y soporte de la brigada veterinaria y de campo.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: CENTROS DE ACOPIO AUTORIZADOS -->
+    <section class="mb-4 animate__animated animate__fadeIn">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-map-location-dot text-danger me-2"></i> Centros de Acopio Autorizados (Carabobo)</h2>
+        <p class="text-muted">Ubica el punto de recolección más cercano y contacta directamente vía WhatsApp para entregar tus donaciones materiales.</p>
+      </div>
+
+      <div class="row g-4">
+        
+        <!-- San Blas Valencia -->
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
+            <div class="card-body">
+              <h4 class="h5 fw-bold text-dark mb-2">San Blas (Valencia)</h4>
+              <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Susleni Villamizar</p>
+              <a href="https://wa.me/584144025821?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20de%20San%20Blas." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ciudad Alianza -->
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
+            <div class="card-body">
+              <h4 class="h5 fw-bold text-dark mb-2">Ciudad Alianza</h4>
+              <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Erika Velasquez</p>
+              <a href="https://wa.me/584128564509?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20de%20Ciudad%20Alianza." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unidad Médica CDF -->
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
+            <div class="card-body">
+              <h4 class="h5 fw-bold text-dark mb-1">Unidad Médica CDF</h4>
+              <p class="small text-secondary mb-1">Guacara Centro</p>
+              <p class="small text-muted mb-3"><i class="fa-solid fa-user me-1"></i> Yanire Rojas</p>
+              <a href="https://wa.me/584124921420?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20la%20Unidad%20Médica%20CDF." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- El Saman Guacara -->
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
+            <div class="card-body">
+              <h4 class="h5 fw-bold text-dark mb-2">El Samán (Guacara)</h4>
+              <p class="small text-muted mb-1"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Jessika Larez de Santos</p>
+              <p class="small text-muted mb-3"><i class="fa-solid fa-user me-1"></i> Nestor Santos</p>
+              <a href="https://wa.me/584124518035?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20El%20Samán." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buenaventura Los Guayos -->
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100 text-center d-flex flex-column justify-content-between">
+            <div class="card-body">
+              <h4 class="h5 fw-bold text-dark mb-1">Buenaventura (Los Guayos)</h4>
+              <p class="small text-secondary mb-1">Manzana 18</p>
+              <p class="small text-muted mb-3"><i class="fa-solid fa-user-doctor me-1"></i> Dra. Arlenys Pacheco</p>
+              <a href="https://wa.me/584244943124?text=Hola,%20me%20comunico%20para%20coordinar%20una%20donación%20en%20el%20centro%20de%20acopio%20Buenaventura." target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Contactar Centro
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SECCIÓN DE PREGUNTAS FRECUENTES -->
   <section class="py-5 bg-white border-top">
     <div class="container">
       <div class="text-center mb-5">
@@ -467,7 +460,6 @@
         <div class="col-12 col-lg-9">
           <div class="accordion accordion-flush shadow-sm rounded-4 border overflow-hidden" id="faqAccordion">
             
-            <!-- Pregunta 1 -->
             <div class="accordion-item border-bottom">
               <h3 class="accordion-header" id="faqHeading1">
                 <button class="accordion-button fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
@@ -481,7 +473,6 @@
               </div>
             </div>
 
-            <!-- Pregunta 2 -->
             <div class="accordion-item border-bottom">
               <h3 class="accordion-header" id="faqHeading2">
                 <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
@@ -495,7 +486,6 @@
               </div>
             </div>
 
-            <!-- Pregunta 3 -->
             <div class="accordion-item border-bottom">
               <h3 class="accordion-header" id="faqHeading3">
                 <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
@@ -509,7 +499,6 @@
               </div>
             </div>
 
-            <!-- Pregunta 4 -->
             <div class="accordion-item">
               <h3 class="accordion-header" id="faqHeading4">
                 <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
@@ -529,168 +518,150 @@
     </div>
   </section>
 
-  </main>
+</main>
 
-  <!-- ================================================================= -->
-  <!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL               -->
-  <!-- ================================================================= -->
-  <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
-    <div class="container py-3">
-      <div class="row g-4 text-center text-md-start justify-content-between">
-        
-        <!-- Columna 1: Marca e Identidad -->
-        <div class="col-12 col-md-3 d-flex flex-column align-items-center align-items-md-start">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <img src="assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
-            <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
-          </div>
-          <p class="small text-white-50 mb-3" style="line-height: 1.6; max-width: 320px;">
-            Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
-          </p>
-          <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
-            <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
-          </span>
+
+<!-- ================================================================= -->
+<!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL                -->
+<!-- ================================================================= -->
+<footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
+  <div class="container py-3">
+    <div class="row g-4 text-center text-md-start justify-content-between">
+      
+      <!-- Columna 1: Marca e Identidad -->
+      <div class="col-12 col-md-3 d-flex flex-column align-items-center align-items-md-start">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+          <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
         </div>
-
-        <!-- Columna 2: Contacto y Enlaces Formales -->
-        <div class="col-12 col-md-2">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
-            <li><a href="mailto:info@cdf.ngo" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>info@cdf.ngo</a></li>
-            <li>
-              <a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning">
-                <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652
-              </a>
-            </li>
-            <li><a href="auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
-          </ul>
-        </div>
-
-        <!-- Columna 3: Legales -->
-        <div class="col-12 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
-            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
-            <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
-            <li><a href="politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
-          </ul>
-        </div>
-
-        <!-- Columna 4: Redes Sociales -->
-        <div class="col-12 col-md-3">
-          <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
-          <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
-            <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
-            <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
-            <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
-          </ul>
-        </div>
-
+        <p class="small text-white-50 mb-3" style="line-height: 1.6; max-width: 320px;">
+          Red humanitaria voluntaria dedicada al apoyo social, nutricional y médico pediátrico integral en comunidades vulnerables de Venezuela.
+        </p>
+        <span class="badge bg-secondary text-white-50 font-monospace border border-secondary" style="font-size: 0.75rem;">
+          <i class="fa-solid fa-shield-halved text-success me-1"></i> Red Operativa Verificada
+        </span>
       </div>
 
-      <hr class="border-secondary my-4 opacity-25">
-
-      <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
-        <div class="col-12 col-md-6 text-white-50 small">
-          <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
-        </div>
-        <div class="col-12 col-md-6 text-md-end text-white-50 small">
-          <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Script para inyectar dinámicamente el enlace formal de WhatsApp en el Footer -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const linkFooter = document.getElementById('linkWhatsappFooter');
-      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
-        linkFooter.href = obtenerEnlaceWhatsApp('footer');
-      }
-    });
-  </script>
-
-    <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
-    <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header bg-dark text-white border-bottom border-secondary">
-            <h5 class="modal-title" id="modalPoliticasLabel">
-              <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body p-0" style="height: 75vh;">
-            <iframe src="politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
-          </div>
-          <div class="modal-footer bg-light border-top">
-            <a href="politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
-              <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+      <!-- Columna 2: Contacto y Enlaces Formales -->
+      <div class="col-12 col-md-2">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="mailto:mcerpamendez87@gmail.com" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>mcerpamendez87@gmail.com</a></li>
+          <li>
+            <a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning">
+              <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652
             </a>
-            <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
-          </div>
-        </div>
+          </li>
+          <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+        </ul>
       </div>
+
+      <!-- Columna 3: Legales -->
+      <div class="col-12 col-md-3">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Legales</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
+          <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 4: Redes Sociales -->
+      <div class="col-12 col-md-3">
+        <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">¡Síguenos en redes!</p>
+        <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
+          <li><a href="https://www.instagram.com/cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-instagram me-2 text-danger" style="width: 16px;"></i>Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@cadena_de_favores_vzla/" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-tiktok me-2" style="width: 16px;"></i>TikTok</a></li>
+          <li><a href="https://whatsapp.com/channel/0029Vb8GH9DCMY0NIQywzo14" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning"><i class="fa-brands fa-whatsapp me-2 text-success" style="width: 16px;"></i>Canal Oficial WhatsApp</a></li>
+        </ul>
+      </div>
+
     </div>
 
-  <!-- BOTONES FLOTANTES -->
-  <div class="floating-buttons-container">
-  <!-- Botón Flotante de Donar con expansión de texto en hover -->
-  <a href="/donaciones/" 
-     class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" 
-     title="Haz tu donación">
+    <hr class="border-secondary my-4 opacity-25">
+
+    <div class="row align-items-center justify-content-between gy-3 text-center text-md-start">
+      <div class="col-12 col-md-6 text-white-50 small">
+        <p class="mb-0">&copy; 2026 Cadena de Favores Venezuela. Todos los derechos reservados.</p>
+      </div>
+      <div class="col-12 col-md-6 text-md-end text-white-50 small">
+        <p class="mb-0">Desarrollo y Consultoría Estratégica por <a href="https://gammalielanalytics.com/" target="_blank" rel="noopener noreferrer" class="text-warning text-decoration-none fw-semibold">Gammaliel Analytics</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+<div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-bottom border-secondary">
+        <h5 class="modal-title" id="modalPoliticasLabel">
+          <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-0" style="height: 75vh;">
+        <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+      </div>
+      <div class="modal-footer bg-light border-top">
+        <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+          <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTONES FLOTANTES -->
+<div class="floating-buttons-container">
+  <a href="../donaciones/" class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" title="Haz tu donación">
     <i class="fa-solid fa-hand-holding-heart fs-5"></i>
     <span class="btn-text">Donaciones</span>
   </a>
 
-  <!-- Botón de WhatsApp -->
-  <a id="btnWhatsappFlotante" 
-     target="_blank" 
-     rel="noopener noreferrer" 
-     class="btn-float-whatsapp animate__animated animate__fadeInUp" 
-     style="bottom: 85px;"
-     title="Soporte y Atención por WhatsApp">
+  <a id="btnWhatsappFlotante" target="_blank" rel="noopener noreferrer" class="btn-float-whatsapp animate__animated animate__fadeInUp" style="bottom: 85px;" title="Soporte y Atención por WhatsApp">
     <i class="fa-brands fa-whatsapp"></i>
   </a>
 
-  <!-- Botón de Subir -->
   <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
     <i class="fa-solid fa-chevron-up"></i>
   </button>
 </div>
 
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/donaciones.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      if (typeof sincronizarHeaderGlobal === 'function') {
-        sincronizarHeaderGlobal();
-      }
-      const btnFlotante = document.getElementById('btnWhatsappFlotante');
-      if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
-        btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
-      }
-      const linkFooter = document.getElementById('linkWhatsappFooter');
-      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
-        linkFooter.href = obtenerEnlaceWhatsApp('footer');
-      }
-    });
-
-    window.addEventListener('scroll', function() {
-      const btnTop = document.getElementById('btnScrollTop');
-      if (btnTop) {
-        if (window.scrollY > 300) btnTop.classList.add('show');
-        else btnTop.classList.remove('show');
-      }
-    });
-
-    function irArriba() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/donaciones.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof sincronizarHeaderGlobal === 'function') {
+      sincronizarHeaderGlobal();
     }
-  </script>
+    const btnFlotante = document.getElementById('btnWhatsappFlotante');
+    if (btnFlotante && typeof obtenerEnlaceWhatsApp === 'function') {
+      btnFlotante.href = obtenerEnlaceWhatsApp('flotante');
+    }
+    const linkFooter = document.getElementById('linkWhatsappFooter');
+    if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
+      linkFooter.href = obtenerEnlaceWhatsApp('footer');
+    }
+  });
+
+  window.addEventListener('scroll', function() {
+    const btnTop = document.getElementById('btnScrollTop');
+    if (btnTop) {
+      if (window.scrollY > 300) btnTop.classList.add('show');
+      else btnTop.classList.remove('show');
+    }
+  });
+
+  function irArriba() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 </body>
 </html>
