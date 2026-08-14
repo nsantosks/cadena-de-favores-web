@@ -152,8 +152,23 @@
               <div class="row g-3">
                 <div class="col-md-6"><label class="form-label small fw-bold">Nombre Completo</label><input type="text" id="perfilNombre" class="form-control" required></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Cédula de Identidad</label><input type="text" id="perfilCedula" class="form-control" required></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Voluntariado / Grupo</label><input type="text" id="perfilVoluntariado" class="form-control"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Especialidad Técnica</label><input type="text" id="perfilEspecialidad" list="listaEspecialidades" class="form-control" required></div>
+                
+                <!-- Campo Voluntariado / Grupo como Desplegable -->
+                <div class="col-12 col-md-6">
+                  <label for="perfilVoluntariado" class="form-label fw-bold text-dark small">Voluntariado / Grupo</label>
+                  <select id="perfilVoluntariado" class="form-select py-2">
+                    <option value="" disabled selected>Seleccione una opción...</option>
+                    <option value="Sector Salud">Sector Salud</option>
+                    <option value="Rescatistas | Socorristas">Rescatistas | Socorristas</option>
+                    <option value="Apoyo Logístico">Apoyo Logístico</option>
+                    <option value="Transporte">Transporte</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-6"><label class="form-label small fw-bold">Especialidad Técnica</label>
+                  <input type="text" id="perfilEspecialidad" list="listaEspecialidades" class="form-control" required>
+                </div>
+                
                 <div class="col-md-6"><label class="form-label small fw-bold">Teléfono Móvil</label><input type="text" id="perfilTelefono" class="form-control" required></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Punto de Recogida Preferido</label><select id="perfilRecogida" class="form-select"></select></div>
                 <div class="col-12"><label class="form-label small fw-bold">Dirección de Residencia</label><input type="text" id="perfilDireccion" class="form-control" required></div>
@@ -220,7 +235,7 @@
         <div class="col-12 col-md-2">
           <p class="h6 fw-bold text-white mb-3 text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Contáctanos</p>
           <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
-            <li><a href="mailto:mcerpamendez87@gmail.com" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>mcerpamendez87@gmail.com</a></li>
+            <li><a href="mailto:soporte@voluntariadocdfvzla.org" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-envelope me-2 text-warning"></i>soporte@voluntariadocdfvzla.org</a></li>
             <li>
               <a id="linkWhatsappFooter" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none hover-warning">
                 <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652

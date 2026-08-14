@@ -87,7 +87,12 @@ window.inicializarPerfilModulo = async function(forzarRecarga = false) {
     };
 
     setFieldValue('perfilNombre', cuentaActiva.nombre || cuentaActiva.Nombre_Completo);
-    setFieldValue('perfilVoluntariado', cuentaActiva.voluntariado || cuentaActiva.Voluntariado);
+    
+    // Inyección de valor en el desplegable de Voluntariado/Grupo
+    const valVoluntariado = cuentaActiva.voluntariado || cuentaActiva.Voluntariado || "";
+    setFieldValue('perfilVoluntariado', valVoluntariado);
+    setFieldValue('selVoluntariadoGrupo', valVoluntariado);
+
     setFieldValue('perfilEspecialidad', cuentaActiva.especialidad || cuentaActiva.Especialidad);
     setFieldValue('perfilTelefono', cuentaActiva.telefono || cuentaActiva.Telefono);
     setFieldValue('perfilCedula', cuentaActiva.cedula || cuentaActiva.ID_Voluntario || cuentaActiva.id);
@@ -311,7 +316,11 @@ async function actualizarPerfil(event) {
 
     const nombreIngresado = document.getElementById('perfilNombre').value.trim();
     const cedulaIngresada = document.getElementById('perfilCedula').value.trim();
-    const voluntariadoIngresado = document.getElementById('perfilVoluntariado').value.trim();
+    
+    // Captura el valor del desplegable (soporta tanto id="perfilVoluntariado" como id="selVoluntariadoGrupo")
+    const elVoluntariado = document.getElementById('perfilVoluntariado') || document.getElementById('selVoluntariadoGrupo');
+    const voluntariadoIngresado = elVoluntariado ? elVoluntariado.value : "";
+
     const especialidadIngresada = document.getElementById('perfilEspecialidad').value.trim();
     const puntoIngresado = document.getElementById('perfilRecogida')?.value || "";
     const telefonoIngresado = document.getElementById('perfilTelefono').value.trim();
