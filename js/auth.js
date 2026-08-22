@@ -3,11 +3,10 @@
 // Cadena de Favores Venezuela — Resiliente y Desacoplado
 // ==========================================================================
 
-// Capturar y procesar el Token de Google que viene en la URL al retornar del popup
 document.addEventListener("DOMContentLoaded", function() {
   const hash = window.location.hash;
   if (hash && hash.includes("access_token")) {
-    const params = new URLSearchParams(hash.substring(1)); // Remueve el '#'
+    const params = new URLSearchParams(hash.substring(1));
     const accessToken = params.get("access_token");
     const stateJson = params.get("state");
 
@@ -16,10 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const stateObj = JSON.parse(decodeURIComponent(stateJson));
         const emailEsperado = stateObj.email;
         
-        // Limpiar la URL del navegador para que no quede el token expuesto
         window.history.replaceState({}, document.title, window.location.pathname);
 
-        // Disparar la validación oficial con tu backend de Apps Script
         if (typeof validarTokenDeGoogleServidor === "function") {
           validarTokenDeGoogleServidor(accessToken, emailEsperado);
         }
@@ -34,17 +31,20 @@ var googleClientIdCache = window.googleClientIdCache || null;
 var webAppUrlCache = window.webAppUrlCache || null;
 var emailBuscadoCache = window.emailBuscadoCache || "";
 
-/**
- * Obtiene el rol seleccionado en la interfaz (eslabon / coordinador)
- */
+var temporizadorReenvioInterval = null;
+var segundosRestantesReenvio = 60;
+var emailOtpActualCache = "";
+var datosRegistroTemporalCache = {};
+
+function generarIDVoluntarioWeb() {
+  return "WEB-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
 function obtenerRolSeleccionado() {
   const radio = document.querySelector('input[name="btnRol"]:checked');
   return radio ? radio.value : "eslabon";
 }
 
-/**
- * Despliega un mensaje visual de alerta en la tarjeta de login
- */
 function mostrarErrorAuth(mensaje) {
   const errorDiv = document.getElementById('loginErrorMsg');
   if (errorDiv) {
@@ -58,9 +58,6 @@ function mostrarErrorAuth(mensaje) {
   }
 }
 
-/**
- * PASO 1: Envía el correo y el ROL seleccionado a la API REST de Apps Script
- */
 async function procesarVerificacionInicial() {
   const emailInput = document.getElementById('loginEmail');
   if (!emailInput) return;
@@ -75,28 +72,250 @@ async function procesarVerificacionInicial() {
     return; 
   }
 
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Buscando cuenta...';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verificando correo...';
+  }
 
   const res = await callBackend('verificarEmail', { email: email, rol: rol });
 
-  btn.disabled = false;
-  btn.innerText = "Continuar";
-
   if (res && res.status === "EXISTENTE") {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Continuar <i class="fa-solid fa-arrow-right ms-1"></i>';
+    }
     document.getElementById('authStep1').classList.add('d-none');
     document.getElementById('authStepGoogle').classList.remove('d-none');
     inicializarBotonGoogleSSO(res.email);
   } else if (res && res.status === "NUEVO") {
-    enviarCodigoSeguridadOTP(res.email);
+    // abrirModalRegistroNuevo maneja el estado de carga y restablecimiento del botón
+    abrirModalRegistroNuevo(res.email || email);
   } else {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Continuar <i class="fa-solid fa-arrow-right ms-1"></i>';
+    }
     mostrarErrorAuth(res ? res.message : "Error al validar la cuenta con el servidor.");
   }
 }
 
+
 /**
- * INYECTOR GOOGLE: Recupera el Client ID desde la API REST
+ * Abre el modal de registro para nuevos usuarios inmediatamente y puebla los datos en segundo plano
  */
+function abrirModalRegistroNuevo(emailDetectado) {
+  emailOtpActualCache = emailDetectado;
+  
+  // 1. Mostrar estado de carga en el botón 'Continuar' para evitar doble clic
+  const btnContinuar = document.getElementById('btnContinuarEmail');
+  let htmlOriginalBtn = "";
+  if (btnContinuar) {
+    btnContinuar.disabled = true;
+    htmlOriginalBtn = btnContinuar.innerHTML;
+    btnContinuar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparando registro...';
+  }
+
+  // 2. Abrir el modal DE INMEDIATO (Experiencia visual rápida)
+  const modalElem = document.getElementById('modalRegistroNuevoCompleto');
+  if (modalElem) {
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElem);
+    modal.show();
+  } else {
+    enviarCodigoSeguridadOTP(emailDetectado);
+    return;
+  }
+
+  // 3. Restablecer el botón principal tras abrir el modal
+  if (btnContinuar) {
+    setTimeout(() => {
+      btnContinuar.disabled = false;
+      btnContinuar.innerHTML = htmlOriginalBtn;
+    }, 500);
+  }
+
+  // 4. Cargar los catálogos en SEGUNDO PLANO (sin bloquear la interfaz)
+  setTimeout(async () => {
+    // A. Voluntariado / Grupo (Configuración Maestra)
+    if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
+      poblarSelectSincronizado('regVoluntariadoGrupo', window.CATALOGOS_RED.gruposVoluntariado, "Seleccione un grupo...");
+    }
+
+    // B. Especialidades Técnicas (Consulta BD Asíncrona)
+    if (typeof cargarEspecialidadesDinamicas === 'function') {
+      await cargarEspecialidadesDinamicas('regEspecialidadTecnica');
+    } else if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
+      poblarSelectSincronizado('regEspecialidadTecnica', window.CATALOGOS_RED.especialidadesDefault, "Seleccione especialidad...");
+    }
+
+    // C. Puntos de Recogida (Consulta BD Asíncrona)
+    if (typeof cargarPuntosRecogidaDinamicos === 'function') {
+      await cargarPuntosRecogidaDinamicos('regPuntoRecogida', 'Sin Definir');
+    } else if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
+      poblarSelectSincronizado('regPuntoRecogida', window.CATALOGOS_RED.puntosRecogidaDefault, "Seleccione punto...");
+    }
+  }, 10);
+}
+
+// ==========================================================================
+// CAPTURA Y HOMOLOGACIÓN DE DATOS DESDE EL MODAL DE REGISTRO (AUTH.JS)
+// ==========================================================================
+
+async function validarFormularioYEnviarOtpModal() {
+  const nombre = document.getElementById('regNombreCompleto') ? document.getElementById('regNombreCompleto').value.trim() : "";
+  const cedula = document.getElementById('regCedula') ? document.getElementById('regCedula').value.trim() : "";
+  const voluntariado = document.getElementById('regVoluntariadoGrupo') ? document.getElementById('regVoluntariadoGrupo').value : "";
+  const especialidad = document.getElementById('regEspecialidadTecnica') ? document.getElementById('regEspecialidadTecnica').value : "";
+  const telefono = document.getElementById('regTelefonoMovil') ? document.getElementById('regTelefonoMovil').value.trim() : "";
+  const puntoRecogida = document.getElementById('regPuntoRecogida') ? document.getElementById('regPuntoRecogida').value : "Sin Definir";
+  const direccion = document.getElementById('regDireccionResidencia') ? document.getElementById('regDireccionResidencia').value.trim() : "";
+  const checkPoliticas = document.getElementById('regCheckPoliticas');
+
+  if (!nombre || !cedula || !voluntariado || !especialidad || !telefono || !direccion) {
+    alert("Por favor, completa todos los campos obligatorios del registro.");
+    return;
+  }
+
+  if (checkPoliticas && !checkPoliticas.checked) {
+    alert("Debes confirmar la lectura y aceptación de las políticas institucionales.");
+    return;
+  }
+
+  const btnRegistrar = document.getElementById('btnDispararOtpModal');
+  if (btnRegistrar) {
+    btnRegistrar.disabled = true;
+    btnRegistrar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Enviando código OTP...';
+  }
+
+  const rol = obtenerRolSeleccionado();
+  const idVoluntarioGenerado = cedula || generarIDVoluntarioWeb();
+  const timestampActual = new Date().toISOString();
+
+  // Payload Homologado idéntico al de perfil.js
+  datosRegistroTemporalCache = {
+    idVoluntario: idVoluntarioGenerado,
+    ID_Voluntario: idVoluntarioGenerado,
+    id: idVoluntarioGenerado,
+    cedula: cedula,
+    nombre: nombre,
+    Nombre_Completo: nombre,
+    email: emailOtpActualCache,
+    Correo: emailOtpActualCache,
+    correo: emailOtpActualCache,
+    voluntariado: voluntariado,
+    Voluntariado: voluntariado,
+    voluntariadoGrupo: voluntariado,
+    especialidad: especialidad,
+    Especialidad: especialidad,
+    telefono: telefono,
+    Telefono: telefono,
+    puntoRecogida: puntoRecogida,
+    Punto_Recogida_Preferido: puntoRecogida,
+    direccion: direccion,
+    Direccion: direccion,
+    rolActivo: rol,
+    nuevoRegistro: true
+  };
+
+  window.sesionUsuario = datosRegistroTemporalCache;
+  sessionStorage.setItem('userProfile', JSON.stringify(datosRegistroTemporalCache));
+  localStorage.setItem('userProfile', JSON.stringify(datosRegistroTemporalCache));
+
+  const res = await callBackend('enviarOTP', { 
+    email: emailOtpActualCache,
+    idVoluntario: idVoluntarioGenerado,
+    rol: rol,
+    timestamp: timestampActual,
+    perfilData: datosRegistroTemporalCache
+  });
+
+  if (res && res.status !== "ERROR") {
+    if (btnRegistrar) btnRegistrar.style.display = 'none';
+    
+    const seccionOtp = document.getElementById('seccionOtpModal');
+    if (seccionOtp) seccionOtp.classList.remove('d-none');
+
+    const inputOtp = document.getElementById('inputOtpModal');
+    if (inputOtp) inputOtp.focus();
+
+    alert("¡Código de verificación enviado a tu correo electrónico!");
+  } else {
+    if (btnRegistrar) {
+      btnRegistrar.disabled = false;
+      btnRegistrar.innerText = "Registrar y Enviar Código";
+    }
+    alert(res ? res.message : "Error al procesar el envío del código OTP.");
+  }
+}
+
+async function confirmarOtpYCrearRegistroDefinitivo() {
+  const inputOtp = document.getElementById('inputOtpModal');
+  const otp = inputOtp ? inputOtp.value.trim() : "";
+  const btnValidar = document.getElementById('btnValidarYGuardarModal');
+
+  if (!otp || otp.length < 6) {
+    alert("Por favor, ingresa el código de verificación completo de 6 dígitos.");
+    return;
+  }
+
+  if (btnValidar) {
+    btnValidar.disabled = true;
+    btnValidar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Guardando registro...';
+  }
+
+  const rol = obtenerRolSeleccionado();
+
+  // 1. Validar OTP en el backend
+  const resOtp = await callBackend('validarOTP', {
+    email: emailOtpActualCache,
+    otp: otp,
+    rol: rol
+  });
+
+  if (resOtp && (resOtp.status === "SUCCESS" || resOtp.status === "REQUIRES_REGISTRATION" || resOtp.status === "REGISTRO_EXITOSO")) {
+    
+    // 2. Ejecutar guardado definitivo en la Base de Datos (Google Sheets / Apps Script)
+    const resGuardarBD = await callBackend('registrarVoluntario', datosRegistroTemporalCache);
+
+    if (resGuardarBD && resGuardarBD.status === "SUCCESS") {
+      const perfilFinal = Object.assign({}, datosRegistroTemporalCache, resGuardarBD.perfil || {});
+      
+      perfilFinal.id = perfilFinal.id || datosRegistroTemporalCache.id;
+      perfilFinal.ID_Voluntario = perfilFinal.ID_Voluntario || datosRegistroTemporalCache.ID_Voluntario;
+      perfilFinal.rolActivo = rol;
+
+      window.sesionUsuario = perfilFinal;
+      sessionStorage.setItem('userProfile', JSON.stringify(perfilFinal));
+      localStorage.setItem('userProfile', JSON.stringify(perfilFinal));
+
+      if (typeof invalidarCachePerfil === 'function') invalidarCachePerfil();
+
+      sincronizarHeaderGlobal();
+
+      const modalElem = document.getElementById('modalRegistroNuevoCompleto');
+      if (modalElem) {
+        const modal = bootstrap.Modal.getInstance(modalElem);
+        if (modal) modal.hide();
+      }
+
+      // Redirección directa al perfil tras confirmar la creación
+      window.location.href = "../perfil/index.html?nuevo=true";
+    } else {
+      if (btnValidar) {
+        btnValidar.disabled = false;
+        btnValidar.innerText = "Finalizar y Acceder";
+      }
+      alert("Atención: El código es correcto, pero ocurrió un problema al registrar los datos en la base de datos: " + (resGuardarBD ? resGuardarBD.message : "Error desconocido"));
+    }
+
+  } else {
+    if (btnValidar) {
+      btnValidar.disabled = false;
+      btnValidar.innerText = "Finalizar y Acceder";
+    }
+    alert(resOtp ? resOtp.message : "Código de verificación incorrecto.");
+  }
+}
+
 async function inicializarBotonGoogleSSO(emailEsperado) {
   emailBuscadoCache = emailEsperado;
   
@@ -109,9 +328,6 @@ async function inicializarBotonGoogleSSO(emailEsperado) {
   }
 }
 
-/**
- * Redirige a Google Identity Services
- */
 function lanzarPopupAutenticacionGoogle() {
   if (!googleClientIdCache) {
     mostrarErrorAuth("Sincronizando llaves de seguridad de Google. Por favor, intente en unos segundos.");
@@ -135,9 +351,6 @@ function lanzarPopupAutenticacionGoogle() {
   window.location.href = authUrl;
 }
 
-/**
- * Envía el Access Token obtenido de Google a la API backend para firmar sesión
- */
 async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
   const errorDiv = document.getElementById('loginErrorMsg');
   if (errorDiv) errorDiv.classList.add('d-none');
@@ -165,7 +378,6 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
   if (res && res.status === "SUCCESS") {
     const perfilSesion = res.perfil || {};
     
-    // Asignación estricta de roles
     if (rol === "coordinador" || perfilSesion.esCoordinador) {
       perfilSesion.rolActivo = "coordinador";
       perfilSesion.esCoordinador = true;
@@ -177,7 +389,6 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     localStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     
-    // Forzar la visualización inmediata del dashboard y carga de perfil
     const authView = document.getElementById('contenedorAuthView');
     const appDashboard = document.getElementById('contenedorAppDashboard');
     if (authView) authView.classList.add('d-none');
@@ -199,32 +410,115 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
   }
 }
 
-/**
- * Dispara el envío tradicional del correo con código OTP
- */
 async function enviarCodigoSeguridadOTP(email) {
   const errorDiv = document.getElementById('loginErrorMsg');
   if (errorDiv) errorDiv.classList.add('d-none');
 
-  const res = await callBackend('enviarOTP', { email: email });
+  emailOtpActualCache = email;
+  const rol = obtenerRolSeleccionado();
+  const idVoluntarioGenerado = generarIDVoluntarioWeb();
+  const timestampActual = new Date().toISOString();
+
+  const perfilProvisional = {
+    id: idVoluntarioGenerado,
+    ID_Voluntario: idVoluntarioGenerado,
+    email: email,
+    rolActivo: rol,
+    nuevoRegistro: true
+  };
+  
+  window.sesionUsuario = perfilProvisional;
+  sessionStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
+  localStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
+
+  const linkSoporte = document.getElementById('linkSoporteAuth');
+  if (linkSoporte && typeof obtenerEnlaceWhatsApp === 'function') {
+    linkSoporte.href = obtenerEnlaceWhatsApp('soporteAuth');
+  }
+
+  const lblEmail = document.getElementById('lblEmailEnmascarado');
+  if (lblEmail) lblEmail.innerText = email;
+
+  const res = await callBackend('enviarOTP', { 
+    email: email,
+    idVoluntario: idVoluntarioGenerado,
+    rol: rol,
+    timestamp: timestampActual
+  });
 
   if (res && res.status !== "ERROR") {
     document.querySelectorAll('input[name="btnRol"]').forEach(input => input.disabled = true);
     document.getElementById('authStep1').classList.add('d-none');
-    document.getElementById('authStepGoogle').classList.add('d-none'); 
+    
+    const stepGoogle = document.getElementById('authStepGoogle');
+    if (stepGoogle) stepGoogle.classList.add('d-none'); 
+
     document.getElementById('authStepOTP').classList.remove('d-none');
     const otpInput = document.getElementById('loginOTP');
     if (otpInput) otpInput.focus();
+
+    iniciarTemporizadorReenvio();
   } else {
+    const btn = document.getElementById('btnContinuarEmail');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Continuar <i class="fa-solid fa-arrow-right ms-1"></i>';
+    }
     mostrarErrorAuth(res ? res.message : "Error al despachar el código de seguridad.");
   }
 }
 
-/**
- * Valida el código OTP enviado al correo y gestiona el flujo de acceso o registro
- */
+function iniciarTemporizadorReenvio() {
+  segundosRestantesReenvio = 60;
+  const linkReenviar = document.getElementById('linkReenviarOTP');
+  const btnContinuarEmail = document.getElementById('btnContinuarEmail');
+  
+  if (btnContinuarEmail) btnContinuarEmail.disabled = true;
+
+  if (!linkReenviar) return;
+
+  linkReenviar.style.pointerEvents = 'none';
+  linkReenviar.classList.add('text-muted');
+  linkReenviar.classList.remove('text-primary');
+
+  if (temporizadorReenvioInterval) clearInterval(temporizadorReenvioInterval);
+
+  temporizadorReenvioInterval = setInterval(() => {
+    segundosRestantesReenvio--;
+    const spanTimer = document.getElementById('timerConteo');
+    if (spanTimer) spanTimer.innerText = segundosRestantesReenvio;
+
+    if (segundosRestantesReenvio <= 0) {
+      clearInterval(temporizadorReenvioInterval);
+      linkReenviar.innerHTML = "Reenviar código ahora";
+      linkReenviar.style.pointerEvents = 'auto';
+      linkReenviar.classList.remove('text-muted');
+      linkReenviar.classList.add('text-primary');
+
+      if (btnContinuarEmail) btnContinuarEmail.disabled = false;
+    }
+  }, 1000);
+}
+
+async function reenviarCodigoOTP(event) {
+  event.preventDefault();
+  if (segundosRestantesReenvio > 0 || !emailOtpActualCache) return;
+
+  const linkReenviar = document.getElementById('linkReenviarOTP');
+  if (linkReenviar) linkReenviar.innerText = "Reenviando...";
+
+  const res = await callBackend('enviarOTP', { email: emailOtpActualCache });
+  if (res && res.status !== "ERROR") {
+    alert("Se ha reenviado un nuevo código de verificación a tu correo.");
+    iniciarTemporizadorReenvio();
+  } else {
+    alert("No se pudo reenviar el código. Intenta de nuevo en unos momentos.");
+    if (linkReenviar) linkReenviar.innerHTML = 'Reenviar en <span id="timerConteo">60</span>s';
+  }
+}
+
 async function validarYAccederOTP() {
-  const email = document.getElementById('loginEmail').value.trim();
+  const email = emailOtpActualCache || document.getElementById('loginEmail').value.trim();
   const otp = document.getElementById('loginOTP').value.trim();
   const btn = document.getElementById('btnConfirmOTP');
   const rol = obtenerRolSeleccionado(); 
@@ -249,7 +543,6 @@ async function validarYAccederOTP() {
   if (res && res.status === "SUCCESS") {
     const perfilSesion = res.perfil || {};
     
-    // Asignación estricta de roles
     if (rol === "coordinador" || perfilSesion.esCoordinador) {
       perfilSesion.rolActivo = "coordinador";
       perfilSesion.esCoordinador = true;
@@ -271,13 +564,22 @@ async function validarYAccederOTP() {
 
   } else if (res && res.status === "REQUIRES_REGISTRATION") {
     btn.disabled = false;
-    btn.innerText = "Confirmar Identidad y Acceder";
+    btn.innerText = "Continuar";
 
-    const perfilProvisional = { email: res.email || email, rolActivo: rol, nuevoRegistro: true };
+    const idVoluntarioGenerado = (window.sesionUsuario && window.sesionUsuario.id) ? window.sesionUsuario.id : (res.idVoluntario || generarIDVoluntarioWeb());
+
+    const perfilProvisional = { 
+      id: idVoluntarioGenerado,
+      ID_Voluntario: idVoluntarioGenerado,
+      email: res.email || email, 
+      rolActivo: rol, 
+      nuevoRegistro: true 
+    };
+
     window.sesionUsuario = perfilProvisional;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
+    localStorage.setItem('userProfile', JSON.stringify(perfilProvisional));
 
-    // Si existe la función de cargar el formulario dinámico, se invoca directamente SIN recargar la página
     if (typeof cargarFormularioNuevoVoluntario === 'function') {
       cargarFormularioNuevoVoluntario(res.email || email, null);
       
@@ -292,32 +594,24 @@ async function validarYAccederOTP() {
         modal.show();
       }
     } else if (typeof cargarVista === 'function') {
-      // Si estamos en la SPA de perfil, cargamos la vista de perfil
       cargarVista('perfil');
     } else {
-      // Redireccionamos a la vista de perfil para que complete el registro
       window.location.href = "../perfil/index.html?nuevo=true";
     }
 
   } else {
     mostrarErrorAuth(res ? res.message : "Código de verificación incorrecto.");
     btn.disabled = false;
-    btn.innerText = "Confirmar Identidad y Acceder";
+    btn.innerText = "Continuar";
     document.querySelectorAll('input[name="btnRol"]').forEach(input => input.disabled = false);
   }
 }
 
-/**
- * Forzar desvío a OTP si el usuario no tiene cuenta de Google
- */
 function forzarCambioA_OTP() {
   const email = document.getElementById('loginEmail').value.trim();
   enviarCodigoSeguridadOTP(email);
 }
 
-/**
- * Cierra la sesión activa y redirige al autenticador
- */
 function cerrarSesion() {
   if (!confirm("¿Está seguro de cerrar su sesión en la Red Operativa?")) return;
 
@@ -328,9 +622,6 @@ function cerrarSesion() {
   window.location.href = "../index.html"; 
 }
 
-/**
- * Sincroniza los elementos visuales del Header, Avatar y Badge de Rol
- */
 function sincronizarHeaderGlobal() {
   const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile') || 'null');
   
@@ -343,35 +634,26 @@ function sincronizarHeaderGlobal() {
   const btnCalendario = document.getElementById('navItemCalendario');
   const badgeContainer = document.getElementById('sessionRoleBadgeContainer');
 
-  // 1. Obtener los segmentos válidos de la URL actual
   const segmentos = window.location.pathname
     .split('/')
     .filter(seg => seg.length > 0 && !seg.endsWith('.html'));
 
-  // 2. Definir la profundidad (0 = raíz, 1 = /donaciones/, 2 = /jornadas/nutriendo-amor/)
   const profundidad = segmentos.length;
-
-  // 3. Generar el prefijo dinámico ("" o "../" o "../../")
   const prefijoRuta = "../".repeat(profundidad);
-
-  // 4. Fallback del logo exacto para cualquier nivel de subcarpeta presente o futuro
   const rutaLogoFallback = `${prefijoRuta}assets/logo.png`;
 
   if (cuentaActiva && cuentaActiva.email && cuentaActiva.email.trim() !== "") {
-    // --- USUARIO LOGUEADO ---
     if (navBtnAuth) navBtnAuth.classList.add('d-none');
     if (navBtnLogout) navBtnLogout.classList.remove('d-none');
     
     elementosSesion.forEach(el => el.classList.remove('d-none'));
 
-    // 1. Validar estatus de verificación
     const esVerificadoReal = Boolean(
       cuentaActiva.verificado === true || 
       cuentaActiva.verificado === "Verificado" || 
       cuentaActiva.verificado === "TRUE"
     );
 
-    // 2. Validar rol de coordinador
     const esCoordinadorReal = Boolean(
       cuentaActiva.esCoordinador || 
       cuentaActiva.coordinador === true || 
@@ -381,7 +663,6 @@ function sincronizarHeaderGlobal() {
       cuentaActiva.role === "coordinador"
     );
 
-    // 3. Control de visibilidad del Calendario (Solo Verificados o Coordinadores)
     if (btnCalendario) {
       if (esVerificadoReal || esCoordinadorReal) {
         btnCalendario.classList.remove('d-none');
@@ -390,7 +671,6 @@ function sincronizarHeaderGlobal() {
       }
     }
 
-    // 4. Actualización del botón de gestión personal (Solo Coordinadores)
     if (btnGestion) {
       if (esCoordinadorReal) {
         btnGestion.classList.remove('d-none');
@@ -399,7 +679,6 @@ function sincronizarHeaderGlobal() {
       }
     }
 
-    // Actualización visual del Badge de Rol en el Header
     if (badgeContainer) {
       if (esCoordinadorReal) {
         badgeContainer.innerHTML = `
@@ -417,7 +696,6 @@ function sincronizarHeaderGlobal() {
       badgeContainer.classList.remove('d-none');
     }
 
-    // --- MANEJO DEL AVATAR / FOTO DE PERFIL ---
     if (navAvatarContainer && navDefaultIcon) {
       let urlFoto = cuentaActiva.picture || cuentaActiva.imagen_profile || cuentaActiva.imagenProfile || cuentaActiva.foto;
 
@@ -443,7 +721,6 @@ function sincronizarHeaderGlobal() {
       }
     }
   } else {
-    // --- SIN SESIÓN ---
     if (navBtnAuth) navBtnAuth.classList.remove('d-none');
     if (navBtnLogout) navBtnLogout.classList.add('d-none');
     elementosSesion.forEach(el => el.classList.add('d-none'));
@@ -454,20 +731,15 @@ function sincronizarHeaderGlobal() {
   }
 }
 
-// Ejecutar sincronización al cargar cualquier página
 document.addEventListener("DOMContentLoaded", () => {
     sincronizarHeaderGlobal();
 });
 
-/**
- * Manejador dinámico para botones que requieren verificación
- */
 function gestionarRedireccionCalendario(event) {
-  event.preventDefault(); // Previene la navegación por defecto
+  event.preventDefault();
   
   const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || localStorage.getItem('userProfile') || 'null');
   
-  // Mismos criterios de verificación que usamos en el Header
   const esVerificadoReal = cuentaActiva && (cuentaActiva.verificado === true || cuentaActiva.verificado === "Verificado" || cuentaActiva.verificado === "TRUE");
   const esCoordinadorReal = cuentaActiva && Boolean(
     cuentaActiva.esCoordinador || 
@@ -476,12 +748,9 @@ function gestionarRedireccionCalendario(event) {
   );
 
   if (esVerificadoReal || esCoordinadorReal) {
-    // Si está verificado o es coordinador, enviar al calendario
     window.location.href = "../calendario/index.html";
   } else {
-    // Si no, enviar al Auth para que se registre/valide
-    // Opcionalmente, podrías mostrar un alert o modal antes
     alert("Para acceder al calendario de guardias, primero debes completar tu perfil y ser verificado por un coordinador.");
     window.location.href = "../auth/index.html";
   }
-}
+} 

@@ -140,10 +140,12 @@ refrescarSesionLocal();
  */
 const WHATSAPP_CONFIG = {
   numero: "584244626652",
+  soporteTecnicoNumero: "584244626652", // Número editable de Soporte Técnico
   alcances: {
     flotante: "Hola,%20necesito%20asistencia%20básica%20o%20soporte%20rápido%20con%20la%20Red%20Operativa.",
     footer: "Estimado%20equipo%20de%20Cadena%20de%20Favores%20Venezuela,%20les%20escribo%20con%20motivo%20de%20una%20consulta%20institucional.",
-    voluntariado: "Hola,%20quiero%20más%20información%20detallada%20sobre%20los%20procesos%20de%20inscripción%20para%20voluntarios."
+    voluntariado: "Hola,%20quiero%20más%20información%20detallada%20sobre%20los%20procesos%20de%20inscripción%20para%20voluntarios.",
+    soporteAuth: "Hola,%20necesito%20asistencia%20técnica%20para%20iniciar%20sesión%20o%20registrarme%20en%20el%20portal%20del%20Voluntariado."
   }
 };
 
@@ -151,7 +153,8 @@ const WHATSAPP_CONFIG = {
  * Genera el enlace de WhatsApp según el alcance solicitado
  */
 function obtenerEnlaceWhatsApp(alcance = 'flotante') {
-  const num = WHATSAPP_CONFIG.numero;
+  const isSoporte = alcance === 'soporteAuth' || alcance === 'soporte';
+  const num = isSoporte ? WHATSAPP_CONFIG.soporteTecnicoNumero : WHATSAPP_CONFIG.numero;
   const msg = WHATSAPP_CONFIG.alcances[alcance] || WHATSAPP_CONFIG.alcances.flotante;
   return `https://wa.me/${num}?text=${msg}`;
 }
@@ -229,3 +232,112 @@ function obtenerUrlWebApp() {
 
 // Inyección opcional en el objeto global window para entornos SPA / Netlify
 window.obtenerUrlWebApp = obtenerUrlWebApp;
+
+// ==========================================================================
+// CATÁLOGOS Y CARGA DINÁMICA DE BASE DE DATOS (NETLIFY / APPS SCRIPT)
+// ==========================================================================
+window.CATALOGOS_RED = window.CATALOGOS_RED || {
+  gruposVoluntariado: [
+    "Sector Salud",
+    "Rescatistas | Socorristas",
+    "Apoyo Logístico",
+    "Transporte"
+  ],
+  puntosRecogidaDefault: [
+    { id: "Sin Definir", nombre: "Sin Definir" }
+  ],
+  especialidadesDefault: [
+    "Médico General",
+    "Enfermería",
+    "Paramédico",
+    "Logística",
+    "Transporte",
+    "Atención Comunitaria"
+  ]
+};
+
+/**
+ * Limpia y puebla de forma atómica cualquier <select> del DOM
+ */
+function poblarSelectSincronizado(selectId, opciones, placeholder = "-- Seleccione una opción --") {
+  const selectElem = document.getElementById(selectId);
+  if (!selectElem) return;
+
+  const valorPrevio = selectElem.value;
+  selectElem.innerHTML = ""; // Vaciado estricto para eliminar opciones quemadas en HTML
+
+  const defaultOpt = document.createElement('option');
+  defaultOpt.value = "";
+  defaultOpt.disabled = true;
+  defaultOpt.innerText = placeholder;
+  if (!valorPrevio) defaultOpt.selected = true;
+  selectElem.appendChild(defaultOpt);
+
+  opciones.forEach(item => {
+    const option = document.createElement('option');
+    const val = typeof item === 'object' ? (item.id || item.nombre) : item;
+    const txt = typeof item === 'object' ? item.nombre : item;
+    
+    option.value = val;
+    option.innerText = txt;
+    if (valorPrevio && (valorPrevio === val || valorPrevio === txt)) {
+      option.selected = true;
+    }
+    selectElem.appendChild(option);
+  });
+
+  if (valorPrevio) selectElem.value = valorPrevio;
+}
+
+/**
+ * Carga Especialidades desde la BD en un <select> desplegable tradicional
+ */
+async function cargarEspecialidadesDinamicas(selectId, valorDefecto = "") {
+  const selectElem = document.getElementById(selectId);
+  if (!selectElem) return;
+
+  let espLista = null;
+  try {
+    const resEsp = await callBackend('obtenerEspecialidades', {});
+    if (resEsp && resEsp.especialidades && resEsp.especialidades.length > 0) {
+      espLista = resEsp.especialidades;
+    } else {
+      espLista = window.CATALOGOS_RED.especialidadesDefault;
+    }
+  } catch(err) {
+    console.warn("Error al cargar especialidades de la BD, usando catálogo local.", err);
+    espLista = window.CATALOGOS_RED.especialidadesDefault;
+  }
+
+  poblarSelectSincronizado(selectId, espLista, "Seleccione especialidad...");
+  if (valorDefecto) selectElem.value = valorDefecto;
+}
+
+/**
+ * Carga Puntos de Recogida desde la BD en un <select>
+ */
+async function cargarPuntosRecogidaDinamicos(selectId, valorDefecto = "") {
+  const selectElem = document.getElementById(selectId);
+  if (!selectElem) return;
+
+  let puntosCache = sessionStorage.getItem('cdf_puntos_cache');
+  let puntosLista = puntosCache ? JSON.parse(puntosCache) : null;
+
+  if (!puntosLista) {
+    try {
+      const resPuntos = await callBackend('obtenerPuntosRecogida', {});
+      if (resPuntos && resPuntos.puntos && resPuntos.puntos.length > 0) {
+        puntosLista = resPuntos.puntos;
+        sessionStorage.setItem('cdf_puntos_cache', JSON.stringify(puntosLista));
+      } else {
+        puntosLista = window.CATALOGOS_RED.puntosRecogidaDefault;
+      }
+    } catch(err) {
+      console.warn("Error al cargar puntos de recogida de la BD, usando catálogo local.", err);
+      puntosLista = window.CATALOGOS_RED.puntosRecogidaDefault;
+    }
+  }
+
+  poblarSelectSincronizado(selectId, puntosLista, "Seleccione punto de recogida...");
+  if (valorDefecto) selectElem.value = valorDefecto;
+}

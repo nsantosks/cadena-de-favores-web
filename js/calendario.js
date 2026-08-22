@@ -1279,28 +1279,81 @@ function actualizarContadorAptosLocal() {
 }
 
 /**
- * Genera y descarga/muestra el reporte de convocados para la jornada de hoy
+ * Consulta al servidor los voluntarios convocados hoy y despliega el modal enriquecido
+ * Soporta creación dinámica del modal en el DOM para entornos desacoplados.
+ * @param {HTMLElement} btn - Botón desencadenante para gestionar el estado de carga
  */
 async function abrirInformeConvocadosHoy(btn) {
   let originalText = "";
   if (btn) {
     btn.disabled = true;
     originalText = btn.innerHTML;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Cargando...';
+  }
+
+  // 1. Inyección Dinámica del Modal si no existe en el DOM
+  asegurarModalInformeEnDOM();
+
+  const tbody = document.getElementById('tablaInformeConvocadosBody');
+  const countBadge = document.getElementById('lblTotalConvocadosHoy');
+
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-1"></div> Generando reporte...</td></tr>';
   }
 
   try {
-    const res = await callBackend('obtenerConvocadosHoy', {});
-    
+    // 2. Consulta al backend central
+    const res = await callBackend('obtenerVoluntariosConvocadosHoy', {});
+
     if (btn) {
       btn.disabled = false;
       btn.innerHTML = originalText;
     }
 
     if (res && res.status === "SUCCESS") {
-      alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
+      const lista = res.convocados || [];
+
+      if (countBadge) countBadge.innerText = lista.length;
+
+      if (tbody) {
+        tbody.innerHTML = "";
+        if (lista.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center py-4 text-muted small">
+                <i class="fa-solid fa-folder-open me-1"></i> No se han realizado envíos de convocatoria el día de hoy.
+              </td>
+            </tr>`;
+        } else {
+          lista.forEach((c, idx) => {
+            tbody.innerHTML += `
+              <tr>
+                <td class="text-center font-monospace text-muted" style="font-size:0.75rem;">${idx + 1}</td>
+                <td>
+                  <strong>${c.nombre || 'N/D'}</strong><br>
+                  <span class="badge bg-light text-primary border border-primary-subtle p-1" style="font-size:0.65rem;">${c.especialidad || 'N/D'}</span>
+                </td>
+                <td>
+                  <small class="font-monospace">${c.email || 'N/D'}</small><br>
+                  <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>${c.telefono || 'N/D'}</small>
+                </td>
+                <td class="text-center font-monospace fw-bold text-primary" style="font-size:0.85rem;">
+                  <i class="fa-regular fa-clock me-1"></i>${c.hora || '--:--'}
+                </td>
+              </tr>`;
+          });
+        }
+      }
+
+      // 3. Despliegue garantizado del Modal
+      const modalElement = document.getElementById('modalInformeConvocados');
+      if (modalElement) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+      }
+
     } else {
-      alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
+      alert("Error al cargar informe: " + (res ? res.message : "Sin respuesta del servidor."));
     }
   } catch (e) {
     if (btn) {
@@ -1308,7 +1361,52 @@ async function abrirInformeConvocadosHoy(btn) {
       btn.innerHTML = originalText;
     }
     console.error("Error al obtener reporte de convocados:", e);
-    alert("No se pudo conectar con el servidor para generar el reporte.");
+    alert("Error crítico de red al cargar el reporte.");
   }
+}
+
+/**
+ * Garantiza que la estructura HTML del modal exista en el DOM
+ */
+function asegurarModalInformeEnDOM() {
+  if (document.getElementById('modalInformeConvocados')) return;
+
+  const modalHtml = `
+    <div class="modal fade" id="modalInformeConvocados" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-dark text-white border-0">
+            <h5 class="modal-title"><i class="fa-solid fa-file-invoice me-2 text-warning"></i>Informe de Envíos del Día</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-secondary">Total convocatorias despachadas hoy:</span>
+              <span id="lblTotalConvocadosHoy" class="badge bg-primary fs-6 font-monospace px-3 py-2">0</span>
+            </div>
+            <div class="custom-scroll-list border rounded bg-white" style="max-height: 300px; overflow-y: auto;">
+              <table class="table table-sm table-hover align-middle small mb-0">
+                <thead class="table-light text-secondary">
+                  <tr>
+                    <th style="width: 8%; text-align: center; font-size:0.75rem;">Nro</th>
+                    <th style="width: 42%; font-size:0.75rem;">Eslabón / Área / Especialidad</th>
+                    <th style="width: 35%; font-size:0.75rem;">Contacto</th>
+                    <th style="width: 15%; text-align: center; font-size:0.75rem;">Hora Envío</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaInformeConvocadosBody">
+                  <!-- Contenido dinámico -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer bg-light p-2 border-0">
+            <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Cerrar Informe</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 

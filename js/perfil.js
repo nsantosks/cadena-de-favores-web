@@ -552,35 +552,87 @@ async function eliminarCredencialFicha(fileId, idVol) {
     }
 }
 
+/**
+ * Consulta al servidor los voluntarios convocados hoy y despliega el modal enriquecido
+ * @param {HTMLElement} btn - Botón desencadenante para gestionar el estado de carga
+ */
 async function abrirInformeConvocadosHoy(btn) {
-    let originalText = "";
+  let originalText = "";
+  if (btn) {
+    btn.disabled = true;
+    originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Cargando...';
+  }
+
+  const tbody = document.getElementById('tablaInformeConvocadosBody');
+  const countBadge = document.getElementById('lblTotalConvocadosHoy');
+
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-1"></div> Generando reporte...</td></tr>';
+  }
+
+  try {
+    // Petición al backend central
+    const res = await callBackend('obtenerVoluntariosConvocadosHoy', {});
+
     if (btn) {
-        btn.disabled = true;
-        originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generando...';
+      btn.disabled = false;
+      btn.innerHTML = originalText;
     }
 
-    try {
-        const res = await callBackend('obtenerConvocadosHoy', {});
-        
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
+    if (res && res.status === "SUCCESS") {
+      const lista = res.convocados || [];
 
-        if (res && res.status === "SUCCESS") {
-            alert("Reporte generado con éxito. Total convocados hoy: " + (res.total || 0));
+      if (countBadge) countBadge.innerText = lista.length;
+
+      if (tbody) {
+        tbody.innerHTML = "";
+        if (lista.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center py-4 text-muted small">
+                <i class="fa-solid fa-folder-open me-1"></i> No se han realizado envíos de convocatoria el día de hoy.
+              </td>
+            </tr>`;
         } else {
-            alert("Información: " + (res ? res.message : "No hay convocados registrados para el día de hoy."));
+          lista.forEach((c, idx) => {
+            tbody.innerHTML += `
+              <tr>
+                <td class="text-center font-monospace text-muted" style="font-size:0.75rem;">${idx + 1}</td>
+                <td>
+                  <strong>${c.nombre || 'N/D'}</strong><br>
+                  <span class="badge bg-light text-primary border border-primary-subtle p-1" style="font-size:0.65rem;">${c.especialidad || 'N/D'}</span>
+                </td>
+                <td>
+                  <small class="font-monospace">${c.email || 'N/D'}</small><br>
+                  <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>${c.telefono || 'N/D'}</small>
+                </td>
+                <td class="text-center font-monospace fw-bold text-primary" style="font-size:0.85rem;">
+                  <i class="fa-regular fa-clock me-1"></i>${c.hora || '--:--'}
+                </td>
+              </tr>`;
+          });
         }
-    } catch (e) {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-        console.error("Error al obtener reporte de convocados:", e);
-        alert("No se pudo conectar con el servidor para generar el reporte.");
+      }
+
+      // Despliegue del Modal de Bootstrap
+      const modalElement = document.getElementById('modalInformeConvocados');
+      if (modalElement) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+      }
+
+    } else {
+      alert("Error al cargar informe: " + (res ? res.message : "Sin respuesta del servidor."));
     }
+  } catch (e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+    console.error("Error al obtener reporte de convocados:", e);
+    alert("Error crítico de red al cargar el reporte.");
+  }
 }
 
 function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
