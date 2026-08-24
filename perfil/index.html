@@ -211,7 +211,7 @@
   </main>
 
   <!-- ================================================================= -->
-  <!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL               -->
+  <!-- FOOTER INSTITUCIONAL REDISEÑADO Y APILADO EN MÓVIL                -->
   <!-- ================================================================= -->
   <footer class="bg-dark text-white pt-5 pb-4 mt-auto border-top border-secondary border-opacity-25" style="background-color: #0d1b2a !important;">
     <div class="container py-3">
@@ -220,7 +220,7 @@
         <!-- Columna 1: Marca e Identidad -->
         <div class="col-12 col-md-3 d-flex flex-column align-items-center align-items-md-start">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <img src="assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
+            <img src="../assets/logo.png" alt="Logo Cadena de Favores" class="brand-logo" style="width: 38px; height: 38px; object-fit: cover;">
             <span class="h5 fw-bold text-white mb-0">Cadena de Favores <span class="text-warning">Venezuela</span></span>
           </div>
           <p class="small text-white-50 mb-3" style="line-height: 1.6; max-width: 320px;">
@@ -241,7 +241,7 @@
                 <i class="fa-brands fa-whatsapp me-2 text-success"></i>+58 424-4626652
               </a>
             </li>
-            <li><a href="auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
+            <li><a href="../auth/" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-user-plus me-2 text-info"></i>Quiero ser voluntario</a></li>
           </ul>
         </div>
 
@@ -251,7 +251,7 @@
           <ul class="list-unstyled small d-flex flex-column gap-2 align-items-center align-items-md-start mb-0">
             <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-file-shield me-2"></i>Aviso de privacidad y datos</a></li>
             <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPoliticasGlobal" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-cookie-bite me-2"></i>Política de cookies</a></li>
-            <li><a href="politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
+            <li><a href="../politicas.html" target="_blank" class="text-white-50 text-decoration-none hover-warning"><i class="fa-solid fa-scale-balanced me-2"></i>Transparencia institucional</a></li>
           </ul>
         </div>
 
@@ -280,38 +280,44 @@
     </div>
   </footer>
 
-  <!-- Script para inyectar dinámicamente el enlace formal de WhatsApp en el Footer -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const linkFooter = document.getElementById('linkWhatsappFooter');
-      if (linkFooter && typeof obtenerEnlaceWhatsApp === 'function') {
-        linkFooter.href = obtenerEnlaceWhatsApp('footer');
-      }
-    });
-  </script>
-
-    <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
-    <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header bg-dark text-white border-bottom border-secondary">
-            <h5 class="modal-title" id="modalPoliticasLabel">
-              <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body p-0" style="height: 75vh;">
-            <iframe src="politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
-          </div>
-          <div class="modal-footer bg-light border-top">
-            <a href="politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
-              <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
-            </a>
-            <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
-          </div>
+  <!-- MODAL GLOBAL DE POLÍTICAS Y PRIVACIDAD -->
+  <div class="modal fade" id="modalPoliticasGlobal" tabindex="-1" aria-labelledby="modalPoliticasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white border-bottom border-secondary">
+          <h5 class="modal-title" id="modalPoliticasLabel">
+            <i class="fa-solid fa-shield-halved text-success me-2"></i> Marco Legal, Términos y Tratamiento de Datos
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0" style="height: 75vh;">
+          <iframe src="../politicas.html" style="width: 100%; height: 100%; border: none;" title="Vista de Políticas de Privacidad"></iframe>
+        </div>
+        <div class="modal-footer bg-light border-top">
+          <a href="../politicas.html" target="_blank" class="btn btn-outline-primary btn-sm me-auto">
+            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir en Pestaña Nueva
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Entendido y Cerrar</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- CONTENEDOR DE BOTONES FLOTANTES -->
+  <div class="floating-buttons-container">
+    <a href="../donaciones/" class="btn-float-donar pulse-animation animate__animated animate__fadeInUp" title="Haz tu donación">
+      <i class="fa-solid fa-hand-holding-heart fs-5"></i>
+      <span class="btn-text">Donaciones</span>
+    </a>
+
+    <a id="btnWhatsappFlotante" target="_blank" rel="noopener noreferrer" class="btn-float-whatsapp animate__animated animate__fadeInUp" style="bottom: 85px;" title="Soporte y Atención por WhatsApp">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <button id="btnScrollTop" class="btn-float-top" onclick="irArriba()" title="Volver arriba">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
 
   <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

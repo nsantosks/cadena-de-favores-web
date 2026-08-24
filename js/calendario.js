@@ -1057,77 +1057,374 @@ function abrirFichaDesdeGuardia(email) {
   }
 }
 
-function lanzarConvocatoriaMasiva(idGuardia) {
-   const body = document.getElementById('modalGuardiaBody');
-   if (!body) return;
-   
-   body.innerHTML = `
-     <div class="text-center p-4 animate__animated animate__fadeIn">
-       <div class="text-primary mb-3">
-         <i class="fa-solid fa-paper-plane fa-4x animate__animated animate__pulse animate__infinite" style="color: #6366f1;"></i>
-       </div>
-       <h4 class="fw-bold text-dark">Convocatoria Logística Masiva</h4>
-       <p class="text-muted small mb-3">¿Desea enviar una invitación por correo a todos los eslabones aptos y verificados?</p>
-       
-       <div class="alert alert-info text-start small border-0 bg-light mb-4" style="border-left: 4px solid #6366f1 !important;">
-          <i class="fa-solid fa-circle-info me-1" style="color: #6366f1;"></i> El sistema filtrará automáticamente a los voluntarios que no tengan envíos en las últimas 48 horas.
-       </div>
-       
-       <div class="d-flex justify-content-center gap-2">
-        <button type="button" class="btn btn-light border w-50 fw-bold shadow-sm" onclick="construirModalCoordinador(guardiasData.find(g => g.id === '${idGuardia}'))">Cancelar</button>
-        <button type="button" class="btn btn-primary w-50 fw-bold shadow-sm" style="background-color: #6366f1; border-color: #6366f1;" onclick="ejecutarDespachoMasivoFinal('${idGuardia}')">Sí, Despachar</button>
-       </div>
-     </div>
-   `;
+// =========================================================================
+// BLOQUE CONSOLIDADO: SEGMENTACIÓN DE CONVOCATORIAS Y TABLA (calendario.js)
+// =========================================================================
+
+/**
+ * 1. Convierte cualquier formato de fecha a Timestamp (ms) para cálculo matemático
+ */
+function obtenerTimestampFecha(fechaRaw) {
+    if (!fechaRaw) return 0;
+    if (typeof fechaRaw === 'number') return fechaRaw;
+    if (fechaRaw instanceof Date) return fechaRaw.getTime();
+    
+    if (typeof fechaRaw === 'string' && !isNaN(fechaRaw) && !isNaN(parseFloat(fechaRaw))) {
+        return parseInt(fechaRaw, 10);
+    }
+
+    let fechaStr = fechaRaw.toString().trim();
+    if (fechaStr.includes('/')) {
+        const partesStr = fechaStr.split(' ')[0].split('/'); 
+        if (partesStr.length === 3) {
+            // Convierte DD/MM/YYYY a formato ISO YYYY-MM-DD
+            fechaStr = `${partesStr[2]}-${partesStr[1].padStart(2, '0')}-${partesStr[0].padStart(2, '0')}`;
+        }
+    }
+
+    const parsedDate = new Date(fechaStr);
+    return !isNaN(parsedDate.getTime()) ? parsedDate.getTime() : 0;
 }
 
+// =========================================================================
+// BLOQUE CONSOLIDADO: SEGMENTACIÓN DE CONVOCATORIAS Y TABLA (calendario.js)
+// =========================================================================
+
+/**
+ * 1. Convierte cualquier formato de fecha a Timestamp (ms) para cálculo matemático
+ */
+function obtenerTimestampFecha(fechaRaw) {
+    if (!fechaRaw) return 0;
+    if (typeof fechaRaw === 'number') return fechaRaw;
+    if (fechaRaw instanceof Date) return fechaRaw.getTime();
+    
+    if (typeof fechaRaw === 'string' && !isNaN(fechaRaw) && !isNaN(parseFloat(fechaRaw))) {
+        return parseInt(fechaRaw, 10);
+    }
+
+    let fechaStr = fechaRaw.toString().trim();
+    if (fechaStr.includes('/')) {
+        const partesStr = fechaStr.split(' ')[0].split('/'); 
+        if (partesStr.length === 3) {
+            fechaStr = `${partesStr[2]}-${partesStr[1].padStart(2, '0')}-${partesStr[0].padStart(2, '0')}`;
+        }
+    }
+
+    const parsedDate = new Date(fechaStr);
+    return !isNaN(parsedDate.getTime()) ? parsedDate.getTime() : 0;
+}
+
+/**
+ * 2. Evaluación de Lista Blanca estricta para masive_advise
+ * Rechaza de forma absoluta cualquier indicio de falso, cero o negación.
+ */
+function permiteConvocatoriasMasivas(vol) {
+    const val = vol.masive_advise !== undefined ? vol.masive_advise : vol.masiveAdvise;
+    
+    // Si está explícitamente en falso booleano o número 0
+    if (val === false || val === 0) return false;
+    
+    // Si viene como texto, evaluamos las negativas
+    if (val !== undefined && val !== null && val !== "") {
+        const strVal = String(val).trim().toUpperCase();
+        if (strVal === "FALSE" || strVal === "0" || strVal === "NO" || strVal === "FALSO" || strVal === "OFF") {
+            return false;
+        }
+    }
+    
+    // Permitido por defecto (vacío, true, 1, SI, etc.)
+    return true;
+}
+
+/**
+ * 3. Despliega la interfaz de segmentación con la tabla dinámica y scroll garantizado
+ */
+function lanzarConvocatoriaMasiva(idGuardia) {
+    const body = document.getElementById('modalGuardiaBody');
+    if (!body) return;
+    
+    const pool = (typeof poolVoluntariosModulo !== "undefined" && poolVoluntariosModulo.length > 0) 
+        ? poolVoluntariosModulo 
+        : ((typeof poolVoluntarios !== "undefined") ? poolVoluntarios : (window.poolVoluntarios || []));
+
+    const ahora = Date.now();
+
+    const voluntariosAptosBase = pool.filter(vol => {
+        const lastAdviseTime = obtenerTimestampFecha(vol.lastAdvise || vol.last_advise);
+        const horasDiff = lastAdviseTime > 0 ? (ahora - lastAdviseTime) / (1000 * 60 * 60) : 999;
+        
+        const esVerificado = (vol.verificado === true || vol.verificado === "Verificado" || String(vol.verificado).toUpperCase() === "TRUE");
+        const esBanned = (vol.banned === true || String(vol.banned).toUpperCase() === "TRUE");
+        const esCoord = (vol.esCoordinador === true || vol.coordinador === true || String(vol.esCoordinador).toUpperCase() === "TRUE");
+        const aceptaMasivos = permiteConvocatoriasMasivas(vol);
+
+        return (esVerificado && !esBanned && aceptaMasivos && !esCoord && horasDiff > 48);
+    });
+
+    const gruposUnicosAptos = [...new Set(voluntariosAptosBase.map(v => v.Voluntariado || v.voluntariado).filter(Boolean))].sort();
+    const renderOptions = (lista) => lista.map(item => `<option value="${escapeHTML(item)}">${escapeHTML(item)}</option>`).join('');
+
+    body.innerHTML = `
+        <div class="p-2 animate__animated animate__fadeIn">
+            <div class="text-center mb-3">
+                <i class="fa-solid fa-filter fa-2x text-primary mb-1" style="color: #6366f1 !important;"></i>
+                <h5 class="fw-bold text-dark mb-0">Segmentación de Convocatoria</h5>
+                <p class="text-muted small mb-0">Seleccione los filtros para previsualizar los destinatarios aptos.</p>
+            </div>
+
+            <div class="card bg-light border-0 shadow-sm mb-3">
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-secondary mb-1"><i class="fa-solid fa-sitemap me-1"></i>Área / Grupo</label>
+                            <select id="filtroConvocatoriaGrupo" class="form-select form-select-sm" onchange="actualizarSelectEspecialidadesDinamico()">
+                                <option value="TODOS" selected>-- Todos los Grupos --</option>
+                                ${renderOptions(gruposUnicosAptos)}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-secondary mb-1"><i class="fa-solid fa-user-doctor me-1"></i>Especialidad Técnica</label>
+                            <select id="filtroConvocatoriaEspecialidad" class="form-select form-select-sm" onchange="calcularImpactoConvocatoria()">
+                                <option value="TODAS" selected>-- Todas las Especialidades --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                <span class="fw-bold text-secondary small"><i class="fa-solid fa-users-viewfinder me-1"></i>Previsualización de Destinatarios:</span>
+                <span id="lblCalculoDestinatarios" class="badge bg-primary font-monospace px-3 py-1">0</span>
+            </div>
+
+            <!-- Contenedor con Scroll Vertical forzado -->
+            <div class="border rounded bg-white mb-3 shadow-sm" style="max-height: 220px; overflow-y: auto; overflow-x: hidden;">
+                <table class="table table-sm table-hover align-middle small mb-0">
+                    <thead class="table-light text-secondary sticky-top" style="z-index: 1;">
+                        <tr>
+                            <th style="width: 10%; text-align: center;" class="font-monospace">#</th>
+                            <th style="width: 50%;">Eslabón / Nombre</th>
+                            <th style="width: 40%;">Especialidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPreviewDestinatariosBody">
+                        <!-- Renderizado de JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-light border w-50 fw-bold shadow-sm btn-sm py-2" onclick="construirModalCoordinador(guardiasData.find(g => g.id === '${idGuardia}'))">Cancelar</button>
+                <button type="button" id="btnEjecutarDespachoFiltrado" class="btn btn-primary w-50 fw-bold shadow-sm btn-sm py-2" style="background-color: #6366f1; border-color: #6366f1;" onclick="ejecutarDespachoMasivoFinal('${idGuardia}')" disabled>
+                    <i class="fa-solid fa-paper-plane me-1"></i> Despachar
+                </button>
+            </div>
+        </div>
+    `;
+
+    actualizarSelectEspecialidadesDinamico();
+}
+
+/**
+ * 4. Actualiza el select de Especialidades Dinámicamente filtrando masive_advise
+ */
+function actualizarSelectEspecialidadesDinamico() {
+    const grupoSeleccionado = document.getElementById('filtroConvocatoriaGrupo').value;
+    const selectEspecialidad = document.getElementById('filtroConvocatoriaEspecialidad');
+    if (!selectEspecialidad) return;
+
+    const pool = (typeof poolVoluntariosModulo !== "undefined" && poolVoluntariosModulo.length > 0) 
+        ? poolVoluntariosModulo 
+        : ((typeof poolVoluntarios !== "undefined") ? poolVoluntarios : (window.poolVoluntarios || []));
+
+    const ahora = Date.now();
+
+    const voluntariosAptos = pool.filter(vol => {
+        const lastAdviseTime = obtenerTimestampFecha(vol.lastAdvise || vol.last_advise);
+        const horasDiff = lastAdviseTime > 0 ? (ahora - lastAdviseTime) / (1000 * 60 * 60) : 999;
+        
+        const esVerificado = (vol.verificado === true || vol.verificado === "Verificado" || String(vol.verificado).toUpperCase() === "TRUE");
+        const esBanned = (vol.banned === true || String(vol.banned).toUpperCase() === "TRUE");
+        const esCoord = (vol.esCoordinador === true || vol.coordinador === true || String(vol.esCoordinador).toUpperCase() === "TRUE");
+        const aceptaMasivos = permiteConvocatoriasMasivas(vol);
+
+        const esBaseApto = (esVerificado && !esBanned && aceptaMasivos && !esCoord && horasDiff > 48);
+        if (!esBaseApto) return false;
+
+        const volGrupo = vol.Voluntariado || vol.voluntariado || "";
+        return (grupoSeleccionado === "TODOS" || volGrupo.trim().toLowerCase() === grupoSeleccionado.trim().toLowerCase());
+    });
+
+    const especialidadesDisponibles = [...new Set(voluntariosAptos.map(v => v.Especialidad || v.especialidad).filter(Boolean))].sort();
+
+    selectEspecialidad.innerHTML = '<option value="TODAS" selected>-- Todas las Especialidades --</option>';
+    
+    especialidadesDisponibles.forEach(esp => {
+        const option = document.createElement('option');
+        option.value = escapeHTML(esp);
+        option.innerText = escapeHTML(esp);
+        selectEspecialidad.appendChild(option);
+    });
+
+    calcularImpactoConvocatoria();
+}
+
+/**
+ * 5. Calcula el impacto final y renderiza las filas en la tabla con scroll operativo
+ */
+function calcularImpactoConvocatoria() {
+    const grupo = document.getElementById('filtroConvocatoriaGrupo').value;
+    const especialidad = document.getElementById('filtroConvocatoriaEspecialidad').value;
+    const lblCount = document.getElementById('lblCalculoDestinatarios');
+    const btnDespachar = document.getElementById('btnEjecutarDespachoFiltrado');
+    const tbody = document.getElementById('tablaPreviewDestinatariosBody');
+
+    const pool = (typeof poolVoluntariosModulo !== "undefined" && poolVoluntariosModulo.length > 0) 
+        ? poolVoluntariosModulo 
+        : ((typeof poolVoluntarios !== "undefined") ? poolVoluntarios : (window.poolVoluntarios || []));
+
+    let seleccionados = [];
+    const ahora = Date.now();
+    
+    if (pool && pool.length > 0) {
+        pool.forEach(vol => {
+            const lastAdviseTime = obtenerTimestampFecha(vol.lastAdvise || vol.last_advise);
+            const horasDiff = lastAdviseTime > 0 ? (ahora - lastAdviseTime) / (1000 * 60 * 60) : 999;
+            
+            const esVerificado = (vol.verificado === true || vol.verificado === "Verificado" || String(vol.verificado).toUpperCase() === "TRUE");
+            const esBanned = (vol.banned === true || String(vol.banned).toUpperCase() === "TRUE");
+            const esCoord = (vol.esCoordinador === true || vol.coordinador === true || String(vol.esCoordinador).toUpperCase() === "TRUE");
+            const aceptaMasivos = permiteConvocatoriasMasivas(vol);
+
+            const esBaseApto = (esVerificado && !esBanned && aceptaMasivos && !esCoord && horasDiff > 48);
+            if (!esBaseApto) return;
+
+            const volGrupo = vol.Voluntariado || vol.voluntariado || "";
+            const volEspecialidad = vol.Especialidad || vol.especialidad || "";
+
+            const pasaFiltroGrupo = (grupo === "TODOS" || volGrupo.trim().toLowerCase() === grupo.trim().toLowerCase());
+            const pasaFiltroEspecialidad = (especialidad === "TODAS" || volEspecialidad.trim().toLowerCase() === especialidad.trim().toLowerCase());
+
+            if (pasaFiltroGrupo && pasaFiltroEspecialidad) {
+                seleccionados.push({
+                    nombre: vol.nombre || vol.Nombre_Completo || "Sin Nombre",
+                    especialidad: volEspecialidad || "Apoyo General",
+                    lastAdviseInfo: lastAdviseTime > 0 ? `Hace ${Math.round(horasDiff)} horas` : "Nunca"
+                });
+            }
+        });
+    }
+
+    if (tbody) {
+        if (seleccionados.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center py-3 text-muted small">
+                        <i class="fa-solid fa-user-slash me-1"></i> No hay eslabones aptos para esta segmentación.
+                    </td>
+                </tr>`;
+        } else {
+            tbody.innerHTML = seleccionados.map((item, idx) => `
+                <tr>
+                    <td class="text-center font-monospace text-muted" style="font-size:0.75rem;">${idx + 1}</td>
+                    <td class="fw-bold text-dark lh-1">
+                        ${escapeHTML(item.nombre)} <br>
+                        <span style="font-size: 0.65rem; color:#9ca3af;"><i class="fa-regular fa-clock me-1"></i>Último envío: ${item.lastAdviseInfo}</span>
+                    </td>
+                    <td><span class="badge bg-light text-primary border border-primary-subtle p-1" style="font-size:0.65rem;">${escapeHTML(item.especialidad)}</span></td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    if (lblCount) {
+        lblCount.innerText = seleccionados.length;
+        lblCount.className = seleccionados.length > 0 ? "badge bg-primary font-monospace px-3 py-1" : "badge bg-secondary font-monospace px-3 py-1";
+    }
+
+    if (btnDespachar) {
+        btnDespachar.disabled = (seleccionados.length === 0);
+        btnDespachar.innerHTML = seleccionados.length === 0 
+            ? '<i class="fa-solid fa-ban me-1"></i> Sin Destinatarios' 
+            : `<i class="fa-solid fa-paper-plane me-1"></i> Despachar (${seleccionados.length})`;
+    }
+}
+
+/**
+ * Ejecuta el envío masivo real de la convocatoria aplicando la segmentación seleccionada.
+ * @param {string} idGuardia - ID único de la guardia operativa.
+ */
 async function ejecutarDespachoMasivoFinal(idGuardia) {
-   const body = document.getElementById('modalGuardiaBody');
-   if (!body) return;
-   
-   body.innerHTML = `
-      <div class="p-5 text-center animate__animated animate__fadeIn">
-          <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem; color: #6366f1 !important;" role="status"></div>
-          <h5 class="fw-bold text-dark">Despachando Correos...</h5>
-          <p class="small text-muted">Procesando y registrando marcas de envío.</p>
-      </div>`;
+    const grupoSelect = document.getElementById('filtroConvocatoriaGrupo');
+    const especialidadSelect = document.getElementById('filtroConvocatoriaEspecialidad');
+    const body = document.getElementById('modalGuardiaBody');
+    
+    if (!body || !grupoSelect || !especialidadSelect) return;
 
-   const res = await callBackend('enviarConvocatoriaMasiva', { idGuardia: idGuardia });
+    const grupo = grupoSelect.value;
+    const especialidad = especialidadSelect.value;
+    const lblCount = document.getElementById('lblCalculoDestinatarios');
+    const cantidadTotal = lblCount ? lblCount.innerText : "varios";
 
-   if (res && res.status === "SUCCESS") {
-       body.innerHTML = `
-           <div class="p-5 text-center animate__animated animate__zoomIn">
-               <i class="fa-solid fa-paper-plane text-primary fa-5x mb-3 animate__animated animate__bounceIn"></i>
-               <h4 class="text-dark fw-bold">Convocatoria Despachada</h4>
-               <p class="text-muted small">${res.message || 'Correos enviados exitosamente'}</p>
-               <button class="btn btn-secondary btn-sm mt-3 px-4" data-bs-dismiss="modal">Entendido y Cerrar</button>
-           </div>`;
+    // 1. Mostrar estado de carga animado en el modal
+    body.innerHTML = `
+        <div class="p-5 text-center animate__animated animate__fadeIn">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem; color: #6366f1 !important;" role="status"></div>
+            <h5 class="fw-bold text-dark">Despachando convocatorias...</h5>
+            <p class="small text-muted">Enviando correos y actualizando registros en la red operativa (${cantidadTotal} destinatarios).</p>
+        </div>`;
 
-       if (typeof sincronizarCuotaDeEnvios === "function") {
-           sincronizarCuotaDeEnvios();
-       }
+    // 2. Llamada al Backend (Google Apps Script) con los parámetros de segmentación
+    const res = await callBackend('enviarConvocatoriaMasiva', { 
+        idGuardia: idGuardia,
+        filtroGrupo: grupo,
+        filtroEspecialidad: especialidad
+    });
 
-       setTimeout(() => {
-           const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
-           if (modalInstance) modalInstance.hide();
-           invalidarCacheCalendario();
-           cargarDatos(true); 
-       }, 3000);
-       
-   } else {
-       body.innerHTML = `
-           <div class="p-5 text-center animate__animated animate__headShake">
-               <div class="text-danger mb-3">
-                   <i class="fa-solid fa-lock-open fa-4x animate__animated animate__swing animate__infinite animate__slower"></i>
-               </div>
-               <h4 class="text-danger fw-bold">Límite de Envíos Alcanzado</h4>
-               <p class="text-muted small mb-4">${res ? res.message : 'Google ha restringido los envíos automáticos por hoy.'}</p>
-               <div class="d-flex justify-content-center gap-2">
-                  <button class="btn btn-light border w-50 small" onclick="construirModalCoordinador(guardiasData.find(g => g.id === '${idGuardia}'))">Regresar</button>
-                  <button class="btn btn-danger w-50 small shadow-sm" data-bs-dismiss="modal">Cerrar Consola</button>
-               </div>
-           </div>`;
-   }
+    if (res && res.status === "SUCCESS") {
+        // 3. Pantalla de éxito corporativa
+        body.innerHTML = `
+            <div class="p-4 text-center animate__animated animate__zoomIn">
+                <div class="text-success mb-3">
+                    <i class="fa-solid fa-circle-check fa-4x animate__animated animate__bounceIn"></i>
+                </div>
+                <h4 class="text-dark fw-bold">¡Convocatoria Despachada!</h4>
+                <p class="text-muted small mb-3">${escapeHTML(res.message || 'Correos enviados y registrados exitosamente.')}</p>
+                <button class="btn btn-primary btn-sm px-4 fw-bold shadow-sm" style="background-color: #6366f1; border-color: #6366f1;" data-bs-dismiss="modal">
+                    Entendido y Cerrar
+                </button>
+            </div>`;
+
+        // 4. Sincronizar cuotas y refrescar la vista del calendario en segundo plano
+        if (typeof sincronizarCuotaDeEnvios === "function") {
+            sincronizarCuotaDeEnvios();
+        }
+
+        setTimeout(() => {
+            const modalElement = document.getElementById('modalGuardia');
+            if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            }
+            if (typeof invalidarCacheCalendario === "function") invalidarCacheCalendario();
+            if (typeof cargarDatos === "function") cargarDatos(true);
+        }, 2500);
+
+    } else {
+        // 5. Manejo de errores (ej. cuota diaria agotada de Google o error de red)
+        body.innerHTML = `
+            <div class="p-4 text-center animate__animated animate__headShake">
+                <div class="text-danger mb-3">
+                    <i class="fa-solid fa-triangle-exclamation fa-4x"></i>
+                </div>
+                <h4 class="text-danger fw-bold">Atención en el Despacho</h4>
+                <p class="text-muted small mb-4">${escapeHTML(res ? res.message : 'No se pudo procesar el envío de correos.')}</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-light border w-50 fw-bold btn-sm" onclick="lanzarConvocatoriaMasiva('${idGuardia}')">Regresar</button>
+                    <button class="btn btn-danger w-50 fw-bold btn-sm shadow-sm" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>`;
+    }
 }
 
 function generarManifiestoNativo(idGuardia) {
