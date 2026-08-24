@@ -3,13 +3,13 @@
 // Cadena de Favores Venezuela — Resiliente y Desacoplado
 // ==========================================================================
 
-let currentDate = new Date(); // Inicia automáticamente en el mes y año real (Agosto 2026)
-let guardiasData = [];                      // Almacén en memoria
-let catalogoChoferes = null;               // Cache de choferes
-let catalogoPuntos = null;                 // Cache de puntos
-let cacheEspecialidadesGuardia = null;     // Cache especialidades
+let currentDate = new Date(); 
+let guardiasData = [];                     
+let catalogoChoferes = null;               
+let catalogoPuntos = null;                 
+let cacheEspecialidadesGuardia = null;     
 
-// Variables globales unificadas para alimentar la Ficha Lateral
+// Variables globales para alimentar la Ficha Lateral
 if (typeof window.poolVoluntarios === 'undefined') {
     var poolVoluntarios = [];
     var poolVoluntariosModulo = [];
@@ -20,14 +20,37 @@ if (typeof window.poolVoluntarios === 'undefined') {
 // ==========================================================================
 const CALENDAR_CACHE_KEY = 'cdf_guardias_cache';
 const CALENDAR_CACHE_TIME_KEY = 'cdf_guardias_cache_time';
-const CALENDAR_CACHE_TTL_MS = 5 * 60 * 1000; // Renombrada para evitar colisión
+const CALENDAR_CACHE_TTL_MS = 5 * 60 * 1000;
 
-/**
- * Invalida la caché del calendario para forzar una sincronización limpia desde el servidor
- */
 function invalidarCacheCalendario() {
   sessionStorage.removeItem(CALENDAR_CACHE_KEY);
   sessionStorage.removeItem(CALENDAR_CACHE_TIME_KEY);
+}
+
+/**
+ * Determina si el usuario en sesión tiene el flag de Coordinador activo en la Base de Datos.
+ */
+function esCoordinadorEnBaseDatos() {
+    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+    return Boolean(
+        cuentaActiva.esCoordinador === true || 
+        cuentaActiva.coordinador === true || 
+        cuentaActiva.isCoordinador === true ||
+        cuentaActiva.rolActivo === "coordinador" ||
+        cuentaActiva.role === "coordinador" ||
+        sessionStorage.getItem('cdf_es_coordinador_real') === 'true'
+    );
+}
+
+/**
+ * Retorna el modo de interacción configurado en el selector para el Clic sobre el Calendario.
+ * ('coordinador' para gestionar turnos, 'eslabon' para postularse como voluntario)
+ */
+function obtenerModoClicCalendario() {
+    if (!esCoordinadorEnBaseDatos()) {
+        return 'eslabon'; // Los voluntario estándar solo pueden actuar como Eslabón
+    }
+    return sessionStorage.getItem('cdf_modo_clic_calendario') || 'coordinador';
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -35,23 +58,19 @@ document.addEventListener("DOMContentLoaded", function() {
     initCalendar();
     cargarDatos();
     sincronizarDirectorioCalendario();
-    verificarDesplieguePanelCoordinador();
+    window.inicializarCalendarioModulo();
   }
 });
 
-/**
- * Inicializador global expuesto para ser invocado por app.js o rutas dinámicas
- */
 window.inicializarCalendarioView = function() {
   initCalendar();
   cargarDatos();
   sincronizarDirectorioCalendario();
-  verificarDesplieguePanelCoordinador();
+  window.inicializarCalendarioModulo();
 };
 
 /**
  * Consulta de Guardias mediante API REST con Soporte de Caché Inteligente
- * @param {boolean} forzarRecarga - Si es true, ignora la caché local y consulta a Apps Script
  */
 async function cargarDatos(forzarRecarga = false) {
   const grid = document.getElementById('calendarGrid');
@@ -61,7 +80,6 @@ async function cargarDatos(forzarRecarga = false) {
   const cacheGuardado = sessionStorage.getItem(CALENDAR_CACHE_KEY);
   const cacheTiempo = sessionStorage.getItem(CALENDAR_CACHE_TIME_KEY);
 
-  // 1. VERIFICAR CACHÉ VÁLIDA
   if (!forzarRecarga && cacheGuardado && cacheTiempo && (now - parseInt(cacheTiempo, 10) < CALENDAR_CACHE_TTL_MS)) {
     try {
       guardiasData = JSON.parse(cacheGuardado);
@@ -74,7 +92,6 @@ async function cargarDatos(forzarRecarga = false) {
     }
   }
 
-  // 2. CONSULTAR AL BACKEND
   grid.innerHTML = `
     <div class="p-5 text-center" style="grid-column: 1 / -1;">
       <div class="spinner-border text-primary" role="status"></div>
@@ -215,16 +232,14 @@ function renderCalendar(date) {
     
     const fechaClick = targetDay.getAttribute('data-fecha');
     const guardiaSeleccionada = guardiasData.find(g => g.fechaStr && g.fechaStr.startsWith(fechaClick));
-    
-    if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
-    const rol = window.sesionUsuario ? (window.sesionUsuario.rolActivo || window.sesionUsuario.rolActive || "eslabon") : "eslabon";
+    const modoClic = obtenerModoClicCalendario();
 
     if (guardiaSeleccionada) {
       const indicadorElem = targetDay.querySelector('.guardia-indicador');
       const colorClass = indicadorElem ? indicadorElem.classList[1] : '';
       abrirModalGuardia(guardiaSeleccionada, colorClass);
     } else {
-      if (rol === "coordinador") {
+      if (modoClic === 'coordinador') {
         abrirModalGuardia({ fechaStr: fechaClick, id: null }, '');
       } else {
         alert(`No hay un requerimiento programado para el día ${fechaClick}.`);
@@ -249,27 +264,27 @@ function initCalendar() {
 }
 
 function actualizarBadgeRolNavbar() {
-  if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
   const container = document.getElementById('sessionRoleBadgeContainer');
   if (!container) return;
   
-  const rol = window.sesionUsuario ? (window.sesionUsuario.rolActivo || window.sesionUsuario.rolActive) : null;
-  if (rol) {
-    if (rol === "coordinador") {
-      container.innerHTML = `<span class="badge bg-danger px-3 py-2 animate__animated animate__fadeInDown"><i class="fa-solid fa-user-shield me-1"></i> Panel Coordinador</span>`;
+  const esCoord = esCoordinadorEnBaseDatos();
+  const modoClic = obtenerModoClicCalendario();
+
+  if (esCoord) {
+    if (modoClic === 'coordinador') {
+      container.innerHTML = `<span class="badge bg-danger px-3 py-2 animate__animated animate__fadeInDown"><i class="fa-solid fa-user-shield me-1"></i> Panel Coordinador (Modo Gestión)</span>`;
     } else {
-      container.innerHTML = `<span class="badge bg-secondary px-3 py-2 animate__animated animate__fadeInDown"><i class="fa-solid fa-link me-1"></i> Rol: Eslabón</span>`;
+      container.innerHTML = `<span class="badge bg-warning text-dark px-3 py-2 animate__animated animate__fadeInDown"><i class="fa-solid fa-user-plus me-1"></i> Panel Coordinador (Modo Eslabón)</span>`;
     }
   } else {
-    container.innerHTML = '';
+    container.innerHTML = `<span class="badge bg-secondary px-3 py-2 animate__animated animate__fadeInDown"><i class="fa-solid fa-link me-1"></i> Rol: Eslabón</span>`;
   }
 }
 
 function abrirModalGuardia(guardia, colorClass) {
-   if (typeof refrescarSesionLocal === "function") refrescarSesionLocal();
-   const rol = window.sesionUsuario ? (window.sesionUsuario.rolActivo || window.sesionUsuario.rolActive || "eslabon") : "eslabon";
+   const modoClic = obtenerModoClicCalendario();
    
-   if (rol === "coordinador") {
+   if (modoClic === 'coordinador') {
      construirModalCoordinador(guardia);
    } else {
      construirModalEslabon(guardia, colorClass);
@@ -435,9 +450,9 @@ async function cargarListasAsincronasCoordinador(guardia) {
   if (contenedorReq) contenedorReq.innerHTML = '';
 
   if(guardia.detallesRequeridos && guardia.detallesRequeridos.length > 0) {
-     guardia.detallesRequeridos.forEach(req => {
-        agregarFilaRequerimientoEdicion(req.especialidad, req.cantidad);
-     });
+      guardia.detallesRequeridos.forEach(req => {
+         agregarFilaRequerimientoEdicion(req.especialidad, req.cantidad);
+      });
   }
 
   const selectDestino = document.getElementById('newGuaDestino');
@@ -553,11 +568,11 @@ async function ejecutarCreacionGuardia(fechaStr, btn) {
   if(res && res.status === "SUCCESS") {
     const body = document.getElementById('modalGuardiaBody');
     body.innerHTML = `
-       <div class="p-5 text-center animate__animated animate__zoomIn">
-         <i class="fa-solid fa-circle-check text-success fa-5x mb-3"></i>
-         <h4 class="text-dark fw-bold mb-1">¡Guardia Publicada!</h4>
-         <p class="text-muted small">El turno ha sido agendado exitosamente en el calendario logístico.</p>
-       </div>`;
+        <div class="p-5 text-center animate__animated animate__zoomIn">
+          <i class="fa-solid fa-circle-check text-success fa-5x mb-3"></i>
+          <h4 class="text-dark fw-bold mb-1">¡Guardia Publicada!</h4>
+          <p class="text-muted small">El turno ha sido agendado exitosamente en el calendario logístico.</p>
+        </div>`;
     
     setTimeout(() => {
         const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalGuardia'));
@@ -972,14 +987,14 @@ async function guardarChoferRapido(idGuardia) {
 
   } else {
      if(btnGuardar) {
-       btnGuardar.classList.replace('btn-success', 'btn-danger');
-       btnGuardar.innerHTML = '<i class="fa-solid fa-xmark me-1"></i> Error';
+        btnGuardar.classList.replace('btn-success', 'btn-danger');
+        btnGuardar.innerHTML = '<i class="fa-solid fa-xmark me-1"></i> Error';
      }
      setTimeout(() => {
          if(btnGuardar) {
-           btnGuardar.disabled = false;
-           btnGuardar.classList.replace('btn-danger', 'btn-success');
-           btnGuardar.innerHTML = textoOriginalBtn;
+            btnGuardar.disabled = false;
+            btnGuardar.classList.replace('btn-danger', 'btn-success');
+            btnGuardar.innerHTML = textoOriginalBtn;
          }
          nombreInput.disabled = false;
          if(telfInput) telfInput.disabled = false;
@@ -1004,12 +1019,10 @@ async function poblarEspecialidadesGuardia() {
 }
 
 function abrirFichaDesdeGuardia(email) {
-  // 1. Intentar rescatar el pool de cualquier fuente disponible en memoria o caché
   let pool = (typeof poolVoluntarios !== 'undefined' && poolVoluntarios.length > 0) ? poolVoluntarios : 
              ((typeof poolVoluntariosModulo !== 'undefined' && poolVoluntariosModulo.length > 0) ? poolVoluntariosModulo : []);
 
   if (pool.length === 0) {
-    // Intento de rescate desde la caché de voluntarios de Netlify/SessionStorage
     const cacheVol = sessionStorage.getItem('cdf_voluntarios_cache');
     if (cacheVol) {
       try {
@@ -1021,10 +1034,9 @@ function abrirFichaDesdeGuardia(email) {
     }
   }
 
-  // 2. Si aun así sigue vacío, disparamos la función de la ficha directamente con el correo o id de respaldo
   if (pool.length === 0) {
     if (typeof abrirFichaVoluntario === 'function') {
-      abrirFichaVoluntario(email); // Intentar abrir directamente con el parámetro de correo
+      abrirFichaVoluntario(email);
       return;
     }
     alert("El directorio de personal se está sincronizando. Por favor, intente de nuevo en un momento.");
@@ -1039,7 +1051,6 @@ function abrirFichaDesdeGuardia(email) {
   if (vol && typeof abrirFichaVoluntario === 'function') {
       abrirFichaVoluntario(vol.id || vol.email);
   } else if (typeof abrirFichaVoluntario === 'function') {
-      // Fallback extremo si no hace match exacto en el find
       abrirFichaVoluntario(email);
   } else {
       alert("No se encontró el perfil detallado de este voluntario.");
@@ -1119,20 +1130,12 @@ async function ejecutarDespachoMasivoFinal(idGuardia) {
    }
 }
 
-
-
-/**
- * Envía los parámetros a la Web App de Apps Script mediante un formulario dinámico GET
- * para renderizar e imprimir el manifiesto en una nueva pestaña.
- * @param {string} idGuardia - ID de la guardia/misión (ej. "GUA-123456")
- */
 function generarManifiestoNativo(idGuardia) {
     if (!idGuardia) {
         alert("Error: No se ha identificado el ID de la guardia.");
         return;
     }
 
-    // Resolución segura de la URL del servidor Apps Script
     let urlWebApp = "";
     if (typeof CONFIG.API_BASE_URL !== 'undefined' && CONFIG.API_BASE_URL) {
         urlWebApp = CONFIG.API_BASE_URL;
@@ -1145,13 +1148,11 @@ function generarManifiestoNativo(idGuardia) {
         return;
     }
 
-    // Crear formulario dinámico invisible
     const form = document.createElement('form');
     form.method = 'GET';
     form.action = urlWebApp;
     form.target = '_blank'; 
 
-    // Parámetros obligatorios para la compilación del manifiesto
     const inputPage = document.createElement('input');
     inputPage.type = 'hidden';
     inputPage.name = 'page';
@@ -1164,15 +1165,11 @@ function generarManifiestoNativo(idGuardia) {
     inputId.value = idGuardia;
     form.appendChild(inputId);
 
-    // Inyectar y enviar
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
 }
 
-/**
- * Carga silenciosamente el directorio de voluntarios para que la ficha lateral funcione desde las guardias
- */
 async function sincronizarDirectorioCalendario() {
   try {
     const res = await callBackend('obtenerVoluntarios', {});
@@ -1187,30 +1184,10 @@ async function sincronizarDirectorioCalendario() {
   }
 }
 
-/**
- * Muestra el panel de coordinación si el usuario activo posee el rol
- */
 function verificarDesplieguePanelCoordinador() {
-  const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || '{}');
-  const esRolCoordinador = Boolean(
-    cuentaActiva.esCoordinador || 
-    cuentaActiva.coordinador === true || 
-    cuentaActiva.isCoordinador === true ||
-    cuentaActiva.rolActivo === "coordinador" || 
-    cuentaActiva.role === "coordinador"
-  );
-
-  const panelAcc = document.getElementById('panelAccionesCoordinador');
-  if (panelAcc && esRolCoordinador) {
-    panelAcc.classList.remove('d-none');
-    sincronizarCuotaDeEnvios();
-    actualizarContadorAptosLocal();
-  }
+  aplicarReglasInterfazSegunRolSimulado();
 }
 
-/**
- * Consulta la cuota diaria disponible de correo en Apps Script
- */
 async function sincronizarCuotaDeEnvios(btn) {
   let originalText = "";
   if (btn) {
@@ -1247,9 +1224,6 @@ async function sincronizarCuotaDeEnvios(btn) {
   }
 }
 
-/**
- * Calcula en tiempo real la cantidad de personal apto para recibir convocatorias
- */
 function actualizarContadorAptosLocal() {
   const lblAptos = document.getElementById('lblVoluntariosDisponibles');
   if (!lblAptos) return;
@@ -1278,11 +1252,6 @@ function actualizarContadorAptosLocal() {
   lblAptos.className = aptosCount > 0 ? "badge bg-primary font-monospace" : "badge bg-secondary font-monospace";
 }
 
-/**
- * Consulta al servidor los voluntarios convocados hoy y despliega el modal enriquecido
- * Soporta creación dinámica del modal en el DOM para entornos desacoplados.
- * @param {HTMLElement} btn - Botón desencadenante para gestionar el estado de carga
- */
 async function abrirInformeConvocadosHoy(btn) {
   let originalText = "";
   if (btn) {
@@ -1291,7 +1260,6 @@ async function abrirInformeConvocadosHoy(btn) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Cargando...';
   }
 
-  // 1. Inyección Dinámica del Modal si no existe en el DOM
   asegurarModalInformeEnDOM();
 
   const tbody = document.getElementById('tablaInformeConvocadosBody');
@@ -1302,7 +1270,6 @@ async function abrirInformeConvocadosHoy(btn) {
   }
 
   try {
-    // 2. Consulta al backend central
     const res = await callBackend('obtenerVoluntariosConvocadosHoy', {});
 
     if (btn) {
@@ -1345,7 +1312,6 @@ async function abrirInformeConvocadosHoy(btn) {
         }
       }
 
-      // 3. Despliegue garantizado del Modal
       const modalElement = document.getElementById('modalInformeConvocados');
       if (modalElement) {
         const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
@@ -1365,9 +1331,6 @@ async function abrirInformeConvocadosHoy(btn) {
   }
 }
 
-/**
- * Garantiza que la estructura HTML del modal exista en el DOM
- */
 function asegurarModalInformeEnDOM() {
   if (document.getElementById('modalInformeConvocados')) return;
 
@@ -1410,3 +1373,118 @@ function asegurarModalInformeEnDOM() {
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
+/**
+ * Inicializador del Módulo.
+ * Verifica la condición del usuario en Base de Datos para desplegar u ocultar el Panel Principal.
+ */
+window.inicializarCalendarioModulo = function() {
+    const esCoordBD = esCoordinadorEnBaseDatos();
+
+    if (esCoordBD) {
+        sessionStorage.setItem('cdf_es_coordinador_real', 'true');
+    }
+
+    const selectRol = document.getElementById('selModoRolSimulado');
+    if (selectRol) {
+        const modoGuardado = sessionStorage.getItem('cdf_modo_clic_calendario') || 'coordinador';
+        selectRol.value = modoGuardado;
+    }
+
+    aplicarReglasInterfazSegunRolSimulado();
+};
+
+/**
+ * Guarda la preferencia de interacción sobre el calendario ('coordinador' o 'eslabon')
+ * SIN ocultar ni manipular la visibilidad de la Consola de Coordinación Central.
+ */
+function cambiarModoRolSimulado(nuevoModo) {
+    sessionStorage.setItem('cdf_modo_clic_calendario', nuevoModo);
+    
+    const selectRol = document.getElementById('selModoRolSimulado');
+    if (selectRol) {
+        if (nuevoModo === 'eslabon') {
+            selectRol.className = "form-select form-select-sm border-warning shadow-sm fw-bold text-dark bg-warning-subtle py-1";
+        } else {
+            selectRol.className = "form-select form-select-sm border-primary shadow-sm fw-bold text-primary bg-white py-1";
+        }
+    }
+
+    actualizarBadgeRolNavbar();
+}
+
+/**
+ * Evalúa EXCLUSIVAMENTE el flag de BD (coordinador == TRUE) para determinar si la Consola de Coordinación se muestra.
+ */
+function aplicarReglasInterfazSegunRolSimulado() {
+    const esCoordBD = esCoordinadorEnBaseDatos();
+
+    const panelAccionesCoordinador = document.getElementById('panelAccionesCoordinador');
+    const elementosExclusivosCoord = document.querySelectorAll('.only-coordinador');
+
+    if (esCoordBD) {
+        // Muestra la Consola de Coordinación Central de forma fija e ininterrumpida
+        if (panelAccionesCoordinador) panelAccionesCoordinador.classList.remove('d-none');
+        elementosExclusivosCoord.forEach(el => el.classList.remove('d-none'));
+
+        if (typeof sincronizarCuotaDeEnvios === 'function') sincronizarCuotaDeEnvios();
+        actualizarContadorAptosLocal();
+
+    } else {
+        // Oculta la consola únicamente si el usuario NO es coordinador en Base de Datos
+        if (panelAccionesCoordinador) panelAccionesCoordinador.classList.add('d-none');
+        elementosExclusivosCoord.forEach(el => el.classList.add('d-none'));
+    }
+
+    actualizarBadgeRolNavbar();
+}
+
+/**
+ * Conmuta el comportamiento del clic en las casillas del calendario mediante el Switch HTML.
+ * @param {boolean} isChecked - true = Modo Gestión (Coordinador), false = Modo Postulación (Eslabón)
+ */
+function conmutarSwitchModoClic(isChecked) {
+    const nuevoModo = isChecked ? 'coordinador' : 'eslabon';
+    sessionStorage.setItem('cdf_modo_clic_calendario', nuevoModo);
+
+    actualizarVisualSwitchModoClic(nuevoModo);
+    actualizarBadgeRolNavbar();
+}
+
+/**
+ * Actualiza la etiqueta y el estilo del Switch dinámicamente según el modo seleccionado.
+ */
+function actualizarVisualSwitchModoClic(modo) {
+    const chk = document.getElementById('switchModoClicCalendario');
+    const lbl = document.getElementById('lblEstadoModoClic');
+
+    if (chk) {
+        chk.checked = (modo === 'coordinador');
+    }
+
+    if (lbl) {
+        if (modo === 'coordinador') {
+            lbl.className = "badge bg-primary-subtle text-primary border border-primary-subtle fw-bold animate__animated animate__fadeIn";
+            lbl.innerHTML = '<i class="fa-solid fa-sliders me-1"></i>Modo Gestión';
+        } else {
+            lbl.className = "badge bg-warning-subtle text-dark border border-warning-subtle fw-bold animate__animated animate__fadeIn";
+            lbl.innerHTML = '<i class="fa-solid fa-user-plus me-1"></i>Modo Postulación';
+        }
+    }
+}
+
+/**
+ * Inicializador del Módulo.
+ * Verifica el rol en BD y recupera la posición guardada del Switch.
+ */
+window.inicializarCalendarioModulo = function() {
+    const esCoordBD = esCoordinadorEnBaseDatos();
+
+    if (esCoordBD) {
+        sessionStorage.setItem('cdf_es_coordinador_real', 'true');
+    }
+
+    const modoGuardado = sessionStorage.getItem('cdf_modo_clic_calendario') || 'coordinador';
+    actualizarVisualSwitchModoClic(modoGuardado);
+
+    aplicarReglasInterfazSegunRolSimulado();
+};

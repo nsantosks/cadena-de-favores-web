@@ -664,13 +664,78 @@ function comprimirImagenLocal(file, maxWidth = 800, quality = 0.7) {
     });
 }
 
+
 /**
- * Sube la Selfie de forma independiente y asíncrona con indicador visual dinámico.
+ * Evalúa y re-renderiza dinámicamente los badges de verificación, bloqueos de pantalla
+ * y acceso al calendario sin recargar la página.
+ */
+function evaluarEstatusYPermisosLocales(cuentaActiva) {
+    const lblEstatus = document.getElementById('lblEstatusVerificacion');
+    const seccionCalendario = document.getElementById('seccionCalendarioDesplegable');
+    const contenedorBloqueo = document.getElementById('contenedorBloqueo');
+    const msgBloqueo = contenedorBloqueo ? contenedorBloqueo.querySelector('span.small') : null;
+
+    const esRolCoordinador = Boolean(
+        cuentaActiva.esCoordinador || 
+        cuentaActiva.coordinador === true || 
+        cuentaActiva.isCoordinador === true ||
+        cuentaActiva.rolActivo === "coordinador" || 
+        cuentaActiva.rolActive === "coordinador" ||
+        cuentaActiva.role === "coordinador"
+    );
+
+    const esVerificado = Boolean(
+        cuentaActiva.verificado === true || 
+        cuentaActiva.verificado === "Verificado" || 
+        cuentaActiva.verificado === "TRUE"
+    );
+
+    if (esRolCoordinador) {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-danger";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-user-shield me-1"></i> Autoridad / Coordinador';
+        }
+        if (seccionCalendario) seccionCalendario.classList.remove('d-none');
+        if (contenedorBloqueo) contenedorBloqueo.classList.add('d-none');
+    } 
+    else if (cuentaActiva.banned === true) {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-dark";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Perfil Restringido';
+        }
+        if (msgBloqueo) msgBloqueo.innerText = "Su perfil está siendo verificado por la coordinación central. El acceso se restaurará al finalizar el proceso.";
+        if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
+        if (seccionCalendario) seccionCalendario.classList.add('d-none');
+    } 
+    else if (esVerificado) {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-success";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Verificado';
+        }
+        if (seccionCalendario) seccionCalendario.classList.remove('d-none');
+        if (contenedorBloqueo) contenedorBloqueo.classList.add('d-none');
+        
+        // Cargar calendario si acaba de desbloquearse
+        if (typeof cargarDatos === 'function') cargarDatos();
+    } 
+    else {
+        if (lblEstatus) {
+            lblEstatus.className = "badge bg-warning text-dark";
+            lblEstatus.innerHTML = '<i class="fa-solid fa-clock me-1"></i> En Revisión';
+        }
+        if (msgBloqueo) msgBloqueo.innerText = "El acceso al calendario se activará automáticamente cuando complete su perfil y la coordinación valide sus credenciales.";
+        if (contenedorBloqueo) contenedorBloqueo.classList.remove('d-none');
+        if (seccionCalendario) seccionCalendario.classList.add('d-none');
+    }
+}
+
+/**
+ * Sube la Selfie de forma independiente y recalcula la verificación inmediatamente.
  */
 async function procesarYSubirSelfie(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    let cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
     const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
@@ -680,7 +745,6 @@ async function procesarYSubirSelfie(input) {
     }
 
     const avatarImg = document.getElementById('avatarPrevisualizacion');
-    
     let feedbackEl = document.getElementById('feedbackSelfie');
     if (!feedbackEl) {
         feedbackEl = document.createElement('div');
@@ -706,15 +770,24 @@ async function procesarYSubirSelfie(input) {
         if (res && res.status === "SUCCESS") {
             if (res.urlProfile) document.getElementById('perfilUrlFotoActual').value = res.urlProfile;
             if (res.imgApp) document.getElementById('perfilImgAppActual').value = res.imgApp;
-            
-            // INVALIDACIÓN ATÓMICA DE CACHÉ
+
+            // ACTUALIZACIÓN DIRECTA DE LA SESIÓN LOCAL
+            cuentaActiva.imagen_profile = res.urlProfile || cuentaActiva.imagen_profile;
+            if (typeof res.verificado !== 'undefined') cuentaActiva.verificado = res.verificado;
+            if (res.perfil) cuentaActiva = { ...cuentaActiva, ...res.perfil };
+
+            window.sesionUsuario = cuentaActiva;
+            sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+            localStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+
             invalidarCachePerfil();
-            
+
             feedbackEl.className = 'form-text text-success fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Selfie sincronizada con éxito!';
-            
-            // Refrescar perfil para sincronizar el estatus final de verificación
-            window.inicializarPerfilModulo(true);
+
+            // RE-EVALUAR ESTATUS Y PERMISOS EN TIEMPO REAL
+            evaluarEstatusYPermisosLocales(cuentaActiva);
+
         } else {
             feedbackEl.className = 'form-text text-danger fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';
@@ -733,12 +806,12 @@ async function procesarYSubirSelfie(input) {
 }
 
 /**
- * Sube un Documento con indicador visual de carga en el DOM.
+ * Sube un Documento y recalcula la verificación inmediatamente.
  */
 async function procesarYSubirDocumento(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
+    let cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile')) || {};
     const idVol = cuentaActiva.id || cuentaActiva.ID_Voluntario || cuentaActiva.cedula || document.getElementById('perfilCedula').value.trim();
 
     if (!idVol) {
@@ -779,11 +852,22 @@ async function procesarYSubirDocumento(input) {
         if (res && res.status === "SUCCESS") {
             feedbackEl.className = 'form-text text-success fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Documento anexado correctamente!';
-            
-            // INVALIDACIÓN ATÓMICA Y REFREASCO FRESCO
+
+            // ACTUALIZACIÓN DIRECTA DE LA SESIÓN LOCAL
+            if (res.docUrl) cuentaActiva.Documentacion_URL = res.docUrl;
+            if (typeof res.verificado !== 'undefined') cuentaActiva.verificado = res.verificado;
+            if (res.perfil) cuentaActiva = { ...cuentaActiva, ...res.perfil };
+
+            window.sesionUsuario = cuentaActiva;
+            sessionStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+            localStorage.setItem('userProfile', JSON.stringify(cuentaActiva));
+
             invalidarCachePerfil();
             cargarHistorialDocumentosFicha();
-            window.inicializarPerfilModulo(true);
+
+            // RE-EVALUAR ESTATUS Y PERMISOS EN TIEMPO REAL
+            evaluarEstatusYPermisosLocales(cuentaActiva);
+
         } else {
             feedbackEl.className = 'form-text text-danger fw-bold mt-1';
             feedbackEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Error al subir.';

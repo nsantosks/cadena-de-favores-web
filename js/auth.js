@@ -40,9 +40,15 @@ function generarIDVoluntarioWeb() {
   return "WEB-" + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 
+/**
+ * Obtiene el rol preferente basado en la sesión activa si existe, o 'eslabon' por defecto
+ */
 function obtenerRolSeleccionado() {
-  const radio = document.querySelector('input[name="btnRol"]:checked');
-  return radio ? radio.value : "eslabon";
+  const cuentaActiva = window.sesionUsuario || JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+  if (cuentaActiva.esCoordinador === true || cuentaActiva.coordinador === true || cuentaActiva.rolActivo === "coordinador") {
+    return "coordinador";
+  }
+  return "eslabon";
 }
 
 function mostrarErrorAuth(mensaje) {
@@ -64,7 +70,6 @@ async function procesarVerificacionInicial() {
   const email = emailInput.value.trim();
   const btn = document.getElementById('btnContinuarEmail');
   const errorDiv = document.getElementById('loginErrorMsg');
-  const rol = obtenerRolSeleccionado();
   
   if (errorDiv) errorDiv.classList.add('d-none');
   if (!email) { 
@@ -77,7 +82,7 @@ async function procesarVerificacionInicial() {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verificando correo...';
   }
 
-  const res = await callBackend('verificarEmail', { email: email, rol: rol });
+  const res = await callBackend('verificarEmail', { email: email });
 
   if (res && res.status === "EXISTENTE") {
     if (btn) {
@@ -88,7 +93,6 @@ async function procesarVerificacionInicial() {
     document.getElementById('authStepGoogle').classList.remove('d-none');
     inicializarBotonGoogleSSO(res.email);
   } else if (res && res.status === "NUEVO") {
-    // abrirModalRegistroNuevo maneja el estado de carga y restablecimiento del botón
     abrirModalRegistroNuevo(res.email || email);
   } else {
     if (btn) {
@@ -99,14 +103,12 @@ async function procesarVerificacionInicial() {
   }
 }
 
-
 /**
  * Abre el modal de registro para nuevos usuarios inmediatamente y puebla los datos en segundo plano
  */
 function abrirModalRegistroNuevo(emailDetectado) {
   emailOtpActualCache = emailDetectado;
   
-  // 1. Mostrar estado de carga en el botón 'Continuar' para evitar doble clic
   const btnContinuar = document.getElementById('btnContinuarEmail');
   let htmlOriginalBtn = "";
   if (btnContinuar) {
@@ -115,7 +117,6 @@ function abrirModalRegistroNuevo(emailDetectado) {
     btnContinuar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparando registro...';
   }
 
-  // 2. Abrir el modal DE INMEDIATO (Experiencia visual rápida)
   const modalElem = document.getElementById('modalRegistroNuevoCompleto');
   if (modalElem) {
     const modal = bootstrap.Modal.getOrCreateInstance(modalElem);
@@ -125,7 +126,6 @@ function abrirModalRegistroNuevo(emailDetectado) {
     return;
   }
 
-  // 3. Restablecer el botón principal tras abrir el modal
   if (btnContinuar) {
     setTimeout(() => {
       btnContinuar.disabled = false;
@@ -133,21 +133,17 @@ function abrirModalRegistroNuevo(emailDetectado) {
     }, 500);
   }
 
-  // 4. Cargar los catálogos en SEGUNDO PLANO (sin bloquear la interfaz)
   setTimeout(async () => {
-    // A. Voluntariado / Grupo (Configuración Maestra)
     if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
       poblarSelectSincronizado('regVoluntariadoGrupo', window.CATALOGOS_RED.gruposVoluntariado, "Seleccione un grupo...");
     }
 
-    // B. Especialidades Técnicas (Consulta BD Asíncrona)
     if (typeof cargarEspecialidadesDinamicas === 'function') {
       await cargarEspecialidadesDinamicas('regEspecialidadTecnica');
     } else if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
       poblarSelectSincronizado('regEspecialidadTecnica', window.CATALOGOS_RED.especialidadesDefault, "Seleccione especialidad...");
     }
 
-    // C. Puntos de Recogida (Consulta BD Asíncrona)
     if (typeof cargarPuntosRecogidaDinamicos === 'function') {
       await cargarPuntosRecogidaDinamicos('regPuntoRecogida', 'Sin Definir');
     } else if (window.CATALOGOS_RED && typeof poblarSelectSincronizado === 'function') {
@@ -157,7 +153,7 @@ function abrirModalRegistroNuevo(emailDetectado) {
 }
 
 // ==========================================================================
-// CAPTURA Y HOMOLOGACIÓN DE DATOS DESDE EL MODAL DE REGISTRO (AUTH.JS)
+// CAPTURA Y HOMOLOGACIÓN DE DATOS DESDE EL MODAL DE REGISTRO
 // ==========================================================================
 
 async function validarFormularioYEnviarOtpModal() {
@@ -186,11 +182,9 @@ async function validarFormularioYEnviarOtpModal() {
     btnRegistrar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Enviando código OTP...';
   }
 
-  const rol = obtenerRolSeleccionado();
   const idVoluntarioGenerado = cedula || generarIDVoluntarioWeb();
   const timestampActual = new Date().toISOString();
 
-  // Payload Homologado idéntico al de perfil.js
   datosRegistroTemporalCache = {
     idVoluntario: idVoluntarioGenerado,
     ID_Voluntario: idVoluntarioGenerado,
@@ -212,7 +206,6 @@ async function validarFormularioYEnviarOtpModal() {
     Punto_Recogida_Preferido: puntoRecogida,
     direccion: direccion,
     Direccion: direccion,
-    rolActivo: rol,
     nuevoRegistro: true
   };
 
@@ -223,7 +216,6 @@ async function validarFormularioYEnviarOtpModal() {
   const res = await callBackend('enviarOTP', { 
     email: emailOtpActualCache,
     idVoluntario: idVoluntarioGenerado,
-    rol: rol,
     timestamp: timestampActual,
     perfilData: datosRegistroTemporalCache
   });
@@ -262,18 +254,13 @@ async function confirmarOtpYCrearRegistroDefinitivo() {
     btnValidar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Guardando registro...';
   }
 
-  const rol = obtenerRolSeleccionado();
-
-  // 1. Validar OTP en el backend
   const resOtp = await callBackend('validarOTP', {
     email: emailOtpActualCache,
-    otp: otp,
-    rol: rol
+    otp: otp
   });
 
   if (resOtp && (resOtp.status === "SUCCESS" || resOtp.status === "REQUIRES_REGISTRATION" || resOtp.status === "REGISTRO_EXITOSO")) {
     
-    // 2. Ejecutar guardado definitivo en la Base de Datos (Google Sheets / Apps Script)
     const resGuardarBD = await callBackend('registrarVoluntario', datosRegistroTemporalCache);
 
     if (resGuardarBD && resGuardarBD.status === "SUCCESS") {
@@ -281,11 +268,15 @@ async function confirmarOtpYCrearRegistroDefinitivo() {
       
       perfilFinal.id = perfilFinal.id || datosRegistroTemporalCache.id;
       perfilFinal.ID_Voluntario = perfilFinal.ID_Voluntario || datosRegistroTemporalCache.ID_Voluntario;
-      perfilFinal.rolActivo = rol;
+
+      const esCoordBD = Boolean(perfilFinal.esCoordinador || perfilFinal.coordinador === true);
+      perfilFinal.esCoordinador = esCoordBD;
+      perfilFinal.rolActivo = esCoordBD ? "coordinador" : "eslabon";
 
       window.sesionUsuario = perfilFinal;
       sessionStorage.setItem('userProfile', JSON.stringify(perfilFinal));
       localStorage.setItem('userProfile', JSON.stringify(perfilFinal));
+      sessionStorage.setItem('cdf_es_coordinador_real', esCoordBD ? 'true' : 'false');
 
       if (typeof invalidarCachePerfil === 'function') invalidarCachePerfil();
 
@@ -297,7 +288,6 @@ async function confirmarOtpYCrearRegistroDefinitivo() {
         if (modal) modal.hide();
       }
 
-      // Redirección directa al perfil tras confirmar la creación
       window.location.href = "../perfil/index.html?nuevo=true";
     } else {
       if (btnValidar) {
@@ -337,7 +327,7 @@ function lanzarPopupAutenticacionGoogle() {
   const scope = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
   const redirectUri = window.location.origin + window.location.pathname;
   
-  const estadoObjeto = { email: emailBuscadoCache, rol: obtenerRolSeleccionado() };
+  const estadoObjeto = { email: emailBuscadoCache };
   const estadoCodificado = JSON.stringify(estadoObjeto);
 
   const authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
@@ -362,12 +352,9 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validando acceso...';
   }
 
-  const rol = obtenerRolSeleccionado();
-
   const res = await callBackend('verificarTokenGoogle', {
     accessToken: accessToken,
-    email: emailEsperado,
-    rol: rol
+    email: emailEsperado
   });
 
   if (btn) {
@@ -378,16 +365,19 @@ async function validarTokenDeGoogleServidor(accessToken, emailEsperado) {
   if (res && res.status === "SUCCESS") {
     const perfilSesion = res.perfil || {};
     
-    if (rol === "coordinador" || perfilSesion.esCoordinador) {
-      perfilSesion.rolActivo = "coordinador";
-      perfilSesion.esCoordinador = true;
-    } else {
-      perfilSesion.rolActivo = "eslabon";
-    }
+    const esCoordBD = Boolean(
+      perfilSesion.esCoordinador === true || 
+      perfilSesion.coordinador === true || 
+      perfilSesion.isCoordinador === true
+    );
+
+    perfilSesion.esCoordinador = esCoordBD;
+    perfilSesion.rolActivo = esCoordBD ? "coordinador" : "eslabon";
     
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     localStorage.setItem('userProfile', JSON.stringify(perfilSesion));
+    sessionStorage.setItem('cdf_es_coordinador_real', esCoordBD ? 'true' : 'false');
     
     const authView = document.getElementById('contenedorAuthView');
     const appDashboard = document.getElementById('contenedorAppDashboard');
@@ -415,7 +405,6 @@ async function enviarCodigoSeguridadOTP(email) {
   if (errorDiv) errorDiv.classList.add('d-none');
 
   emailOtpActualCache = email;
-  const rol = obtenerRolSeleccionado();
   const idVoluntarioGenerado = generarIDVoluntarioWeb();
   const timestampActual = new Date().toISOString();
 
@@ -423,7 +412,6 @@ async function enviarCodigoSeguridadOTP(email) {
     id: idVoluntarioGenerado,
     ID_Voluntario: idVoluntarioGenerado,
     email: email,
-    rolActivo: rol,
     nuevoRegistro: true
   };
   
@@ -442,12 +430,10 @@ async function enviarCodigoSeguridadOTP(email) {
   const res = await callBackend('enviarOTP', { 
     email: email,
     idVoluntario: idVoluntarioGenerado,
-    rol: rol,
     timestamp: timestampActual
   });
 
   if (res && res.status !== "ERROR") {
-    document.querySelectorAll('input[name="btnRol"]').forEach(input => input.disabled = true);
     document.getElementById('authStep1').classList.add('d-none');
     
     const stepGoogle = document.getElementById('authStepGoogle');
@@ -521,7 +507,6 @@ async function validarYAccederOTP() {
   const email = emailOtpActualCache || document.getElementById('loginEmail').value.trim();
   const otp = document.getElementById('loginOTP').value.trim();
   const btn = document.getElementById('btnConfirmOTP');
-  const rol = obtenerRolSeleccionado(); 
   
   const errorDiv = document.getElementById('loginErrorMsg');
   if (errorDiv) errorDiv.classList.add('d-none');
@@ -536,23 +521,25 @@ async function validarYAccederOTP() {
   
   const res = await callBackend('validarOTP', {
     email: email,
-    otp: otp,
-    rol: rol
+    otp: otp
   });
 
   if (res && res.status === "SUCCESS") {
     const perfilSesion = res.perfil || {};
     
-    if (rol === "coordinador" || perfilSesion.esCoordinador) {
-      perfilSesion.rolActivo = "coordinador";
-      perfilSesion.esCoordinador = true;
-    } else {
-      perfilSesion.rolActivo = "eslabon";
-    }
+    const esCoordBD = Boolean(
+      perfilSesion.esCoordinador === true || 
+      perfilSesion.coordinador === true || 
+      perfilSesion.isCoordinador === true
+    );
+
+    perfilSesion.esCoordinador = esCoordBD;
+    perfilSesion.rolActivo = esCoordBD ? "coordinador" : "eslabon";
     
     window.sesionUsuario = perfilSesion;
     sessionStorage.setItem('userProfile', JSON.stringify(perfilSesion));
     localStorage.setItem('userProfile', JSON.stringify(perfilSesion));
+    sessionStorage.setItem('cdf_es_coordinador_real', esCoordBD ? 'true' : 'false');
     
     sincronizarHeaderGlobal();
 
@@ -572,7 +559,6 @@ async function validarYAccederOTP() {
       id: idVoluntarioGenerado,
       ID_Voluntario: idVoluntarioGenerado,
       email: res.email || email, 
-      rolActivo: rol, 
       nuevoRegistro: true 
     };
 
@@ -603,7 +589,6 @@ async function validarYAccederOTP() {
     mostrarErrorAuth(res ? res.message : "Código de verificación incorrecto.");
     btn.disabled = false;
     btn.innerText = "Continuar";
-    document.querySelectorAll('input[name="btnRol"]').forEach(input => input.disabled = false);
   }
 }
 
@@ -617,6 +602,8 @@ function cerrarSesion() {
 
   sessionStorage.removeItem('userProfile');
   localStorage.removeItem('userProfile');
+  sessionStorage.removeItem('cdf_es_coordinador_real');
+  sessionStorage.removeItem('cdf_modo_clic_calendario');
   window.sesionUsuario = null;
 
   window.location.href = "../index.html"; 
@@ -655,12 +642,10 @@ function sincronizarHeaderGlobal() {
     );
 
     const esCoordinadorReal = Boolean(
-      cuentaActiva.esCoordinador || 
+      cuentaActiva.esCoordinador === true || 
       cuentaActiva.coordinador === true || 
       cuentaActiva.isCoordinador === true ||
-      cuentaActiva.rolActivo === "coordinador" || 
-      cuentaActiva.rolActive === "coordinador" ||
-      cuentaActiva.role === "coordinador"
+      sessionStorage.getItem('cdf_es_coordinador_real') === 'true'
     );
 
     if (btnCalendario) {
@@ -744,7 +729,7 @@ function gestionarRedireccionCalendario(event) {
   const esCoordinadorReal = cuentaActiva && Boolean(
     cuentaActiva.esCoordinador || 
     cuentaActiva.coordinador === true || 
-    cuentaActiva.rolActivo === "coordinador"
+    sessionStorage.getItem('cdf_es_coordinador_real') === 'true'
   );
 
   if (esVerificadoReal || esCoordinadorReal) {
@@ -753,4 +738,4 @@ function gestionarRedireccionCalendario(event) {
     alert("Para acceder al calendario de guardias, primero debes completar tu perfil y ser verificado por un coordinador.");
     window.location.href = "../auth/index.html";
   }
-} 
+}

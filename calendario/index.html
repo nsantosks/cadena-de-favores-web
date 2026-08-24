@@ -197,7 +197,7 @@
         <div class="row align-items-center gy-3">
           
           <!-- Identificador de la Consola -->
-          <div class="col-12 col-lg-5 d-flex align-items-center gap-3">
+          <div class="col-12 col-lg-4 d-flex align-items-center gap-3">
             <div class="p-3 bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0;">
               <i class="fa-solid fa-user-shield fs-5"></i>
             </div>
@@ -207,27 +207,41 @@
             </div>
           </div>
 
-          <!-- Indicadores KPIs -->
-          <div class="col-12 col-sm-6 col-lg-4">
-            <div class="d-flex align-items-center justify-content-center justify-content-sm-start gap-3 bg-light p-2 px-3 rounded-3 border">
+          <!-- Indicadores KPIs + Switch de Acción Operativa -->
+          <div class="col-12 col-lg-5">
+            <div class="d-flex flex-wrap align-items-center justify-content-between justify-content-lg-start gap-3 bg-light p-2 px-3 rounded-3 border">
               
               <!-- Metric 1: Cuota Email -->
-              <div class="d-flex align-items-center gap-2 flex-grow-1">
+              <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-envelope-circle-check text-primary fs-5"></i>
                 <div class="lh-1">
-                  <span class="d-block text-muted font-monospace" style="font-size: 0.7rem;">CUOTA HOY</span>
+                  <span class="d-block text-muted font-monospace" style="font-size: 0.68rem;">CUOTA HOY</span>
                   <span id="lblCuotaDisponible" class="badge bg-secondary font-monospace mt-1">--</span>
                 </div>
               </div>
 
-              <div class="vr opacity-25 style-divider" style="height: 28px;"></div>
+              <div class="vr opacity-25 d-none d-sm-block style-divider" style="height: 28px;"></div>
 
               <!-- Metric 2: Personal Apto -->
-              <div class="d-flex align-items-center gap-2 flex-grow-1">
+              <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-users-check text-success fs-5"></i>
                 <div class="lh-1">
-                  <span class="d-block text-muted font-monospace" style="font-size: 0.7rem;">APTOS</span>
+                  <span class="d-block text-muted font-monospace" style="font-size: 0.68rem;">APTOS</span>
                   <span id="lblVoluntariosDisponibles" class="badge bg-secondary font-monospace mt-1">--</span>
+                </div>
+              </div>
+
+              <div class="vr opacity-25 d-none d-sm-block style-divider" style="height: 28px;"></div>
+
+              <!-- Switch Elegante de Acción sobre el Calendario -->
+              <div class="d-flex align-items-center gap-2 ms-auto">
+                <div class="form-check form-switch m-0 d-flex align-items-center gap-2 ps-0">
+                  <input class="form-check-input ms-0 cursor-pointer" type="checkbox" id="switchModoClicCalendario" onchange="conmutarSwitchModoClic(this.checked)" style="width: 2.3em; height: 1.2em; cursor: pointer;">
+                  <label class="form-check-label user-select-none cursor-pointer" for="switchModoClicCalendario">
+                    <span id="lblEstadoModoClic" class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold" style="font-size: 0.75rem;">
+                      <i class="fa-solid fa-sliders me-1"></i>Modo Gestión
+                    </span>
+                  </label>
                 </div>
               </div>
 
@@ -235,11 +249,11 @@
           </div>
 
           <!-- Botones de Acción -->
-          <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-sm-end gap-2">
-            <button class="btn btn-outline-primary btn-sm px-3 fw-bold flex-fill flex-sm-grow-0" onclick="sincronizarCuotaDeEnvios(this)">
+          <div class="col-12 col-lg-3 d-flex justify-content-lg-end gap-2">
+            <button class="btn btn-outline-primary btn-sm px-3 fw-bold flex-fill flex-lg-grow-0" onclick="sincronizarCuotaDeEnvios(this)">
               <i class="fa-solid fa-rotate me-1"></i> Sincronizar
             </button>
-            <button class="btn btn-outline-success btn-sm px-3 fw-bold flex-fill flex-sm-grow-0" onclick="abrirInformeConvocadosHoy(this)">
+            <button class="btn btn-outline-success btn-sm px-3 fw-bold flex-fill flex-lg-grow-0" onclick="abrirInformeConvocadosHoy(this)">
               <i class="fa-solid fa-file-invoice me-1"></i> Reporte Hoy
             </button>
           </div>
@@ -251,6 +265,8 @@
 
   <!-- Contenedor Principal del Calendario -->
   <section id="calendario-cdf" class="container py-4 py-md-5">
+
+    
     
     <!-- Controles de Mes Adaptativos -->
     <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 p-md-4 rounded-4 shadow-sm border calendar-controls-container">
