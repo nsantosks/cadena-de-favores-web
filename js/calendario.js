@@ -1563,7 +1563,7 @@ async function abrirInformeConvocadosHoy(btn) {
   const countBadge = document.getElementById('lblTotalConvocadosHoy');
 
   if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-1"></div> Generando reporte...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-1"></div> Generando reporte...</td></tr>';
   }
 
   try {
@@ -1584,7 +1584,7 @@ async function abrirInformeConvocadosHoy(btn) {
         if (lista.length === 0) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="4" class="text-center py-4 text-muted small">
+              <td colspan="5" class="text-center py-4 text-muted small">
                 <i class="fa-solid fa-folder-open me-1"></i> No se han realizado envíos de convocatoria el día de hoy.
               </td>
             </tr>`;
@@ -1594,15 +1594,20 @@ async function abrirInformeConvocadosHoy(btn) {
               <tr>
                 <td class="text-center font-monospace text-muted" style="font-size:0.75rem;">${idx + 1}</td>
                 <td>
-                  <strong>${c.nombre || 'N/D'}</strong><br>
-                  <span class="badge bg-light text-primary border border-primary-subtle p-1" style="font-size:0.65rem;">${c.especialidad || 'N/D'}</span>
+                  <strong>${escapeHTML(c.nombre || 'N/D')}</strong><br>
+                  <span class="badge bg-light text-primary border border-primary-subtle p-1" style="font-size:0.65rem;">${escapeHTML(c.especialidad || 'N/D')}</span>
                 </td>
                 <td>
-                  <small class="font-monospace">${c.email || 'N/D'}</small><br>
-                  <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>${c.telefono || 'N/D'}</small>
+                  <small class="font-monospace">${escapeHTML(c.email || 'N/D')}</small><br>
+                  <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>${escapeHTML(c.telefono || 'N/D')}</small>
+                </td>
+                <td>
+                  <span class="badge bg-secondary-subtle text-dark border font-monospace" style="font-size:0.65rem;">
+                    <i class="fa-solid fa-user-shield me-1"></i>${escapeHTML(c.convocador || 'Sistema')}
+                  </span>
                 </td>
                 <td class="text-center font-monospace fw-bold text-primary" style="font-size:0.85rem;">
-                  <i class="fa-regular fa-clock me-1"></i>${c.hora || '--:--'}
+                  <i class="fa-regular fa-clock me-1"></i>${escapeHTML(c.hora || '--:--')}
                 </td>
               </tr>`;
           });
@@ -1633,10 +1638,10 @@ function asegurarModalInformeEnDOM() {
 
   const modalHtml = `
     <div class="modal fade" id="modalInformeConvocados" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg">
           <div class="modal-header bg-dark text-white border-0">
-            <h5 class="modal-title"><i class="fa-solid fa-file-invoice me-2 text-warning"></i>Informe de Envíos del Día</h5>
+            <h5 class="modal-title"><i class="fa-solid fa-file-invoice me-2 text-warning"></i>Informe de Envíos del Día (Con Trazabilidad)</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body p-4">
@@ -1644,14 +1649,15 @@ function asegurarModalInformeEnDOM() {
               <span class="fw-bold text-secondary">Total convocatorias despachadas hoy:</span>
               <span id="lblTotalConvocadosHoy" class="badge bg-primary fs-6 font-monospace px-3 py-2">0</span>
             </div>
-            <div class="custom-scroll-list border rounded bg-white" style="max-height: 300px; overflow-y: auto;">
+            <div class="custom-scroll-list border rounded bg-white" style="max-height: 320px; overflow-y: auto;">
               <table class="table table-sm table-hover align-middle small mb-0">
-                <thead class="table-light text-secondary">
+                <thead class="table-light text-secondary sticky-top" style="z-index: 1;">
                   <tr>
-                    <th style="width: 8%; text-align: center; font-size:0.75rem;">Nro</th>
-                    <th style="width: 42%; font-size:0.75rem;">Eslabón / Área / Especialidad</th>
-                    <th style="width: 35%; font-size:0.75rem;">Contacto</th>
-                    <th style="width: 15%; text-align: center; font-size:0.75rem;">Hora Envío</th>
+                    <th style="width: 6%; text-align: center; font-size:0.75rem;">Nro</th>
+                    <th style="width: 35%; font-size:0.75rem;">Eslabón / Área / Especialidad</th>
+                    <th style="width: 29%; font-size:0.75rem;">Contacto</th>
+                    <th style="width: 20%; font-size:0.75rem;">Convocador (Emisor)</th>
+                    <th style="width: 10%; text-align: center; font-size:0.75rem;">Hora Envío</th>
                   </tr>
                 </thead>
                 <tbody id="tablaInformeConvocadosBody">
