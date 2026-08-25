@@ -8,7 +8,7 @@
  */
 const CONFIG = {
   // Endpoint Web App oficial de Google Apps Script
-  API_BASE_URL: "https://script.google.com/a/voluntariadocdfvzla.org/macros/s/AKfycby8ApHdmMEtwrFjNUDsTrHY5622osDHmDmaSjK8Lg71MrXMJba8PGB9RdbH1BALwdJv/exec",
+  API_BASE_URL: "https://script.google.com/a/voluntariadocdfvzla.org/macros/s/AKfycbz1YYs7llAN2HL3H6XxbRkmztsc-paY5tR4InZ_Dx8ucew5NmAFNdIu5KUp9hxTld6A/exec",
 
   // Clave secreta institucional para validación en servidor
   CLIENT_SECRET_KEY: "CDF_Vzla_2026_Secure_Key_#X9",
