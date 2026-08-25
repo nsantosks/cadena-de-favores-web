@@ -68,15 +68,18 @@ function limpiarSesionLocal() {
 }
 
 /**
- * CONECTOR UNIFICADO REST / APPS SCRIPT
+ * CONECTOR UNIFICADO REST / APPS SCRIPT (Resiliente con Reintento Silencioso)
  * Ejecuta peticiones POST asíncronas seguras hacia el backend.
  * 
  * @param {string} action - Nombre de la función/acción a ejecutar en el servidor
  * @param {Object} payload - Objeto con los parámetros requeridos
+ * @param {number} intentoActual - Control interno para los reintentos automáticos
  * @returns {Promise<Object>} Respuesta estructurada del servidor
  */
-async function callBackend(action, payload = {}) {
-  refrescarSesionLocal();
+async function callBackend(action, payload = {}, intentoActual = 1) {
+  if (typeof refrescarSesionLocal === "function") {
+    refrescarSesionLocal();
+  }
   
   const token = window.sesionUsuario ? (window.sesionUsuario.token || window.sesionUsuario.email) : null;
   
@@ -105,27 +108,58 @@ async function callBackend(action, payload = {}) {
 
     clearTimeout(timeoutId);
 
+    // Validación estricta de errores HTTP (ej. 404 Not Found)
     if (!response.ok) {
-      throw new Error(`Error HTTP de red: ${response.status}`);
+      throw new Error(`Error HTTP de red (${response.status}): La ruta o el servidor no están disponibles.`);
     }
 
-    const data = await response.json();
+    // Asegurar que la respuesta sea JSON válido y no una página HTML de error de Google
+    const textoRespuesta = await response.text();
+    let data;
+    try {
+      data = JSON.parse(textoRespuesta);
+    } catch (parseError) {
+      console.error("[API ERROR] La respuesta del servidor no tiene formato JSON válido:", textoRespuesta);
+      throw new Error("El servidor respondió con un formato no válido. Es posible que la infraestructura requiera sincronización. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org");
+    }
+
     return data;
 
   } catch (error) {
     clearTimeout(timeoutId);
-    console.error(`[API ERROR] Excepción ejecutando '${action}':`, error);
+    console.warn(`[API WARNING] Intento ${intentoActual} fallido ejecutando '${action}':`, error.message);
 
+    // Definición de errores que ameritan un reintento automático (Fallas de red / Timeout / Abort)
+    const esErrorTransitorio = error.name === 'AbortError' || 
+                               error.message.includes('Failed to fetch') || 
+                               error.message.includes('NetworkError') ||
+                               error.message.includes('aborted');
+
+    // Lógica de Reintento Silencioso (máximo 1 reintento tras 1.5 segundos)
+    if (esErrorTransitorio && intentoActual < 2) {
+      console.info(`[API INFO] Reintentando conexión silenciosa para '${action}' (Intento 2)...`);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      return callBackend(action, payload, intentoActual + 1);
+    }
+
+    // Mensajería estructurada final si el reintento falla o es un error crítico (como HTTP 404)
     if (error.name === 'AbortError') {
       return {
         status: "ERROR",
-        message: "La solicitud de red tardó demasiado tiempo en responder (Timeout)."
+        message: "La solicitud tardó demasiado tiempo en responder. Verifique su conexión a internet. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org"
+      };
+    }
+
+    if (error.message.includes('404')) {
+      return {
+        status: "ERROR",
+        message: "Error de infraestructura (404): La Red Operativa se ha actualizado. Por favor, recargue la página para sincronizar. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org"
       };
     }
 
     return { 
       status: "ERROR", 
-      message: "Error de comunicación con la Red Operativa: " + error.message 
+      message: "Error de comunicación: " + error.message 
     };
   }
 }
@@ -138,7 +172,7 @@ refrescarSesionLocal();
  */
 const WHATSAPP_CONFIG = {
   numero: "584244626652",
-  soporteTecnicoNumero: "584244626652", // Número editable de Soporte Técnico
+  soporteTecnicoNumero: "584128672845", // Número editable de Soporte Técnico
   alcances: {
     flotante: "Hola,%20necesito%20asistencia%20básica%20o%20soporte%20rápido%20con%20la%20Red%20Operativa.",
     footer: "Estimado%20equipo%20de%20Cadena%20de%20Favores%20Venezuela,%20les%20escribo%20con%20motivo%20de%20una%20consulta%20institucional.",
