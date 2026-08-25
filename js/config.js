@@ -17,7 +17,7 @@ const CONFIG = {
   SESSION_KEY: "userProfile",
 
   // Tiempo límite de espera ampliado para operativas pesadas de Apps Script (ms)
-  TIMEOUT_MS: 45000
+  TIMEOUT_MS: 90000
 };
 
 /**
