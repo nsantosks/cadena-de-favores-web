@@ -16,8 +16,8 @@ const CONFIG = {
   // Clave alineada exactamente con la usada en auth.js y perfil.js
   SESSION_KEY: "userProfile",
 
-  // Tiempo límite de espera para la solicitud (ms)
-  TIMEOUT_MS: 18000
+  // Tiempo límite de espera ampliado para operativas pesadas de Apps Script (ms)
+  TIMEOUT_MS: 45000
 };
 
 /**
@@ -68,7 +68,7 @@ function limpiarSesionLocal() {
 }
 
 /**
- * CONECTOR UNIFICADO REST / APPS SCRIPT (Resiliente con Reintento Silencioso)
+ * CONECTOR UNIFICADO REST / APPS SCRIPT (Resiliente sin Reintentos de Timeout Duplicados)
  * Ejecuta peticiones POST asíncronas seguras hacia el backend.
  * 
  * @param {string} action - Nombre de la función/acción a ejecutar en el servidor
@@ -129,25 +129,23 @@ async function callBackend(action, payload = {}, intentoActual = 1) {
     clearTimeout(timeoutId);
     console.warn(`[API WARNING] Intento ${intentoActual} fallido ejecutando '${action}':`, error.message);
 
-    // Definición de errores que ameritan un reintento automático (Fallas de red / Timeout / Abort)
-    const esErrorTransitorio = error.name === 'AbortError' || 
-                               error.message.includes('Failed to fetch') || 
-                               error.message.includes('NetworkError') ||
-                               error.message.includes('aborted');
-
-    // Lógica de Reintento Silencioso (máximo 1 reintento tras 1.5 segundos)
-    if (esErrorTransitorio && intentoActual < 2) {
-      console.info(`[API INFO] Reintentando conexión silenciosa para '${action}' (Intento 2)...`);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return callBackend(action, payload, intentoActual + 1);
-    }
-
-    // Mensajería estructurada final si el reintento falla o es un error crítico (como HTTP 404)
+    // Si fue un TIMEOUT/ABORT, NO reintentar automáticamente para evitar duplicar solicitudes pesadas en GAS
     if (error.name === 'AbortError') {
       return {
         status: "ERROR",
-        message: "La solicitud tardó demasiado tiempo en responder. Verifique su conexión a internet. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org"
+        message: "La solicitud tardó demasiado tiempo en responder (Límite de tiempo alcanzado). Por favor, verifique su conexión o reintente la operación."
       };
+    }
+
+    // Definición de errores estrictamente de RED que ameritan un reintento automático transitorio
+    const esErrorRedTransitorio = error.message.includes('Failed to fetch') || 
+                                 error.message.includes('NetworkError');
+
+    // Lógica de Reintento Silencioso (máximo 1 reintento tras 2 segundos solo por caída instantánea de red)
+    if (esErrorRedTransitorio && intentoActual < 2) {
+      console.info(`[API INFO] Reintentando conexión silenciosa por falla de red para '${action}' (Intento 2)...`);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return callBackend(action, payload, intentoActual + 1);
     }
 
     if (error.message.includes('404')) {
