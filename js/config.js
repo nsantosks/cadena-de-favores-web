@@ -136,18 +136,24 @@ const WHATSAPP_CONFIG = Object.freeze({
   numero: "584244626652",
   soporteTecnicoNumero: "584128672845",
   alcances: {
-    flotante: "Hola,%20necesito%20asistencia%20básica%20o%20soporte%20rápido%20con%20la%20Red%20Operativa.",
-    footer: "Estimado%20equipo%20de%20Cadena%20de%20Favores%20Venezuela,%20les%20escribo%20con%20motivo%20de%20una%20consulta%20institucional.",
-    voluntariado: "Hola,%20quiero%20más%20información%20detallada%20sobre%20los%20procesos%20de%20inscripción%20para%20voluntarios.",
-    soporteAuth: "Hola,%20necesito%20asistencia%20técnica%20para%20iniciar%20sesión%20o%20registrarme%20en%20el%20portal%20del%20Voluntariado."
+    flotante: "Hola, necesito asistencia básica o soporte rápido con la Red Operativa.",
+    footer: "Estimado equipo de Cadena de Favores Venezuela, les escribo con motivo de una consulta institucional.",
+    voluntariado: "Hola, quiero más información detallada sobre los procesos de inscripción para voluntarios.",
+    soporteAuth: "Hola, necesito asistencia técnica para iniciar sesión o registrarme en el portal del Voluntariado."
   }
 });
 
 function obtenerEnlaceWhatsApp(alcance = 'flotante') {
   const isSoporte = alcance === 'soporteAuth' || alcance === 'soporte';
   const num = isSoporte ? WHATSAPP_CONFIG.soporteTecnicoNumero : WHATSAPP_CONFIG.numero;
-  const msg = WHATSAPP_CONFIG.alcances[alcance] || WHATSAPP_CONFIG.alcances.flotante;
-  return `https://wa.me/${num}?text=${msg}`;
+  
+  // Extraemos el texto limpio
+  const textoLimpio = WHATSAPP_CONFIG.alcances[alcance] || WHATSAPP_CONFIG.alcances.flotante;
+  
+  // encodeURIComponent codifica automáticamente los espacios, tildes y caracteres especiales
+  const msgCodificado = encodeURIComponent(textoLimpio);
+  
+  return `https://wa.me/${num}?text=${msgCodificado}`;
 }
 
 document.addEventListener("DOMContentLoaded", function() {
