@@ -6,19 +6,16 @@
 /**
  * Configuración Global del Entorno
  */
-const CONFIG = {
+const CONFIG = Object.freeze({
   // Endpoint Web App oficial de Google Apps Script
   API_BASE_URL: "https://script.google.com/a/voluntariadocdfvzla.org/macros/s/AKfycbz1YYs7llAN2HL3H6XxbRkmztsc-paY5tR4InZ_Dx8ucew5NmAFNdIu5KUp9hxTld6A/exec",
 
-  // Clave secreta institucional para validación en servidor
-  CLIENT_SECRET_KEY: "CDF_Vzla_2026_Secure_Key_#X9",
-
-  // Clave alineada exactamente con la usada en auth.js y perfil.js
+  // Clave alineada para persistencia de sesión local
   SESSION_KEY: "userProfile",
 
-  // Tiempo límite de espera ampliado para operativas pesadas de Apps Script (ms)
+  // Tiempo límite razonable de red en frontend (30 segundos)
   TIMEOUT_MS: 300000
-};
+});
 
 /**
  * Almacén global de sesión del usuario en tiempo de ejecución
@@ -27,27 +24,17 @@ window.sesionUsuario = null;
 
 /**
  * Inicializador de Sesión Local
- * Carga el estado guardado en localStorage o sessionStorage al iniciar la app.
  */
 function refrescarSesionLocal() {
   try {
     const dataGuardada = localStorage.getItem(CONFIG.SESSION_KEY) || sessionStorage.getItem(CONFIG.SESSION_KEY);
-    if (dataGuardada) {
-      window.sesionUsuario = JSON.parse(dataGuardada);
-    } else {
-      window.sesionUsuario = null;
-    }
+    window.sesionUsuario = dataGuardada ? JSON.parse(dataGuardada) : null;
   } catch (err) {
     console.error("Error al leer la sesión local:", err);
     window.sesionUsuario = null;
   }
 }
 
-/**
- * Guarda la sesión del usuario localmente
- * @param {Object} datosUsuario - Datos del perfil e identidad
- * @param {boolean} recordar - Si se debe persistir en localStorage o sessionStorage
- */
 function guardarSesionLocal(datosUsuario, recordar = false) {
   window.sesionUsuario = datosUsuario;
   const jsonStr = JSON.stringify(datosUsuario);
@@ -58,9 +45,6 @@ function guardarSesionLocal(datosUsuario, recordar = false) {
   }
 }
 
-/**
- * Limpia la sesión local del navegador de forma segura
- */
 function limpiarSesionLocal() {
   window.sesionUsuario = null;
   localStorage.removeItem(CONFIG.SESSION_KEY);
@@ -68,28 +52,23 @@ function limpiarSesionLocal() {
 }
 
 /**
- * CONECTOR UNIFICADO REST / APPS SCRIPT (Resiliente sin Reintentos de Timeout Duplicados)
- * Ejecuta peticiones POST asíncronas seguras hacia el backend.
- * 
- * @param {string} action - Nombre de la función/acción a ejecutar en el servidor
- * @param {Object} payload - Objeto con los parámetros requeridos
- * @param {number} intentoActual - Control interno para los reintentos automáticos
- * @returns {Promise<Object>} Respuesta estructurada del servidor
+ * CONECTOR UNIFICADO REST / APPS SCRIPT
  */
 async function callBackend(action, payload = {}, intentoActual = 1) {
   if (typeof refrescarSesionLocal === "function") {
     refrescarSesionLocal();
   }
   
-  const token = window.sesionUsuario ? (window.sesionUsuario.token || window.sesionUsuario.email) : null;
+  // Extraer token verificado de la sesión activa
+  const userToken = window.sesionUsuario && window.sesionUsuario.token ? window.sesionUsuario.token : null;
+  const userEmail = window.sesionUsuario && window.sesionUsuario.email ? window.sesionUsuario.email : null;
   
   const bodyData = {
-    clientKey: CONFIG.CLIENT_SECRET_KEY,
     action: action,
     payload: payload,
     auth: {
-      email: window.sesionUsuario ? window.sesionUsuario.email : null,
-      token: token
+      email: userEmail,
+      token: userToken
     }
   };
 
@@ -108,51 +87,37 @@ async function callBackend(action, payload = {}, intentoActual = 1) {
 
     clearTimeout(timeoutId);
 
-    // Validación estricta de errores HTTP (ej. 404 Not Found)
     if (!response.ok) {
-      throw new Error(`Error HTTP de red (${response.status}): La ruta o el servidor no están disponibles.`);
+      throw new Error(`Error HTTP de red (${response.status}): Servidor no disponible.`);
     }
 
-    // Asegurar que la respuesta sea JSON válido y no una página HTML de error de Google
     const textoRespuesta = await response.text();
     let data;
     try {
       data = JSON.parse(textoRespuesta);
     } catch (parseError) {
-      console.error("[API ERROR] La respuesta del servidor no tiene formato JSON válido:", textoRespuesta);
-      throw new Error("El servidor respondió con un formato no válido. Es posible que la infraestructura requiera sincronización. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org");
+      console.error("[API ERROR] Respuesta no es JSON válido:", textoRespuesta);
+      throw new Error("El servidor respondió con un formato no válido.");
     }
 
     return data;
 
   } catch (error) {
     clearTimeout(timeoutId);
-    console.warn(`[API WARNING] Intento ${intentoActual} fallido ejecutando '${action}':`, error.message);
+    console.warn(`[API WARNING] Intento ${intentoActual} fallido para '${action}':`, error.message);
 
-    // Si fue un TIMEOUT/ABORT, NO reintentar automáticamente para evitar duplicar solicitudes pesadas en GAS
     if (error.name === 'AbortError') {
       return {
         status: "ERROR",
-        message: "La solicitud tardó demasiado tiempo en responder (Límite de tiempo alcanzado). Por favor, verifique su conexión o reintente la operación."
+        message: "La solicitud excedió el tiempo límite. Por favor, intente nuevamente."
       };
     }
 
-    // Definición de errores estrictamente de RED que ameritan un reintento automático transitorio
-    const esErrorRedTransitorio = error.message.includes('Failed to fetch') || 
-                                 error.message.includes('NetworkError');
+    const esErrorRedTransitorio = error.message.includes('Failed to fetch') || error.message.includes('NetworkError');
 
-    // Lógica de Reintento Silencioso (máximo 1 reintento tras 2 segundos solo por caída instantánea de red)
     if (esErrorRedTransitorio && intentoActual < 2) {
-      console.info(`[API INFO] Reintentando conexión silenciosa por falla de red para '${action}' (Intento 2)...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
       return callBackend(action, payload, intentoActual + 1);
-    }
-
-    if (error.message.includes('404')) {
-      return {
-        status: "ERROR",
-        message: "Error de infraestructura (404): La Red Operativa se ha actualizado. Por favor, recargue la página para sincronizar. Si el problema persiste, contacte al soporte técnico: soporte@voluntariadocdfvzla.org"
-      };
     }
 
     return { 
@@ -162,26 +127,22 @@ async function callBackend(action, payload = {}, intentoActual = 1) {
   }
 }
 
-// Inicialización automática al instanciar el script
 refrescarSesionLocal();
 
 /**
  * Configuración Centralizada de Canales de WhatsApp
  */
-const WHATSAPP_CONFIG = {
+const WHATSAPP_CONFIG = Object.freeze({
   numero: "584244626652",
-  soporteTecnicoNumero: "584128672845", // Número editable de Soporte Técnico
+  soporteTecnicoNumero: "584128672845",
   alcances: {
     flotante: "Hola,%20necesito%20asistencia%20básica%20o%20soporte%20rápido%20con%20la%20Red%20Operativa.",
     footer: "Estimado%20equipo%20de%20Cadena%20de%20Favores%20Venezuela,%20les%20escribo%20con%20motivo%20de%20una%20consulta%20institucional.",
     voluntariado: "Hola,%20quiero%20más%20información%20detallada%20sobre%20los%20procesos%20de%20inscripción%20para%20voluntarios.",
     soporteAuth: "Hola,%20necesito%20asistencia%20técnica%20para%20iniciar%20sesión%20o%20registrarme%20en%20el%20portal%20del%20Voluntariado."
   }
-};
+});
 
-/**
- * Genera el enlace de WhatsApp según el alcance solicitado
- */
 function obtenerEnlaceWhatsApp(alcance = 'flotante') {
   const isSoporte = alcance === 'soporteAuth' || alcance === 'soporte';
   const num = isSoporte ? WHATSAPP_CONFIG.soporteTecnicoNumero : WHATSAPP_CONFIG.numero;
@@ -192,7 +153,6 @@ function obtenerEnlaceWhatsApp(alcance = 'flotante') {
 document.addEventListener("DOMContentLoaded", function() {
   const pathActual = window.location.pathname;
 
-  // ILUMINAR AUTOMÁTICAMENTE LA PESTAÑA ACTIVA SEGÚN LA URL
   const todosLosLinks = document.querySelectorAll('.navbar-nav .nav-link');
   todosLosLinks.forEach(link => {
     const href = link.getAttribute('href');
@@ -216,56 +176,20 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-// SANITIZADOR DE URL: Elimina de forma invisible barras múltiples en la barra de direcciones
 (function limpiarURL() {
-    const urlActual = window.location.href;
-    if (urlActual.includes('///') || urlActual.includes('//perfil')) {
-        const urlLimpia = urlActual.replace(/([^:]\/)\/+/g, "$1");
-        window.history.replaceState(null, null, urlLimpia);
-    }
+  const urlActual = window.location.href;
+  if (urlActual.includes('///') || urlActual.includes('//perfil')) {
+    const urlLimpia = urlActual.replace(/([^:]\/)\/+/g, "$1");
+    window.history.replaceState(null, null, urlLimpia);
+  }
 })();
 
-// ==========================================================================
-// CONFIGURACIÓN GLOBAL DE ENDPOINTS (NETLIFY / APPS SCRIPT)
-// Cadena de Favores Venezuela
-// ==========================================================================
-
-/**
- * Devuelve la URL activa del servidor Apps Script evaluando múltiples orígenes.
- * @returns {string} URL del ejecutable webapp (/exec)
- */
 function obtenerUrlWebApp() {
-    // A. Evaluar constante declarada en el ámbito global
-    if (typeof CONFIG.API_BASE_URL !== 'undefined' && CONFIG.API_BASE_URL && CONFIG.API_BASE_URL.trim() !== "") {
-        return CONFIG.API_BASE_URL.trim();
-    }
-
-    // B. Evaluar propiedad adjunta al objeto window
-    if (window.API_BASE_URL && window.API_BASE_URL.trim() !== "") {
-        return window.API_BASE_URL.trim();
-    }
-
-    // C. Evaluar alias alternativos de API en window
-    if (window.API_URL && window.API_URL.trim() !== "") {
-        return window.API_URL.trim();
-    }
-
-    // D. Búsqueda en almacenamiento local del navegador (si se guarda dinámicamente)
-    const urlStorage = localStorage.getItem('cdf_url_webapp') || sessionStorage.getItem('cdf_url_webapp');
-    if (urlStorage && urlStorage.trim() !== "") {
-        return urlStorage.trim();
-    }
-
-    console.error("CRÍTICO: No se ha configurado 'URL_BASE_WEBAPP' en config.js.");
-    return "";
+  return CONFIG.API_BASE_URL;
 }
 
-// Inyección opcional en el objeto global window para entornos SPA / Netlify
 window.obtenerUrlWebApp = obtenerUrlWebApp;
 
-// ==========================================================================
-// CATÁLOGOS Y CARGA DINÁMICA DE BASE DE DATOS (NETLIFY / APPS SCRIPT)
-// ==========================================================================
 window.CATALOGOS_RED = window.CATALOGOS_RED || {
   gruposVoluntariado: [
     "Sector Salud",
@@ -286,15 +210,12 @@ window.CATALOGOS_RED = window.CATALOGOS_RED || {
   ]
 };
 
-/**
- * Limpia y puebla de forma atómica cualquier <select> del DOM
- */
 function poblarSelectSincronizado(selectId, opciones, placeholder = "-- Seleccione una opción --") {
   const selectElem = document.getElementById(selectId);
   if (!selectElem) return;
 
   const valorPrevio = selectElem.value;
-  selectElem.innerHTML = ""; // Vaciado estricto para eliminar opciones quemadas en HTML
+  selectElem.innerHTML = "";
 
   const defaultOpt = document.createElement('option');
   defaultOpt.value = "";
@@ -319,9 +240,6 @@ function poblarSelectSincronizado(selectId, opciones, placeholder = "-- Seleccio
   if (valorPrevio) selectElem.value = valorPrevio;
 }
 
-/**
- * Carga Especialidades desde la BD en un <select> desplegable tradicional
- */
 async function cargarEspecialidadesDinamicas(selectId, valorDefecto = "") {
   const selectElem = document.getElementById(selectId);
   if (!selectElem) return;
@@ -343,9 +261,6 @@ async function cargarEspecialidadesDinamicas(selectId, valorDefecto = "") {
   if (valorDefecto) selectElem.value = valorDefecto;
 }
 
-/**
- * Carga Puntos de Recogida desde la BD en un <select>
- */
 async function cargarPuntosRecogidaDinamicos(selectId, valorDefecto = "") {
   const selectElem = document.getElementById(selectId);
   if (!selectElem) return;
