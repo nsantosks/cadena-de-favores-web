@@ -160,9 +160,6 @@ function renderizarAgendaTarjetas(lista) {
 }
 
 /**
- * Motor de búsqueda y filtrado de la agenda
- */
-/**
  * Motor de búsqueda y filtrado de la agenda (Optimizado y Robustecido)
  */
 function ejecutarFiltroAgenda() {
